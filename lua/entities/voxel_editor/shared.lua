@@ -95,12 +95,6 @@ if CLIENT then
 				voxel.Cube:Draw()
 			cam.PopModelMatrix()
 		end
-
-		local origin = self:GetPos()
-
-		render.DrawLine(origin, origin + self:GetForward() * 20, Color(255, 0, 0), true)
-		render.DrawLine(origin, origin + self:GetRight() * 20, Color(0, 255, 0), true)
-		render.DrawLine(origin, origin + self:GetUp() * 20, Color(0, 0, 255), true)
 	end
 else
 	function ENT:Use(ply)
