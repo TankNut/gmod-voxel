@@ -72,7 +72,8 @@ function SWEP:AddMenuBar(ui)
 	bar:DockMargin(-3, -6, -3, 3)
 
 	local fileMenu = bar:AddMenu("File")
-	local isOwner = LocalPlayer() == self:GetEditEntity():GetOwningPlayer()
+	local ent = self:GetEditEntity()
+	local isOwner = LocalPlayer() == ent:GetOwningPlayer()
 
 	fileMenu:AddOption("New", function()
 		self:NewFileDialog()
@@ -87,8 +88,6 @@ function SWEP:AddMenuBar(ui)
 	end):SetDisabled(not isOwner)
 
 	fileMenu:AddOption("Save", function()
-		local ent = self:GetEditEntity()
-
 		if ent.SavePath then
 			voxel.SaveMesh("voxel/" .. ent.SavePath .. ".dat", ent.Grid)
 
@@ -112,6 +111,14 @@ function SWEP:AddMenuBar(ui)
 	end)
 
 	local optMenu = bar:AddMenu("Options")
+
+	local scaleMenu = optMenu:AddSubMenu("Set Scale")
+
+	scaleMenu:SetDeleteSelf(false)
+	scaleMenu:AddOption("1", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(1, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 1)
+	scaleMenu:AddOption("2", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(2, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 2)
+	scaleMenu:AddOption("5", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(5, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 5)
+	scaleMenu:AddOption("10", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(10, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 10)
 
 	local accessMenu = bar:AddMenu("Access")
 

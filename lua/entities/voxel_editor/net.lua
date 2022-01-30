@@ -74,6 +74,7 @@ else
 	util.AddNetworkString("voxel_editor_switch")
 	util.AddNetworkString("voxel_editor_new")
 	util.AddNetworkString("voxel_editor_opencl")
+	util.AddNetworkString("voxel_editor_scale")
 
 	net.Receive("voxel_editor_sync", function(_, ply)
 		local ent = net.ReadEntity()
@@ -109,12 +110,30 @@ else
 			return
 		end
 
+		if ent:GetOwningPlayer() != ply then
+			return
+		end
+
 		local size = net.ReadUInt(16)
 
 		file.Write("voxel_temp.dat", net.ReadData(size))
 
 		ent.Grid = voxel.LoadMesh("voxel_temp.dat", true)
 		ent:SyncToPlayer()
+	end)
+
+	net.Receive("voxel_editor_scale", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
+			return
+		end
+
+		if ent:GetOwningPlayer() != ply then
+			return
+		end
+
+		ent:SetVoxelScale(net.ReadUInt(4))
 	end)
 
 	function ENT:SyncToPlayer(ply)

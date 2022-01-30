@@ -11,9 +11,6 @@ ENT.Author 					= "TankNut"
 ENT.Spawnable 				= true
 ENT.AdminOnly				= false
 
-ENT.Offset 					= Vector(0, 0, 20)
-ENT.Scale 					= 5
-
 include("net.lua")
 
 function ENT:Initialize()
@@ -36,8 +33,8 @@ function ENT:Initialize()
 		self:SetOwningPlayer(self:GetCreator())
 	end
 
-	self:SetVoxelScale(5)
-	self:SetVoxelOffset(Vector(0, 0, 10))
+	self:SetVoxelScale(2)
+	self:SetVoxelOffset(Vector(0, 0, 20))
 end
 
 function ENT:SetupDataTables()
