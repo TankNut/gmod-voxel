@@ -202,23 +202,25 @@ function SWEP:GetTrace()
 	local scale = ent:GetVoxelScale()
 	local offset = ent:GetVoxelOffset()
 
-	local hits = {}
-
 	local mins = Vector(-0.5, -0.5, -0.5) * scale
 	local maxs = mins:GetNegated()
+
+	local closest = math.huge
+	local data
 
 	for index, col in pairs(ent.Grid.Items) do
 		local x, y, z = voxel.Grid.FromIndex(index)
 
-		local origin = ent:LocalToWorld(offset * scale + Vector(x, y, z) * scale)
+		local origin = ent:LocalToWorld(offset + Vector(x, y, z) * scale)
 		local hit, normal, frac = util.IntersectRayWithOBB(pos, dir * dist, origin, ang, mins, maxs)
 
-		if hit then
-			hits[frac] = {normal, x, y, z}
+		if hit and frac < closest then
+			closest = frac
+			data = {normal, x, y, z}
 		end
 	end
 
-	for _, v in SortedPairs(hits) do
-		return unpack(v)
+	if data then
+		return unpack(data)
 	end
 end
