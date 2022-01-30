@@ -59,8 +59,8 @@ function ENT:Think()
 
 		local offset, scale = self:GetOffsetData()
 
-		minsGrid = (minsGrid + Vector(0.5, 0.5, 0.5)) * scale + offset * scale
-		maxsGrid = (maxsGrid + Vector(0.5, 0.5, 0.5)) * scale + offset * scale
+		minsGrid = (minsGrid + Vector(0.5, 0.5, 0.5)) * scale + offset
+		maxsGrid = (maxsGrid + Vector(0.5, 0.5, 0.5)) * scale + offset
 
 		local mins = Vector(math.min(minsSelf.x, minsGrid.x), math.min(minsSelf.y, minsGrid.y), math.min(minsSelf.z, minsGrid.z))
 		local maxs = Vector(math.max(maxsSelf.x, maxsGrid.x), math.max(maxsSelf.y, maxsGrid.y), math.max(maxsSelf.z, maxsGrid.z))
@@ -81,7 +81,7 @@ if CLIENT then
 
 		for index, color in pairs(self.Grid.Items) do
 			local x, y, z = voxel.Grid.FromIndex(index)
-			local pos = self:LocalToWorld(offset * scale + Vector(x, y, z) * scale)
+			local pos = self:LocalToWorld(offset + Vector(x, y, z) * scale)
 
 			voxel.Mat:SetVector("$color", color:ToVector())
 
