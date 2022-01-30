@@ -2,11 +2,9 @@ AddCSLuaFile()
 
 -- Initial setup
 
-local meta = voxel.Mesh or setmetatable({}, {__call = function(self)
+local meta = setmetatable({}, {__call = function(self)
 	return setmetatable({}, {__index = self})
 end})
-
-table.Empty(meta)
 
 -- Functions
 

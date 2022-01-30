@@ -6,11 +6,9 @@ end
 
 -- Initial setup
 
-local meta = voxel.Model or setmetatable({}, {__call = function(self)
+local meta = setmetatable({}, {__call = function(self)
 	return setmetatable({}, {__index = self})
 end})
-
-table.Empty(meta)
 
 -- Functions
 

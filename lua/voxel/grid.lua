@@ -24,11 +24,9 @@ end
 
 -- Initial setup
 
-local meta = voxel.Grid or setmetatable({}, {__call = function(self, mins, maxs)
-	return setmetatable({Items = {}}, {__index = self})
+local meta = setmetatable({}, {__call = function(self)
+	return setmetatable({Items = {}, Cache = {}}, {__index = self})
 end})
-
-table.Empty(meta)
 
 -- Static
 
@@ -39,6 +37,7 @@ meta.FromIndex = fromIndex
 
 function meta:Set(x, y, z, val)
 	self.Items[toIndex(x, y, z)] = val
+	self:InvalidateCache()
 end
 
 function meta:Get(x, y, z)
@@ -59,6 +58,7 @@ function meta:Shift(x, y, z)
 	end
 
 	self.Items = new
+	self:InvalidateCache()
 end
 
 function meta:Rotate(ang)
@@ -73,10 +73,12 @@ function meta:Rotate(ang)
 	end
 
 	self.Items = new
+	self:InvalidateCache()
 end
 
 function meta:Clear()
 	self.Items = {}
+	self:InvalidateCache()
 end
 
 function meta:Truncate(mins, maxs)
@@ -87,15 +89,28 @@ function meta:Truncate(mins, maxs)
 			self.Items[index] = nil
 		end
 	end
+	self:InvalidateCache()
 end
 
 function meta:GetCount()
-	return table.Count(self.Items)
+	local cache = self:GetCache("Count")
+
+	if cache then
+		return cache
+	end
+
+	return self:WriteCache("Count", table.Count(self.Items))
 end
 
 function meta:GetBounds()
+	local cache = self:GetCache("Bounds")
+
+	if cache then
+		return unpack(cache)
+	end
+
 	if table.IsEmpty(self.Items) then
-		return Vector(), Vector()
+		return self:WriteCache("Bounds", Vector(), Vector())
 	end
 
 	local mins = Vector(math.huge, math.huge, math.huge)
@@ -113,17 +128,39 @@ function meta:GetBounds()
 		maxs.z = math.max(maxs.z, z)
 	end
 
-	return mins, maxs
+	return self:WriteCache("Bounds", mins, maxs)
 end
 
 function meta:GetSize()
+	local cache = self:GetCache("Size")
+
+	if cache then
+		return cache
+	end
+
 	if table.IsEmpty(self.Items) then
-		return Vector()
+		return self:WriteCache("Size", Vector())
 	end
 
 	local mins, maxs = self:GetBounds()
 
-	return maxs - mins + Vector(1, 1, 1)
+	return self:WriteCache(maxs - mins + Vector(1, 1, 1))
+end
+
+-- Caching
+
+function meta:GetCache(index)
+	return self.Cache[index]
+end
+
+function meta:WriteCache(index, ...)
+	self.Cache[index] = {...}
+
+	return ...
+end
+
+function meta:InvalidateCache()
+	self.Cache = {}
 end
 
 voxel.Grid = meta
