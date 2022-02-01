@@ -13,6 +13,47 @@ ENT.AdminOnly				= false
 
 include("net.lua")
 
+local spawnOffset = 75
+
+function ENT:SpawnFunction(ply, tr, class)
+	local ent = ents.Create(class)
+
+	ent:Spawn()
+	ent:Activate()
+
+	if not IsValid(ent) then
+		return
+	end
+
+	local dist = tr.StartPos:Distance(tr.HitPos)
+	local radius = ent:GetModelRadius()
+	local max = spawnOffset + radius
+
+	local pos
+
+	if dist > max then
+		pos = tr.StartPos + tr.Normal * spawnOffset
+	else
+		pos = tr.HitPos - tr.Normal * radius
+	end
+
+	local ang = Angle(0, ply:EyeAngles().y + 180, 0):SnapTo("y", 90)
+
+	ent:SetPos(pos)
+	ent:SetAngles(ang)
+
+	local phys = ent:GetPhysicsObject()
+
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	ent:SetOwningPlayer(ply)
+	ent:Use(ply)
+
+	return ent
+end
+
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 
@@ -29,8 +70,6 @@ function ENT:Initialize()
 		self:SetUseType(SIMPLE_USE)
 
 		self.Grid:Set(0, 0, 0, color_white)
-
-		self:SetOwningPlayer(self:GetCreator())
 	end
 
 	self:SetVoxelScale(2)
