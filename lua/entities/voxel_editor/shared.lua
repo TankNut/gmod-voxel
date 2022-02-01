@@ -105,7 +105,5 @@ else
 
 		net.Start("voxel_editor_switch")
 		net.Send(ply)
-
-		debugoverlay.Cross(ply:GetPos(), 10)
 	end
 end
