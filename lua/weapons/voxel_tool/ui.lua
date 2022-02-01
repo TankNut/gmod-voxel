@@ -15,7 +15,7 @@ function SWEP:ToggleUI()
 
 	local ui = vgui.Create("DFrame")
 
-	ui:SetSize(266, 320)
+	ui:SetSize(300, 320)
 	ui:SetTitle("Options")
 	ui:MakePopup()
 	ui:Center()
@@ -159,13 +159,7 @@ function SWEP:AddMenuBar(ui)
 end
 
 function SWEP:AddColorPicker(ui)
-	local dock = ui:Add("DPanel")
-
-	dock:Dock(LEFT)
-	dock:SetWide(256)
-	dock:SetPaintBackground(false)
-
-	local mixer = dock:Add("DColorMixer")
+	local mixer = ui:Add("DColorMixer")
 
 	mixer:Dock(FILL)
 	mixer:SetAlphaBar(false)
@@ -176,6 +170,7 @@ function SWEP:AddColorPicker(ui)
 	mixer:SetConVarB("voxel_col_b")
 
 	mixer.Palette:SetCookieName("voxel_tool_color")
+	mixer.Palette:SetNumRows(9)
 	mixer.Palette:Reset()
 end
 
