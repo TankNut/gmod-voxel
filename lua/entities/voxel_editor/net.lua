@@ -75,6 +75,7 @@ else
 	util.AddNetworkString("voxel_editor_new")
 	util.AddNetworkString("voxel_editor_opencl")
 	util.AddNetworkString("voxel_editor_scale")
+	util.AddNetworkString("voxel_editor_offset")
 
 	net.Receive("voxel_editor_sync", function(_, ply)
 		local ent = net.ReadEntity()
@@ -134,6 +135,20 @@ else
 		end
 
 		ent:SetVoxelScale(net.ReadUInt(4))
+	end)
+
+	net.Receive("voxel_editor_offset", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
+			return
+		end
+
+		if ent:GetOwningPlayer() != ply then
+			return
+		end
+
+		ent:SetVoxelOffset(Vector(0, 0, net.ReadUInt(6)))
 	end)
 
 	function ENT:SyncToPlayer(ply)

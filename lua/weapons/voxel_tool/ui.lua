@@ -119,6 +119,16 @@ function SWEP:AddMenuBar(ui)
 	scaleMenu:AddOption("2", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(2, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 2)
 	scaleMenu:AddOption("5", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(5, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 5)
 	scaleMenu:AddOption("10", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(10, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 10)
+	scaleMenu:AddOption("15", function() net.Start("voxel_editor_scale") net.WriteEntity(ent) net.WriteUInt(15, 4) net.SendToServer() end):SetChecked(ent:GetVoxelScale() == 15)
+
+	local offsetMenu = optMenu:AddSubMenu("Set Offset")
+
+	offsetMenu:SetDeleteSelf(false)
+	offsetMenu:AddOption("0", function() net.Start("voxel_editor_offset") net.WriteEntity(ent) net.WriteUInt(0, 6) net.SendToServer() end):SetChecked(ent:GetVoxelOffset() == Vector(0, 0, 0))
+	offsetMenu:AddOption("10", function() net.Start("voxel_editor_offset") net.WriteEntity(ent) net.WriteUInt(10, 6) net.SendToServer() end):SetChecked(ent:GetVoxelOffset() == Vector(0, 0, 10))
+	offsetMenu:AddOption("20", function() net.Start("voxel_editor_offset") net.WriteEntity(ent) net.WriteUInt(20, 6) net.SendToServer() end):SetChecked(ent:GetVoxelOffset() == Vector(0, 0, 20))
+	offsetMenu:AddOption("25", function() net.Start("voxel_editor_offset") net.WriteEntity(ent) net.WriteUInt(25, 6) net.SendToServer() end):SetChecked(ent:GetVoxelOffset() == Vector(0, 0, 25))
+	offsetMenu:AddOption("50", function() net.Start("voxel_editor_offset") net.WriteEntity(ent) net.WriteUInt(50, 6) net.SendToServer() end):SetChecked(ent:GetVoxelOffset() == Vector(0, 0, 50))
 
 	local accessMenu = bar:AddMenu("Access")
 
