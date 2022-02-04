@@ -7,6 +7,8 @@ ENT.Type 			= "anim"
 
 ENT.Spawnable 		= true
 
+ENT.CopySubmodels 	= true
+
 ENT.Model 			= "wa2000"
 ENT.Scale 			= 1
 
@@ -20,7 +22,12 @@ function ENT:Initialize()
 	self:EnableCustomCollisions(true)
 
 	if CLIENT then
-		self.Submodels = table.Copy(self:GetVModel().Submodels)
+		if self.CopySubmodels then
+			self.Submodels = table.Copy(self:GetVModel().Submodels)
+		else
+			self.Submodels = {}
+		end
+
 		self:UpdateRenderBounds()
 	end
 end
