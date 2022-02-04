@@ -8,6 +8,10 @@ end})
 
 -- Functions
 
+function meta:GetBounds()
+	return self.Mins, self.Maxs
+end
+
 -- Mesh making
 if CLIENT then
 	local vertices = {
@@ -85,7 +89,10 @@ if CLIENT then
 			end
 		end
 
-		render.PushRenderTarget(voxel.RenderTarget)
+		local name = "voxel_" .. string.Replace(SysTime(), ".", "_")
+		local rendertarget = GetRenderTarget(name, 256, 256)
+
+		render.PushRenderTarget(rendertarget)
 
 		cam.Start2D()
 			surface.SetDrawColor(0, 0, 0, 255)
@@ -97,22 +104,18 @@ if CLIENT then
 				surface.SetDrawColor(v)
 				surface.DrawLine(i, 1, i, 256)
 
-				i = i + 1
-
 				colors[k] = i
+
+				i = i + 1
 			end
 		cam.End2D()
 
 		render.PopRenderTarget()
 
-		self.Mat = CreateMaterial("voxel_" .. string.Replace(SysTime(), ".", "_"), "VertexLitGeneric", {
-			["$basetexture"] = "Models/props_c17/FurnitureFabric003a",
+		self.Mat = CreateMaterial(name, "VertexLitGeneric", {
+			["$basetexture"] = rendertarget:GetName(),
 			["$halflambert"] = 1
 		})
-
-		timer.Simple(0, function()
-			self.Mat:SetTexture("$basetexture", voxel.RenderTarget)
-		end)
 
 		local verts = {}
 
@@ -128,10 +131,8 @@ if CLIENT then
 				end
 
 				for _, v in pairs(side) do
-					local offset = vec - Vector(1, 1, 1)
-
 					table.insert(verts, {
-						pos = vertices[v] + offset,
+						pos = vertices[v] + vec,
 						normal = normals[k],
 						u = colors[tostring(col)] / 256 + (0.5 / 256), -- Look up our uv coordinates and add half a pixel to fix some weird rounding errors
 						v = 0.5 -- Just grab the middle
@@ -145,21 +146,27 @@ if CLIENT then
 	end
 end
 
-function meta.FromGrid(grid)
-	local model = meta()
+local function filename(path)
+	return string.StripExtension(string.GetFileFromFilename(path))
+end
 
-	model.Grid = grid
+function meta.Load(path)
+	local vMesh = meta()
 
-	local mins, maxs = grid:GetBounds()
+	vMesh.Grid = voxel.LoadGrid(path)
 
-	model.Mins = mins - Vector(0.5, 0.5, 0.5)
-	model.Maxs = maxs + Vector(0.5, 0.5, 0.5)
+	local mins, maxs = vMesh.Grid:GetBounds()
+
+	vMesh.Mins = mins - Vector(0.5, 0.5, 0.5)
+	vMesh.Maxs = maxs + Vector(0.5, 0.5, 0.5)
 
 	if CLIENT then
-		model:Rebuild()
+		vMesh:Rebuild()
 	end
 
-	return model
+	voxel.Meshes[filename(path)] = vMesh
+
+	return vMesh
 end
 
 voxel.Mesh = meta

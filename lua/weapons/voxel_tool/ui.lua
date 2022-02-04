@@ -279,11 +279,15 @@ function SWEP:OpenFileDialog(data)
 	browser:SetOpen(true)
 
 	browser.OnDoubleClick = function(pnl, path)
-		local payload = file.Read(path)
+		local payload = file.Read(path, data and "DATA" or "LUA")
 		local ent = self:GetEditEntity()
 
-		ent.SavePath = string.Replace(path, "voxel/", "")
-		ent.SavePath = string.Replace(ent.SavePath, ".dat", "")
+		if data then
+			ent.SavePath = string.Replace(path, "voxel/", "")
+			ent.SavePath = string.Replace(ent.SavePath, ".dat", "")
+		else
+			ent.SavePath = nil
+		end
 
 		net.Start("voxel_editor_opencl")
 			net.WriteEntity(ent)

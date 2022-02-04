@@ -10,19 +10,29 @@ include("grid.lua")
 include("mesh.lua")
 include("model.lua")
 
+function voxel.LoadMeshes()
+	voxel.Meshes = {}
+
+	for _, v in pairs(file.Find("voxel/meshes/*.lua", "LUA")) do
+		local path = "voxel/meshes/" .. v
+
+		AddCSLuaFile(path)
+		voxel.Mesh.Load(path)
+	end
+end
+
 function voxel.LoadModels()
 	voxel.Models = {}
 
 	for _, v in pairs(file.Find("voxel/models/*.lua", "LUA")) do
 		local path = "voxel/models/" .. v
 
-		print(path)
 		AddCSLuaFile(path)
-
 		voxel.Model.Load(path)
 	end
 end
 
+voxel.LoadMeshes()
 voxel.LoadModels()
 
 -- Client
