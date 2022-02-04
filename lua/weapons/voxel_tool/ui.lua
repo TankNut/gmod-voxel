@@ -143,8 +143,8 @@ function SWEP:AddMenuBar(ui)
 	local shadeMenu = prefMenu:AddSubMenu("Shade Mode")
 
 	shadeMenu:SetDeleteSelf(false)
-	shadeMenu:AddCVar("Value (HSV)", "voxel_shade_mode", "0")
-	shadeMenu:AddCVar("Lightness (HSL)", "voxel_shade_mode", "1")
+	shadeMenu:AddCVar("Value (HSV)", "voxel_shade_mode", "1")
+	shadeMenu:AddCVar("Lightness (HSL)", "voxel_shade_mode", "2")
 
 	local resMenu = prefMenu:AddSubMenu("Shade Amount")
 

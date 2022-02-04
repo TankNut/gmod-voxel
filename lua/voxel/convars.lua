@@ -3,7 +3,7 @@ AddCSLuaFile()
 voxel.Convars = {}
 
 if CLIENT then
-	voxel.Convars.ShadeMode = CreateClientConVar("voxel_shade_mode", "0", true, true, "", 0, 1)
+	voxel.Convars.ShadeMode = CreateClientConVar("voxel_shade_mode", "1", true, true, "", 1, 2)
 	voxel.Convars.ShadeRes = CreateClientConVar("voxel_shade_res", "0.05", true, true, "", 0, 1)
 
 	voxel.Convars.Access = CreateClientConVar("voxel_access", "0", true, true, "", 0, 1)
