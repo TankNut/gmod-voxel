@@ -21,6 +21,7 @@ function ENT:Initialize()
 
 	if CLIENT then
 		self.Submodels = table.Copy(self:GetVModel().Submodels)
+		self:UpdateRenderBounds()
 	end
 end
 
@@ -36,9 +37,7 @@ function ENT:SetupPhysics()
 
 	self.PhysCollide = CreatePhysCollideBox(mins, maxs)
 
-	if CLIENT then
-		self:SetRenderBounds(mins, maxs)
-	else
+	if SERVER then
 		self:PhysicsInitBox(mins, maxs)
 		self:SetSolid(SOLID_VPHYSICS)
 
@@ -79,6 +78,19 @@ function ENT:TestCollision(start, delta, isbox, extends)
 end
 
 if CLIENT then
+	function ENT:GetVRenderBounds()
+		local mins = Vector(math.huge, math.huge, math.huge)
+		local maxs = Vector(-math.huge, -math.huge, -math.huge)
+
+		self:GetVModel():GetRenderBounds(mins, maxs, self.Submodels)
+
+		return mins, maxs
+	end
+
+	function ENT:UpdateRenderBounds()
+		self:SetRenderBounds(self:GetVRenderBounds())
+	end
+
 	function ENT:Draw()
 		self:DrawModel()
 
