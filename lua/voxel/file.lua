@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 file.CreateDir("voxel")
 
-function voxel.SaveMesh(path, grid)
+function voxel.SaveGrid(path, grid)
 	local fs = assert(file.Open(path, "wb", "DATA"))
 
 	fs:Write("GVOX") -- File signature
@@ -45,7 +45,7 @@ function voxel.SaveMesh(path, grid)
 	fs:Close()
 end
 
-function voxel.LoadMesh(path, data)
+function voxel.LoadGrid(path, data)
 	local fs = assert(file.Open(path, "rb", data and "DATA" or "LUA"))
 
 	assert(fs:Read(4) == "GVOX", "Invalid file signature")

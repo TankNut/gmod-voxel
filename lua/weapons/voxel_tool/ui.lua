@@ -89,7 +89,7 @@ function SWEP:AddMenuBar(ui)
 
 	fileMenu:AddOption("Save", function()
 		if ent.SavePath then
-			voxel.SaveMesh("voxel/" .. ent.SavePath .. ".dat", ent.Grid)
+			voxel.SaveGrid("voxel/" .. ent.SavePath .. ".dat", ent.Grid)
 
 			return
 		end
@@ -341,7 +341,7 @@ function SWEP:ImportFileDialog(extensions, importer)
 		ui:Close()
 		self.UI:Close()
 
-		voxel.SaveMesh("voxel_temp.dat", importer(path, true))
+		voxel.SaveGrid("voxel_temp.dat", importer(path, true))
 
 		local payload = file.Read("voxel_temp.dat", "DATA")
 
@@ -429,7 +429,7 @@ function SWEP:SaveFileDialog()
 
 		file.CreateDir(string.GetPathFromFilename(val))
 
-		voxel.SaveMesh("voxel/" .. val .. ".dat", ent.Grid)
+		voxel.SaveGrid("voxel/" .. val .. ".dat", ent.Grid)
 
 		ent.SavePath = val
 	end

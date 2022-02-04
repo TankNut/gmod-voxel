@@ -119,7 +119,7 @@ else
 
 		file.Write("voxel_temp.dat", net.ReadData(size))
 
-		ent.Grid = voxel.LoadMesh("voxel_temp.dat", true)
+		ent.Grid = voxel.LoadGrid("voxel_temp.dat", true)
 		ent:SyncToPlayer()
 	end)
 
