@@ -84,6 +84,12 @@ function ENT:TestCollision(start, delta, isbox, extends)
 	}
 end
 
+function ENT:GetVAttachment(attachment)
+	attachment = self:GetVModel().Attachments[attachment]
+
+	return LocalToWorld(attachment.Offset * self.Scale, attachment.Angles, self:GetPos(), self:GetAngles())
+end
+
 if CLIENT then
 	function ENT:GetVRenderBounds()
 		local mins = Vector(math.huge, math.huge, math.huge)
