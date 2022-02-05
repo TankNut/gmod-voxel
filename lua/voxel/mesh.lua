@@ -14,6 +14,13 @@ end
 
 -- Mesh making
 if CLIENT then
+	function meta:Draw(r, g, b)
+		render.SetMaterial(self.Mat)
+
+		self.Mat:SetVector("$color", Vector(r or 1, g or 1, b or 1))
+		self.Mesh:Draw()
+	end
+
 	local vertices = {
 		Vector(-0.5, -0.5, -0.5),
 		Vector(0.5, -0.5, -0.5),

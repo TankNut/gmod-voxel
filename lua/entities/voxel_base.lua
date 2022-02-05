@@ -106,13 +106,17 @@ if CLIENT then
 		matrix:SetScale(Vector(self.Scale, self.Scale, self.Scale))
 
 		cam.PushModelMatrix(matrix, true)
-			self:GetVModel():Draw(self.Submodels, false, self.Debug)
+			local color = self:GetColor()
+
+			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
+				self:GetVModel():Draw(self.Submodels, false, self.Debug)
+			render.SetColorModulation(1, 1, 1)
 		cam.PopModelMatrix()
 	end
 
 	function ENT:GetRenderMesh()
 		local vModel = self:GetVModel()
-		local vMesh = voxel.Meshes[vModel.Mesh]
+		local vMesh = vModel:GetVMesh()
 
 		local renderMesh
 		local renderMat
