@@ -1,25 +1,41 @@
 AddCSLuaFile()
 
-local function toIndex(x, y, z)
-	x = math.Round(x)
-	y = math.Round(y)
-	z = math.Round(z)
-
-	return x .. ":" .. y .. ":" .. z
-end
-
-local function fromIndex(index)
-	local arr = string.Split(index, ":")
-
-	return tonumber(arr[1]), tonumber(arr[2]), tonumber(arr[3])
-end
+local size = 255
+local offset = 128
+local mins = Vector(-128, -128, -128)
+local maxs = Vector(127, 127, 127)
 
 local function inRange(val, min, max)
 	return val >= min and val <= max
 end
 
-local function inBounds(x, y, z, mins, maxs)
+local function inBounds(x, y, z)
 	return inRange(x, mins.x, maxs.x) and inRange(y, mins.y, maxs.y) and inRange(z, mins.z, maxs.z)
+end
+
+local function toIndex(x, y, z)
+	x = math.Truncate(x)
+	y = math.Truncate(y)
+	z = math.Truncate(z)
+
+	assert(inBounds(x, y, z), string.format("Index out of bounds: %s %s %s", x, y, z))
+
+	x = x + offset
+	y = y + offset
+	z = z + offset
+
+	return (z * size * size) + (y * size) + x
+end
+
+local function fromIndex(index)
+	local z = math.Truncate(index / (size * size))
+
+	index = math.Truncate(index - (z * size * size))
+
+	local y = math.Truncate(index / size)
+	local x = math.Truncate(index % size)
+
+	return x - offset, y - offset, z - offset
 end
 
 -- Initial setup
@@ -41,6 +57,10 @@ function meta:Set(x, y, z, val)
 end
 
 function meta:Get(x, y, z)
+	if not inBounds(x, y, z) then
+		return
+	end
+
 	return self.Items[toIndex(x, y, z)]
 end
 
@@ -81,17 +101,6 @@ function meta:Clear()
 	self:InvalidateCache()
 end
 
-function meta:Truncate(mins, maxs)
-	for index in pairs(self.Items) do
-		local x, y, z = fromIndex(index)
-
-		if not inBounds(x, y, z, mins, maxs) then
-			self.Items[index] = nil
-		end
-	end
-	self:InvalidateCache()
-end
-
 function meta:GetCount()
 	local cache = self:GetCache("Count")
 
@@ -113,22 +122,22 @@ function meta:GetBounds()
 		return self:WriteCache("Bounds", Vector(), Vector())
 	end
 
-	local mins = Vector(math.huge, math.huge, math.huge)
-	local maxs = Vector(-math.huge, -math.huge, -math.huge)
+	local minBounds = Vector(math.huge, math.huge, math.huge)
+	local maxBounds = Vector(-math.huge, -math.huge, -math.huge)
 
 	for index in pairs(self.Items) do
 		local x, y, z = fromIndex(index)
 
-		mins.x = math.min(mins.x, x)
-		mins.y = math.min(mins.y, y)
-		mins.z = math.min(mins.z, z)
+		minBounds.x = math.min(minBounds.x, x)
+		minBounds.y = math.min(minBounds.y, y)
+		minBounds.z = math.min(minBounds.z, z)
 
-		maxs.x = math.max(maxs.x, x)
-		maxs.y = math.max(maxs.y, y)
-		maxs.z = math.max(maxs.z, z)
+		maxBounds.x = math.max(maxBounds.x, x)
+		maxBounds.y = math.max(maxBounds.y, y)
+		maxBounds.z = math.max(maxBounds.z, z)
 	end
 
-	return self:WriteCache("Bounds", mins, maxs)
+	return self:WriteCache("Bounds", minBounds, maxBounds)
 end
 
 function meta:GetSize()
@@ -142,9 +151,9 @@ function meta:GetSize()
 		return self:WriteCache("Size", Vector())
 	end
 
-	local mins, maxs = self:GetBounds()
+	local minBounds, maxBounds = self:GetBounds()
 
-	return self:WriteCache("Size", maxs - mins + Vector(1, 1, 1))
+	return self:WriteCache("Size", maxBounds - minBounds)
 end
 
 -- Caching

@@ -36,7 +36,7 @@ SWEP.Modes = {
 	{Name = "SHADE", Prefix = "Shade"}
 }
 
-SWEP.Min = -127
+SWEP.Min = -128
 SWEP.Max = 127
 
 include("modes.lua")
