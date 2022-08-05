@@ -91,12 +91,18 @@ if CLIENT then
 			if v.Scale then matrix:SetScale(isnumber(v.Scale) and Vector(v.Scale, v.Scale, v.Scale) or v.Scale) end
 
 			cam.PushModelMatrix(matrix, true)
-				if vMesh then
-					vMesh:Draw(render.GetColorModulation())
-				elseif v.Model then
-					local vModel = voxel.Models[v.Model]
+				if v.Mesh then
+					local subMesh = voxel.Meshes[v.Mesh]
 
-					vModel:Draw(vModel.Submodels, true, false)
+					if subMesh then
+						subMesh:Draw(render.GetColorModulation())
+					end
+				elseif v.Model then
+					local subModel = voxel.Models[v.Model]
+
+					if subModel then
+						subModel:Draw(subModel.Submodels, true, false)
+					end
 				end
 			cam.PopModelMatrix()
 		end
