@@ -130,7 +130,7 @@ function SWEP:ModeRotateInfo(alt)
 
 	return {
 		{Text = string.format("Left: %s CCW", alt and "Pivot" or "Rotate"), Color = color},
-		{Text = string.format("Left: %s CW", alt and "Pivot" or "Rotate"), Color = color},
+		{Text = string.format("Right: %s CW", alt and "Pivot" or "Rotate"), Color = color},
 		true,
 		{Text = "Reload: Open UI", Color = colors.Foreground}
 	}
