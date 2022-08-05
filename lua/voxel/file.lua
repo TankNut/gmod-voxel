@@ -74,8 +74,8 @@ local function translateColor(tab)
 	return Color(tab[3] * 1.5, tab[2] * 1.5, tab[1] * 1.5)
 end
 
-function voxel.LoadKV6(path, data)
-	local fs = assert(file.Open(path, "rb", data and "DATA" or "LUA"))
+function voxel.LoadKV6(path)
+	local fs = assert(file.Open(path, "rb", "DATA"))
 
 	assert(fs:Read(4) == "Kvxl", "Invalid file signature")
 
