@@ -3,7 +3,7 @@ AddCSLuaFile()
 file.CreateDir("voxel")
 
 function voxel.SaveGrid(path, grid)
-	local fs = assert(file.Open(path, "wb", "DATA"))
+	local fs = assert(file.Open(path, "wb", "DATA"), "Unable to create file handle: " .. path)
 
 	fs:Write("GVOX") -- File signature
 	fs:WriteByte(1) -- Version number
@@ -46,7 +46,7 @@ function voxel.SaveGrid(path, grid)
 end
 
 function voxel.LoadGrid(path, data)
-	local fs = assert(file.Open(path, "rb", data and "DATA" or "LUA"))
+	local fs = assert(file.Open(path, "rb", data and "DATA" or "LUA"), "Unable to create file handle: " .. path)
 
 	assert(fs:Read(4) == "GVOX", "Invalid file signature")
 	assert(fs:ReadByte() <= 1, "Unsupported file version")
@@ -75,7 +75,7 @@ local function translateColor(tab)
 end
 
 function voxel.LoadKV6(path)
-	local fs = assert(file.Open(path, "rb", "DATA"))
+	local fs = assert(file.Open(path, "rb", "DATA"), "Unable to create file handle: " .. path)
 
 	assert(fs:Read(4) == "Kvxl", "Invalid file signature")
 
