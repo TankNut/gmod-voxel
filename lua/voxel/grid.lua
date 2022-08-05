@@ -105,7 +105,7 @@ function meta:GetCount()
 	local cache = self:GetCache("Count")
 
 	if cache then
-		return cache
+		return unpack(cache)
 	end
 
 	return self:WriteCache("Count", table.Count(self.Items))
@@ -144,7 +144,7 @@ function meta:GetSize()
 	local cache = self:GetCache("Size")
 
 	if cache then
-		return cache
+		return unpack(cache)
 	end
 
 	if table.IsEmpty(self.Items) then
