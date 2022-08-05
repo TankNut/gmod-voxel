@@ -110,6 +110,10 @@ function SWEP:AddMenuBar(ui)
 		self:ImportFileDialog("*.kv6", voxel.LoadKV6)
 	end)
 
+	importMenu:AddOption("MagicaVoxel (.vox)", function()
+		self:ImportFileDialog("*.vox", voxel.LoadVOX)
+	end)
+
 	local optMenu = bar:AddMenu("Options")
 
 	do -- Scale menu
