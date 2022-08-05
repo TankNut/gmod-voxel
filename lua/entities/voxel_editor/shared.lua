@@ -106,12 +106,15 @@ function ENT:Think()
 end
 
 if CLIENT then
-	local colorIndex = {}
+	local rgbToVec = 1 / 255
 
 	-- Sweet mother of re-use
 	local vec = Vector()
 	local matrix = Matrix()
 	local scaleVec = Vector()
+	local colorVec = Vector()
+
+	local fromIndex = voxel.Grid.FromIndex
 
 	function ENT:Draw()
 		self:DrawModel()
@@ -125,7 +128,7 @@ if CLIENT then
 		scaleVec:SetUnpacked(scale, scale, scale)
 
 		for index, color in pairs(self.Grid.Items) do
-			local x, y, z = voxel.Grid.FromIndex(index)
+			local x, y, z = fromIndex(index)
 
 			vec:SetUnpacked(x, y, z)
 			vec:Mul(scale)
@@ -133,17 +136,9 @@ if CLIENT then
 
 			local pos = self:LocalToWorld(vec)
 
-			local cache = colorIndex[tostring(color)]
-			local vecColor
+			colorVec:SetUnpacked(color.r * rgbToVec, color.g * rgbToVec, color.b * rgbToVec)
 
-			if cache then
-				vecColor = cache
-			else
-				vecColor = color:ToVector()
-				colorIndex[tostring(color)] = vecColor
-			end
-
-			voxel.Mat:SetVector("$color", vecColor)
+			voxel.Mat:SetVector("$color", colorVec)
 
 			matrix:SetTranslation(pos)
 			matrix:SetAngles(ang)
