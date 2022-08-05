@@ -106,6 +106,13 @@ function ENT:Think()
 end
 
 if CLIENT then
+	local colorIndex = {}
+
+	-- Sweet mother of re-use
+	local vec = Vector()
+	local matrix = Matrix()
+	local scaleVec = Vector()
+
 	function ENT:Draw()
 		self:DrawModel()
 
@@ -115,17 +122,32 @@ if CLIENT then
 
 		local offset, scale = self:GetOffsetData()
 
+		scaleVec:SetUnpacked(scale, scale, scale)
+
 		for index, color in pairs(self.Grid.Items) do
 			local x, y, z = voxel.Grid.FromIndex(index)
-			local pos = self:LocalToWorld(offset + Vector(x, y, z) * scale)
 
-			voxel.Mat:SetVector("$color", color:ToVector())
+			vec:SetUnpacked(x, y, z)
+			vec:Mul(scale)
+			vec:Add(offset)
 
-			local matrix = Matrix()
+			local pos = self:LocalToWorld(vec)
+
+			local cache = colorIndex[tostring(color)]
+			local vecColor
+
+			if cache then
+				vecColor = cache
+			else
+				vecColor = color:ToVector()
+				colorIndex[tostring(color)] = vecColor
+			end
+
+			voxel.Mat:SetVector("$color", vecColor)
 
 			matrix:SetTranslation(pos)
 			matrix:SetAngles(ang)
-			matrix:SetScale(Vector(scale, scale, scale))
+			matrix:SetScale(scaleVec)
 
 			cam.PushModelMatrix(matrix)
 				voxel.Cube:Draw()
