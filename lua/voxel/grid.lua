@@ -160,7 +160,7 @@ function meta:WriteCache(index, ...)
 end
 
 function meta:InvalidateCache()
-	self.Cache = {}
+	table.Empty(self.Cache)
 end
 
 voxel.Grid = meta
