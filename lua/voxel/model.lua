@@ -83,7 +83,7 @@ if CLIENT then
 		local matrix = Matrix()
 
 		for _, v in pairs(submodels) do
-			matrix:Zero()
+			matrix:Identity()
 
 			if v.Attachment then
 				local attachment = self.Attachments[v.Attachment]
