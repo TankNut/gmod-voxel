@@ -15,7 +15,7 @@ return {
 		}
 	},
 
-	Submodels = {
+	SubModels = {
 		["scope"] = {
 			Mesh = "wa2000_scope",
 			Attachment = "scope"

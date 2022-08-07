@@ -17,7 +17,7 @@ function meta:GetVMesh()
 end
 
 if CLIENT then
-	function meta:GetRenderBounds(mins, maxs, submodels)
+	function meta:GetRenderBounds(mins, maxs, subModels)
 		local transform = cam.GetModelMatrix()
 
 		local transformMins = transform * self.Mins
@@ -31,7 +31,7 @@ if CLIENT then
 		maxs.y = math.max(maxs.y, transformMins.y, transformMaxs.y)
 		maxs.z = math.max(maxs.z, transformMins.z, transformMaxs.z)
 
-		for _, v in pairs(submodels) do
+		for _, v in pairs(subModels) do
 			local matrix = Matrix()
 
 			if v.Attachment then
@@ -66,14 +66,14 @@ if CLIENT then
 
 				if subModel then
 					cam.PushModelMatrix(matrix, true)
-						subModel:GetRenderBounds(mins, maxs, subModel.Submodels)
+						subModel:GetRenderBounds(mins, maxs, subModel.SubModels)
 					cam.PopModelMatrix()
 				end
 			end
 		end
 	end
 
-	function meta:Draw(submodels, drawSelf)
+	function meta:Draw(subModels, drawSelf)
 		local vMesh = self:GetVMesh()
 
 		if drawSelf then
@@ -82,7 +82,7 @@ if CLIENT then
 
 		local matrix = Matrix()
 
-		for _, v in pairs(submodels) do
+		for _, v in pairs(subModels) do
 			matrix:Identity()
 
 			if v.Attachment then
@@ -160,10 +160,10 @@ function meta.Load(path)
 		end
 	end
 
-	vModel.Submodels = {}
+	vModel.SubModels = {}
 
-	if data.Submodels then
-		for k, v in pairs(data.Submodels) do
+	if data.SubModels then
+		for k, v in pairs(data.SubModels) do
 			vModel.Submodels[k] = {
 				Mesh = v.Mesh,
 				Model = v.Model,

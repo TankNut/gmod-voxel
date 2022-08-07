@@ -7,12 +7,8 @@ ENT.Type 			= "anim"
 
 ENT.Spawnable 		= true
 
-ENT.CopySubmodels 	= true
-
 ENT.Model 			= "wa2000"
 ENT.Scale 			= 1
-
-ENT.Debug 			= true
 
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
@@ -22,12 +18,7 @@ function ENT:Initialize()
 	self:EnableCustomCollisions(true)
 
 	if CLIENT then
-		if self.CopySubmodels then
-			self.Submodels = table.Copy(self:GetVModel().Submodels)
-		else
-			self.Submodels = {}
-		end
-
+		self.SubModels = {}
 		self:UpdateRenderBounds()
 	end
 end
@@ -95,7 +86,7 @@ if CLIENT then
 		local mins = Vector(math.huge, math.huge, math.huge)
 		local maxs = Vector(-math.huge, -math.huge, -math.huge)
 
-		self:GetVModel():GetRenderBounds(mins, maxs, self.Submodels)
+		self:GetVModel():GetRenderBounds(mins, maxs, self.SubModels)
 
 		return mins, maxs
 	end
@@ -115,7 +106,7 @@ if CLIENT then
 			local color = self:GetColor()
 
 			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
-				self:GetVModel():Draw(self.Submodels, false)
+				self:GetVModel():Draw(self.SubModels, false)
 			render.SetColorModulation(1, 1, 1)
 
 			local vModel = self:GetVModel()
