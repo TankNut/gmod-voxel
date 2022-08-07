@@ -13,7 +13,7 @@ function meta:GetBounds()
 end
 
 function meta:GetVMesh()
-	return self.Mesh and voxel.Meshes[self.Mesh]
+	return voxel.GetMesh(self.Mesh)
 end
 
 if CLIENT then
@@ -45,26 +45,30 @@ if CLIENT then
 			if v.Angles then matrix:Rotate(v.Angles) end
 			if v.Scale then matrix:SetScale(isnumber(v.Scale) and Vector(v.Scale, v.Scale, v.Scale) or v.Scale) end
 
-			local vMesh = self:GetVMesh()
+			if v.Mesh then
+				local subMesh = voxel.GetMesh(v.Mesh)
 
-			if vMesh then
-				local newMatrix = transform * matrix
-				local newMins = newMatrix * vMesh.Mins
-				local newMaxs = newMatrix * vMesh.Maxs
+				if subMesh then
+					local newMatrix = transform * matrix
+					local newMins = newMatrix * subMesh.Mins
+					local newMaxs = newMatrix * subMesh.Maxs
 
-				mins.x = math.min(mins.x, newMins.x, newMaxs.x)
-				mins.y = math.min(mins.y, newMins.y, newMaxs.y)
-				mins.z = math.min(mins.z, newMins.z, newMaxs.z)
+					mins.x = math.min(mins.x, newMins.x, newMaxs.x)
+					mins.y = math.min(mins.y, newMins.y, newMaxs.y)
+					mins.z = math.min(mins.z, newMins.z, newMaxs.z)
 
-				maxs.x = math.max(maxs.x, newMins.x, newMaxs.x)
-				maxs.y = math.max(maxs.y, newMins.y, newMaxs.y)
-				maxs.z = math.max(maxs.z, newMins.z, newMaxs.z)
+					maxs.x = math.max(maxs.x, newMins.x, newMaxs.x)
+					maxs.y = math.max(maxs.y, newMins.y, newMaxs.y)
+					maxs.z = math.max(maxs.z, newMins.z, newMaxs.z)
+				end
 			elseif v.Model then
-				cam.PushModelMatrix(matrix, true)
-					local vModel = voxel.Models[v.Model]
+				local subModel = voxel.GetModel(v.Model)
 
-					vModel:GetRenderBounds(mins, maxs, v.Submodels)
-				cam.PopModelMatrix()
+				if subModel then
+					cam.PushModelMatrix(matrix, true)
+						subModel:GetRenderBounds(mins, maxs, subModel.Submodels)
+					cam.PopModelMatrix()
+				end
 			end
 		end
 	end
@@ -76,8 +80,10 @@ if CLIENT then
 			vMesh:Draw(render.GetColorModulation())
 		end
 
+		local matrix = Matrix()
+
 		for _, v in pairs(submodels) do
-			local matrix = Matrix()
+			matrix:Zero()
 
 			if v.Attachment then
 				local attachment = self.Attachments[v.Attachment]
@@ -92,13 +98,13 @@ if CLIENT then
 
 			cam.PushModelMatrix(matrix, true)
 				if v.Mesh then
-					local subMesh = voxel.Meshes[v.Mesh]
+					local subMesh = voxel.GetMesh(v.Mesh)
 
 					if subMesh then
 						subMesh:Draw(render.GetColorModulation())
 					end
 				elseif v.Model then
-					local subModel = voxel.Models[v.Model]
+					local subModel = voxel.GetModel(v.Model)
 
 					if subModel then
 						subModel:Draw(subModel.Submodels, true, false)
@@ -113,14 +119,14 @@ if CLIENT then
 				render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), true)
 				render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), true)
 
-				local matrix = cam.GetModelMatrix()
+				local camMatrix = cam.GetModelMatrix()
 
-				local camang = (LocalPlayer():EyePos() - (matrix * v.Offset)):Angle()
+				local camang = (LocalPlayer():EyePos() - (camMatrix * v.Offset)):Angle()
 
 				camang:RotateAroundAxis(camang:Forward(), 90)
 				camang:RotateAroundAxis(camang:Right(), -90)
 
-				cam.Start3D2D(matrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
+				cam.Start3D2D(camMatrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
 					cam.IgnoreZ(true)
 					render.PushFilterMag(TEXFILTER.POINT)
 					render.PushFilterMin(TEXFILTER.POINT)
@@ -146,12 +152,12 @@ function meta.Load(path)
 	local vModel = meta()
 	local data = include(path)
 
-	vModel.Mesh = data.Mesh
+	vModel.Mesh = assert(data.Mesh, string.format("vModel %s is missing required key 'Mesh'", name))
 	vModel.Offset = data.Offset or Vector()
 
-	if data.UseMeshBounds and vModel.Mesh then
-		local vMesh = assert(vModel:GetVMesh(), string.format("vModel %s references missing vMesh '%s'", name, data.Mesh))
+	local vMesh = assert(voxel.GetModel(data.Mesh), string.format("vModel %s references missing vMesh '%s'", name, vModel.Mesh))
 
+	if data.UseMeshBounds then
 		vModel.Mins, vModel.Maxs = vMesh:GetBounds()
 
 		vModel.Mins = vModel.Mins + vModel.Offset

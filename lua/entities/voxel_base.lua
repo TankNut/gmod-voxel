@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-ENT.RenderGroup 	= RENDERGROUP_OPAQUE
+ENT.RenderGroup 	= RENDERGROUP_BOTH
 
 ENT.Base 			= "base_anim"
 ENT.Type 			= "anim"
@@ -57,7 +57,7 @@ function ENT:SetupPhysics()
 end
 
 function ENT:GetVModel()
-	return voxel.Models[self.Model]
+	return voxel.GetModel(self.Model)
 end
 
 function ENT:TestCollision(start, delta, isbox, extends)
@@ -118,6 +118,10 @@ if CLIENT then
 				self:GetVModel():Draw(self.Submodels, false, self.Debug)
 			render.SetColorModulation(1, 1, 1)
 		cam.PopModelMatrix()
+	end
+
+	function ENT:DrawTranslucent()
+		self:Draw()
 	end
 
 	function ENT:GetRenderMesh()

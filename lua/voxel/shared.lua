@@ -35,6 +35,14 @@ end
 voxel.LoadMeshes()
 voxel.LoadModels()
 
+function voxel.GetMesh(vMesh)
+	return voxel.Meshes[vMesh]
+end
+
+function voxel.GetModel(vModel)
+	return voxel.Models[vModel]
+end
+
 -- Client
 
 if CLIENT then
