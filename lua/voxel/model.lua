@@ -73,7 +73,7 @@ if CLIENT then
 		end
 	end
 
-	function meta:Draw(submodels, drawSelf, drawDebug)
+	function meta:Draw(submodels, drawSelf)
 		local vMesh = self:GetVMesh()
 
 		if drawSelf then
@@ -107,37 +107,10 @@ if CLIENT then
 					local subModel = voxel.GetModel(v.Model)
 
 					if subModel then
-						subModel:Draw(subModel.Submodels, true, false)
+						subModel:Draw(subModel.Submodels, true)
 					end
 				end
 			cam.PopModelMatrix()
-		end
-
-		if drawDebug then
-			for k, v in pairs(self.Attachments) do
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Forward(), Color(255, 0, 0), false)
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), false)
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), false)
-
-				local camMatrix = cam.GetModelMatrix()
-
-				local camang = (LocalPlayer():EyePos() - (camMatrix * v.Offset)):Angle()
-
-				camang:RotateAroundAxis(camang:Forward(), 90)
-				camang:RotateAroundAxis(camang:Right(), -90)
-
-				cam.Start3D2D(camMatrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
-					cam.IgnoreZ(true)
-					render.PushFilterMag(TEXFILTER.POINT)
-					render.PushFilterMin(TEXFILTER.POINT)
-
-					draw.DrawText(k, "BudgetLabel", 0, 0, color_white, TEXT_ALIGN_CENTER)
-
-					render.PopFilterMin()
-					render.PopFilterMag()
-					cam.IgnoreZ(false)
-				cam.End3D2D()
-			end
 		end
 	end
 end

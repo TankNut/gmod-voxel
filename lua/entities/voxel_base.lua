@@ -115,8 +115,35 @@ if CLIENT then
 			local color = self:GetColor()
 
 			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
-				self:GetVModel():Draw(self.Submodels, false, self.Debug)
+				self:GetVModel():Draw(self.Submodels, false)
 			render.SetColorModulation(1, 1, 1)
+
+			local vModel = self:GetVModel()
+
+			for k, v in pairs(vModel.Attachments) do
+				render.DrawLine(v.Offset, v.Offset + v.Angles:Forward(), Color(255, 0, 0), false)
+				render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), false)
+				render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), false)
+
+				local camMatrix = cam.GetModelMatrix()
+
+				local camang = (LocalPlayer():EyePos() - (camMatrix * v.Offset)):Angle()
+
+				camang:RotateAroundAxis(camang:Forward(), 90)
+				camang:RotateAroundAxis(camang:Right(), -90)
+
+				cam.Start3D2D(camMatrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
+					cam.IgnoreZ(true)
+					render.PushFilterMag(TEXFILTER.POINT)
+					render.PushFilterMin(TEXFILTER.POINT)
+
+					draw.DrawText(k, "BudgetLabel", 0, 0, color_white, TEXT_ALIGN_CENTER)
+
+					render.PopFilterMin()
+					render.PopFilterMag()
+					cam.IgnoreZ(false)
+				cam.End3D2D()
+			end
 		cam.PopModelMatrix()
 	end
 
