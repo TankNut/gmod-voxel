@@ -186,6 +186,11 @@ function SWEP:GetSelectedColor()
 end
 
 function SWEP:GetTrace()
+	-- Probably should've thought of this before trying (and failing) to implement some fancy voxel traversal algorithms, was running upwards of 5 times a frame on the client
+	if CLIENT and self.FrameCache == FrameNumber() and self.TraceCache then
+		return unpack(self.TraceCache)
+	end
+
 	local ent = self:GetEditEntity()
 
 	if not IsValid(ent) then
@@ -218,6 +223,11 @@ function SWEP:GetTrace()
 			closest = frac
 			data = {normal, x, y, z}
 		end
+	end
+
+	if CLIENT then
+		self.FrameCache = FrameNumber()
+		self.TraceCache = data or {}
 	end
 
 	if data then
