@@ -40,7 +40,7 @@ end
 
 -- Initial setup
 
-local meta = setmetatable({}, {__call = function(self)
+local meta = voxel.Grid or setmetatable({}, {__call = function(self)
 	return setmetatable({Items = {}, Cache = {}}, {__index = self})
 end})
 
