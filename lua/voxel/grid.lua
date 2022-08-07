@@ -28,12 +28,12 @@ local function toIndex(x, y, z)
 end
 
 local function fromIndex(index)
-	local z = math.Truncate(index / (size * size))
+	local z = math.floor(index / (size * size))
 
-	index = math.Truncate(index - (z * size * size))
+	index = math.floor(index - (z * size * size))
 
-	local y = math.Truncate(index / size)
-	local x = math.Truncate(index % size)
+	local y = math.floor(index / size)
+	local x = math.floor(index % size)
 
 	return x - offset, y - offset, z - offset
 end
