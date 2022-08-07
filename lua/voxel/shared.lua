@@ -1,6 +1,9 @@
 AddCSLuaFile()
 
-voxel = voxel or {}
+voxel = voxel or {
+	Meshes = {},
+	Models = {}
+}
 
 -- Shared
 
@@ -10,8 +13,16 @@ include("grid.lua")
 include("mesh.lua")
 include("model.lua")
 
+function voxel.GetMesh(vMesh)
+	return voxel.Meshes[vMesh]
+end
+
+function voxel.GetModel(vModel)
+	return voxel.Models[vModel]
+end
+
 function voxel.LoadMeshes()
-	voxel.Meshes = {}
+	table.Empty(voxel.Meshes)
 
 	for _, v in pairs(file.Find("voxel/meshes/*.lua", "LUA")) do
 		local path = "voxel/meshes/" .. v
@@ -22,7 +33,7 @@ function voxel.LoadMeshes()
 end
 
 function voxel.LoadModels()
-	voxel.Models = {}
+	table.Empty(voxel.Models)
 
 	for _, v in pairs(file.Find("voxel/models/*.lua", "LUA")) do
 		local path = "voxel/models/" .. v
@@ -34,14 +45,6 @@ end
 
 voxel.LoadMeshes()
 voxel.LoadModels()
-
-function voxel.GetMesh(vMesh)
-	return voxel.Meshes[vMesh]
-end
-
-function voxel.GetModel(vModel)
-	return voxel.Models[vModel]
-end
 
 -- Client
 
