@@ -14,9 +14,9 @@ local function inBounds(x, y, z)
 end
 
 local function toIndex(x, y, z)
-	x = math.Truncate(x)
-	y = math.Truncate(y)
-	z = math.Truncate(z)
+	x = math.Round(x)
+	y = math.Round(y)
+	z = math.Round(z)
 
 	assert(inBounds(x, y, z), string.format("Index out of bounds: %s %s %s", x, y, z))
 
