@@ -115,9 +115,9 @@ if CLIENT then
 
 		if drawDebug then
 			for k, v in pairs(self.Attachments) do
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Forward(), Color(255, 0, 0), true)
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), true)
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), true)
+				render.DrawLine(v.Offset, v.Offset + v.Angles:Forward(), Color(255, 0, 0), false)
+				render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), false)
+				render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), false)
 
 				local camMatrix = cam.GetModelMatrix()
 
