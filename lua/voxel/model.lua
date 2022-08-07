@@ -76,7 +76,7 @@ if CLIENT then
 	function meta:Draw(submodels, drawSelf, drawDebug)
 		local vMesh = self:GetVMesh()
 
-		if drawSelf and vMesh then
+		if drawSelf then
 			vMesh:Draw(render.GetColorModulation())
 		end
 
