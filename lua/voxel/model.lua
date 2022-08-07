@@ -155,7 +155,7 @@ function meta.Load(path)
 	vModel.Mesh = assert(data.Mesh, string.format("vModel %s is missing required key 'Mesh'", name))
 	vModel.Offset = data.Offset or Vector()
 
-	local vMesh = assert(voxel.GetModel(data.Mesh), string.format("vModel %s references missing vMesh '%s'", name, vModel.Mesh))
+	local vMesh = assert(voxel.GetMesh(data.Mesh), string.format("vModel %s references missing vMesh '%s'", name, vModel.Mesh))
 
 	if data.UseMeshBounds then
 		vModel.Mins, vModel.Maxs = vMesh:GetBounds()
