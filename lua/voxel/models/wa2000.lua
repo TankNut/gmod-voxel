@@ -1,6 +1,4 @@
 return {
-	Offset = Vector(),
-
 	Mesh = "wa2000_scopeless",
 	UseMeshBounds = true,
 

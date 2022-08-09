@@ -116,7 +116,7 @@ if CLIENT then
 end
 
 local function filename(path)
-	return string.StripExtension(string.GetFileFromFilename(path))
+	return string.Replace(string.StripExtension(path), "voxel/models/", "")
 end
 
 function meta.Load(path)
