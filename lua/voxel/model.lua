@@ -164,7 +164,7 @@ function meta.Load(path)
 
 	if data.SubModels then
 		for k, v in pairs(data.SubModels) do
-			vModel.Submodels[k] = {
+			vModel.SubModels[k] = {
 				Mesh = v.Mesh,
 				Model = v.Model,
 				Attachment = v.Attachment,
