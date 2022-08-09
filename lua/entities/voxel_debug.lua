@@ -13,14 +13,22 @@ ENT.Scale 			= 1
 
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
-	self:SetupPhysics()
 
 	self:DrawShadow(false)
 	self:EnableCustomCollisions(true)
 
 	if CLIENT then
 		self.SubModels = {}
-		self:UpdateRenderBounds()
+	end
+
+	self:UpdateModel()
+end
+
+function ENT:SetupDataTables()
+	self:NetworkVar("String", 0, "VoxelModel")
+
+	if SERVER then
+		self:SetVoxelModel("builtin/directions")
 	end
 end
 
@@ -48,8 +56,29 @@ function ENT:SetupPhysics()
 	end
 end
 
+function ENT:UpdateModel()
+	self:SetupPhysics()
+
+	if CLIENT then
+		self:UpdateRenderBounds()
+	end
+end
+
+function ENT:Think()
+	local model = self:GetVoxelModel()
+
+	if not self.CachedModel then
+		self.CachedModel = model
+	end
+
+	if self.CachedModel != model then
+		self:UpdateModel()
+		self.CachedModel = model
+	end
+end
+
 function ENT:GetVModel()
-	return voxel.GetModel(self.Model)
+	return voxel.GetModel(self:GetVoxelModel())
 end
 
 function ENT:TestCollision(start, delta, isbox, extends)
