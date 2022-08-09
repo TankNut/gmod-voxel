@@ -85,7 +85,7 @@ if CLIENT then
 		for _, v in pairs(subModels) do
 			matrix:Identity()
 
-			if v.Attachment then
+			if v.Attachment and self.Attachments[v.Attachment] then
 				local attachment = self.Attachments[v.Attachment]
 
 				matrix:Translate(attachment.Offset)
