@@ -24,23 +24,43 @@ end
 function voxel.LoadMeshes()
 	table.Empty(voxel.Meshes)
 
-	for _, v in pairs(file.Find("voxel/meshes/*.lua", "LUA")) do
-		local path = "voxel/meshes/" .. v
+	local function load(folder)
+		local files, folders = file.Find(folder .. "*", "LUA")
 
-		AddCSLuaFile(path)
-		voxel.Mesh.Load(path)
+		for _, v in pairs(files) do
+			local path = folder .. v
+
+			AddCSLuaFile(path)
+			voxel.Mesh.Load(path)
+		end
+
+		for _, v in pairs(folders) do
+			load(folder .. v .. "/")
+		end
 	end
+
+	load("voxel/meshes/")
 end
 
 function voxel.LoadModels()
 	table.Empty(voxel.Models)
 
-	for _, v in pairs(file.Find("voxel/models/*.lua", "LUA")) do
-		local path = "voxel/models/" .. v
+	local function load(folder)
+		local files, folders = file.Find(folder .. "*", "LUA")
 
-		AddCSLuaFile(path)
-		voxel.Model.Load(path)
+		for _, v in pairs(files) do
+			local path = folder .. v
+
+			AddCSLuaFile(path)
+			voxel.Model.Load(path)
+		end
+
+		for _, v in pairs(folders) do
+			load(folder .. v .. "/")
+		end
 	end
+
+	load("voxel/models/")
 end
 
 voxel.LoadMeshes()

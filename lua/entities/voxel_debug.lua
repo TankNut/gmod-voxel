@@ -6,8 +6,9 @@ ENT.Base 			= "base_anim"
 ENT.Type 			= "anim"
 
 ENT.Spawnable 		= true
+ENT.AdminOnly 		= true
 
-ENT.Model 			= "wa2000"
+ENT.Model 			= "builtin/directions"
 ENT.Scale 			= 1
 
 function ENT:Initialize()
@@ -109,6 +110,10 @@ if CLIENT then
 				self:GetVModel():Draw(self.SubModels, false)
 			render.SetColorModulation(1, 1, 1)
 
+			render.DrawLine(vector_origin, vector_origin + Vector(1, 0, 0), Color(255, 0, 0), false)
+			render.DrawLine(vector_origin, vector_origin + Vector(0, -1, 0), Color(0, 255, 0), false)
+			render.DrawLine(vector_origin, vector_origin + Vector(0, 0, 1), Color(0, 0, 255), false)
+
 			local vModel = self:GetVModel()
 
 			for k, v in pairs(vModel.Attachments) do
@@ -125,6 +130,7 @@ if CLIENT then
 
 				cam.Start3D2D(camMatrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
 					cam.IgnoreZ(true)
+
 					render.PushFilterMag(TEXFILTER.POINT)
 					render.PushFilterMin(TEXFILTER.POINT)
 
@@ -132,6 +138,7 @@ if CLIENT then
 
 					render.PopFilterMin()
 					render.PopFilterMag()
+
 					cam.IgnoreZ(false)
 				cam.End3D2D()
 			end
