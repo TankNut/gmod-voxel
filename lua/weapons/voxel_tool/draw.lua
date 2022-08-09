@@ -39,15 +39,6 @@ function SWEP:PostDrawOpaqueRenderables(depth, skybox)
 		local normal, x, y, z = self:GetTrace()
 		local offset, scale = ent:GetOffsetData()
 
-		if normal then
-			mins = minBounds * scale
-			maxs = maxBounds * scale
-
-			local pos = ent:LocalToWorld(offset + Vector(x, y, z) * scale)
-
-			render.DrawWireframeBox(pos, ent:GetAngles(), mins, maxs, HSVToColor(hue, 1, 1), true)
-		end
-
 		if voxel.Convars.DrawOrigin:GetBool() then
 			render.SetColorMaterialIgnoreZ()
 
@@ -57,6 +48,15 @@ function SWEP:PostDrawOpaqueRenderables(depth, skybox)
 			render.DrawLine(pos, pos + ent:GetForward() * scale, colorR)
 			render.DrawLine(pos, pos + ent:GetRight() * scale, colorG)
 			render.DrawLine(pos, pos + ent:GetUp() * scale, colorB)
+		end
+
+		if normal then
+			mins = minBounds * scale
+			maxs = maxBounds * scale
+
+			local pos = ent:LocalToWorld(offset + Vector(x, y, z) * scale)
+
+			render.DrawWireframeBox(pos, ent:GetAngles(), mins, maxs, HSVToColor(hue, 1, 1), true)
 		end
 	end
 end
