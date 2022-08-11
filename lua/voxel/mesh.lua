@@ -17,7 +17,7 @@ if CLIENT then
 	function meta:Draw(r, g, b)
 		render.SetMaterial(self.Mat)
 
-		self.Mat:SetVector("$color", Vector(r or 1, g or 1, b or 1))
+		self.Mat:SetVector("$color2", Vector(r or 1, g or 1, b or 1))
 		self.Mesh:Draw()
 	end
 
@@ -108,8 +108,11 @@ if CLIENT then
 			local i = 1
 
 			for k, v in pairs(colors) do
+				local x = i % 256
+				local y = math.ceil(i / 256)
+
 				surface.SetDrawColor(v)
-				surface.DrawLine(i, 1, i, 256)
+				surface.DrawLine(x, y, x + 1, y + 1)
 
 				colors[k] = i
 
@@ -138,11 +141,18 @@ if CLIENT then
 				end
 
 				for _, v in pairs(side) do
+					local colorIndex = colors[tostring(col)]
+
+					local uvX = (colorIndex % 256) / 256
+					local uvY = (math.ceil(colorIndex / 256)) / 256
+
+					local offset = 0.5 / 256
+
 					table.insert(verts, {
 						pos = vertices[v] + vec,
 						normal = normals[k],
-						u = colors[tostring(col)] / 256 + (0.5 / 256), -- Look up our uv coordinates and add half a pixel to fix some weird rounding errors
-						v = 0.5 -- Just grab the middle
+						u = uvX + offset, -- Look up our uv coordinates and add half a pixel to fix some weird rounding errors
+						v = uvY + offset
 					})
 				end
 			end

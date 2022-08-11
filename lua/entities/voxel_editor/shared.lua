@@ -140,7 +140,7 @@ if CLIENT then
 
 			colorVec:SetUnpacked(color.r * rgbToVec, color.g * rgbToVec, color.b * rgbToVec)
 
-			voxel.Mat:SetVector("$color", colorVec)
+			voxel.Mat:SetVector("$color2", colorVec)
 
 			matrix:SetTranslation(pos)
 			matrix:SetAngles(ang)
