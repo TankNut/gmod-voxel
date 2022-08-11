@@ -213,6 +213,7 @@ if CLIENT then
 		local matrix = Matrix()
 
 		matrix:SetScale(Vector(self.Scale, self.Scale, self.Scale))
+		matrix:Translate(vModel.Offset)
 
 		return {
 			Mesh = renderMesh,
