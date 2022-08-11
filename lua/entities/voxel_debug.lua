@@ -195,10 +195,6 @@ if CLIENT then
 		cam.PopModelMatrix()
 	end
 
-	function ENT:DrawTranslucent()
-		self:Draw()
-	end
-
 	function ENT:GetRenderMesh()
 		local vModel = self:GetVModel()
 		local vMesh = vModel:GetVMesh()
