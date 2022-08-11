@@ -1,6 +1,7 @@
 AddCSLuaFile()
 
 file.CreateDir("voxel")
+file.CreateDir("voxel-import")
 
 function voxel.SaveGrid(path, grid)
 	local fs = assert(file.Open(path, "wb", "DATA"), "Unable to create file handle: " .. path)

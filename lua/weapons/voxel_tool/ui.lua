@@ -382,9 +382,9 @@ function SWEP:ImportFileDialog(extensions, importer)
 	browser:Dock(FILL)
 
 	browser:SetPath("DATA")
-	browser:SetBaseFolder("voxel")
+	browser:SetBaseFolder("voxel-import")
 	browser:SetFileTypes(extensions)
-	browser:SetCurrentFolder("voxel")
+	browser:SetCurrentFolder("voxel-import")
 	browser:SetOpen(true)
 
 	browser.OnDoubleClick = function(pnl, path)
