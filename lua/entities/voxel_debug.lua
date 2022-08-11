@@ -1,15 +1,18 @@
 AddCSLuaFile()
 
-ENT.RenderGroup 	= RENDERGROUP_BOTH
+ENT.RenderGroup = RENDERGROUP_OPAQUE
 
-ENT.Base 			= "base_anim"
-ENT.Type 			= "anim"
+ENT.Base = "base_anim"
+ENT.Type = "anim"
 
-ENT.Spawnable 		= true
-ENT.AdminOnly 		= true
+ENT.PrintName = "Model Viewer"
 
-ENT.Model 			= "builtin/directions"
-ENT.Scale 			= 1
+ENT.Author = "TankNut"
+
+ENT.Spawnable = true
+ENT.AdminOnly = true
+
+ENT.Scale = 1
 
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
@@ -17,15 +20,15 @@ function ENT:Initialize()
 	self:DrawShadow(false)
 	self:EnableCustomCollisions(true)
 
-	if CLIENT then
-		self.SubModels = {}
-	end
-
 	self:UpdateModel()
 end
 
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "VoxelModel")
+
+	self:NetworkVar("Bool", 0, "DrawOrigin")
+	self:NetworkVar("Bool", 1, "DrawAttachments")
+	self:NetworkVar("Bool", 2, "DrawSubModels")
 
 	if SERVER then
 		self:SetVoxelModel("builtin/directions")
@@ -47,6 +50,8 @@ function ENT:SetupPhysics()
 	if SERVER then
 		self:PhysicsInitBox(mins, maxs)
 		self:SetSolid(SOLID_VPHYSICS)
+
+		self:SetUseType(SIMPLE_USE)
 
 		local phys = self:GetPhysicsObject()
 
@@ -116,7 +121,9 @@ if CLIENT then
 		local mins = Vector(math.huge, math.huge, math.huge)
 		local maxs = Vector(-math.huge, -math.huge, -math.huge)
 
-		self:GetVModel():GetRenderBounds(mins, maxs, self.SubModels)
+		local model = self:GetVModel()
+
+		model:GetRenderBounds(mins, maxs, model)
 
 		return mins, maxs
 	end
@@ -135,41 +142,50 @@ if CLIENT then
 		cam.PushModelMatrix(matrix, true)
 			local color = self:GetColor()
 
-			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
-				self:GetVModel():Draw(self.SubModels, false)
-			render.SetColorModulation(1, 1, 1)
-
-			render.DrawLine(vector_origin, vector_origin + Vector(1, 0, 0), Color(255, 0, 0), false)
-			render.DrawLine(vector_origin, vector_origin + Vector(0, -1, 0), Color(0, 255, 0), false)
-			render.DrawLine(vector_origin, vector_origin + Vector(0, 0, 1), Color(0, 0, 255), false)
-
 			local vModel = self:GetVModel()
 
-			for k, v in pairs(vModel.Attachments) do
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Forward(), Color(255, 0, 0), false)
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), false)
-				render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), false)
+			local subModels = self:GetDrawSubModels() and vModel.SubModels or {}
 
-				local camMatrix = cam.GetModelMatrix()
+			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
+				self:GetVModel():Draw(subModels, false)
+			render.SetColorModulation(1, 1, 1)
 
-				local camang = (LocalPlayer():EyePos() - (camMatrix * v.Offset)):Angle()
+			if self:GetDrawOrigin() then
+				render.SetColorMaterialIgnoreZ()
+				render.DrawSphere(vector_origin, 0.2, 20, 20)
 
-				camang:RotateAroundAxis(camang:Forward(), 90)
-				camang:RotateAroundAxis(camang:Right(), -90)
+				render.DrawLine(vector_origin, vector_origin + Vector(1, 0, 0), Color(255, 0, 0), false)
+				render.DrawLine(vector_origin, vector_origin + Vector(0, -1, 0), Color(0, 255, 0), false)
+				render.DrawLine(vector_origin, vector_origin + Vector(0, 0, 1), Color(0, 0, 255), false)
+			end
 
-				cam.Start3D2D(camMatrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
-					cam.IgnoreZ(true)
+			if self:GetDrawAttachments() then
+				for k, v in pairs(vModel.Attachments) do
+					render.DrawLine(v.Offset, v.Offset + v.Angles:Forward(), Color(255, 0, 0), false)
+					render.DrawLine(v.Offset, v.Offset + v.Angles:Right(), Color(0, 255, 0), false)
+					render.DrawLine(v.Offset, v.Offset + v.Angles:Up(), Color(0, 0, 255), false)
 
-					render.PushFilterMag(TEXFILTER.POINT)
-					render.PushFilterMin(TEXFILTER.POINT)
+					local camMatrix = cam.GetModelMatrix()
 
-					draw.DrawText(k, "BudgetLabel", 0, 0, color_white, TEXT_ALIGN_CENTER)
+					local camang = (LocalPlayer():EyePos() - (camMatrix * v.Offset)):Angle()
 
-					render.PopFilterMin()
-					render.PopFilterMag()
+					camang:RotateAroundAxis(camang:Forward(), 90)
+					camang:RotateAroundAxis(camang:Right(), -90)
 
-					cam.IgnoreZ(false)
-				cam.End3D2D()
+					cam.Start3D2D(camMatrix * v.Offset + Vector(0, 0, 3), camang, 0.1)
+						cam.IgnoreZ(true)
+
+						render.PushFilterMag(TEXFILTER.POINT)
+						render.PushFilterMin(TEXFILTER.POINT)
+
+						draw.DrawText(k, "BudgetLabel", 0, 0, color_white, TEXT_ALIGN_CENTER)
+
+						render.PopFilterMin()
+						render.PopFilterMag()
+
+						cam.IgnoreZ(false)
+					cam.End3D2D()
+				end
 			end
 		cam.PopModelMatrix()
 	end
@@ -203,4 +219,103 @@ if CLIENT then
 			Matrix = matrix
 		}
 	end
+
+	net.Receive("voxel_debug_menu", function()
+		local ent = net.ReadEntity()
+		local dMenu = DermaMenu()
+
+		dMenu:AddOption("Draw Origin", function()
+			net.Start("voxel_debug_origin")
+				net.WriteEntity(ent)
+			net.SendToServer()
+		end):SetChecked(ent:GetDrawOrigin())
+
+		dMenu:AddOption("Draw Attachments", function()
+			net.Start("voxel_debug_attachments")
+				net.WriteEntity(ent)
+			net.SendToServer()
+		end):SetChecked(ent:GetDrawAttachments())
+
+		dMenu:AddOption("Draw SubModels", function()
+			net.Start("voxel_debug_submodels")
+				net.WriteEntity(ent)
+			net.SendToServer()
+		end):SetChecked(ent:GetDrawSubModels())
+
+		dMenu:AddSpacer()
+
+		local modelMenu = dMenu:AddSubMenu("Model")
+
+		for _, v in SortedPairsByValue(table.GetKeys(voxel.Models)) do
+			modelMenu:AddOption(v, function()
+				net.Start("voxel_debug_model")
+					net.WriteEntity(ent)
+					net.WriteString(v)
+				net.SendToServer()
+			end)
+		end
+
+		dMenu:Open(ScrW() * 0.5, ScrH() * 0.5)
+	end)
+else
+	util.AddNetworkString("voxel_debug_menu")
+
+	util.AddNetworkString("voxel_debug_model")
+	util.AddNetworkString("voxel_debug_origin")
+	util.AddNetworkString("voxel_debug_attachments")
+	util.AddNetworkString("voxel_debug_submodels")
+
+	function ENT:Use(ply)
+		self.LastPlayer = ply
+
+		net.Start("voxel_debug_menu")
+			net.WriteEntity(self)
+		net.Send(ply)
+	end
+
+	net.Receive("voxel_debug_origin", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if IsValid(ent.LastPlayer) and ent.LastPlayer != ply then
+			return
+		end
+
+		ent:SetDrawOrigin(not ent:GetDrawOrigin())
+	end)
+
+	net.Receive("voxel_debug_attachments", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if IsValid(ent.LastPlayer) and ent.LastPlayer != ply then
+			return
+		end
+
+		ent:SetDrawAttachments(not ent:GetDrawAttachments())
+	end)
+
+	net.Receive("voxel_debug_submodels", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if IsValid(ent.LastPlayer) and ent.LastPlayer != ply then
+			return
+		end
+
+		ent:SetDrawSubModels(not ent:GetDrawSubModels())
+	end)
+
+	net.Receive("voxel_debug_model", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if IsValid(ent.LastPlayer) and ent.LastPlayer != ply then
+			return
+		end
+
+		local model = net.ReadString()
+
+		if model == ent:GetVoxelModel() or not voxel.Models[model] then
+			return
+		end
+
+		ent:SetVoxelModel(model)
+	end)
 end

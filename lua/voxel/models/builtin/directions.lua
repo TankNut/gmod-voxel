@@ -1,4 +1,4 @@
 return {
 	Mesh = "builtin/directions",
-	UseMeshBounds = true,
+	UseMeshBounds = true
 }
