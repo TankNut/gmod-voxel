@@ -1,5 +1,5 @@
 return {
-	Mesh = "intel",
+	Mesh = "aceofspades/intel",
 	UseMeshBounds = true,
 
 	Offset = Vector(0, 0.5, 0.5)
