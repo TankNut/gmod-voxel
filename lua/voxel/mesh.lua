@@ -97,33 +97,38 @@ if CLIENT then
 		end
 
 		local name = "voxel_" .. string.Replace(SysTime(), ".", "_")
-		local rendertarget = GetRenderTarget(name, 256, 256)
+		local renderTarget = GetRenderTargetEx(name,
+			256, 256,
+			RT_SIZE_NO_CHANGE,
+			MATERIAL_RT_DEPTH_NONE,
+			bit.bor(1, 256),
+			0,
+			IMAGE_FORMAT_BGRA8888
+		)
 
-		render.PushRenderTarget(rendertarget)
+		render.PushRenderTarget(renderTarget)
+			cam.Start2D()
+				local i = 1
 
-		cam.Start2D()
-			surface.SetDrawColor(0, 0, 0, 255)
-			surface.DrawRect(1, 1, 256, 256)
+				for k, v in pairs(colors) do
+					local x = (i % 256) - 1
+					local y = math.ceil(i / 256) - 1
 
-			local i = 1
+					render.SetScissorRect(x, y, x + 1, y + 1, true)
+						render.Clear(v.r, v.g, v.b, v.a)
+					render.SetScissorRect(0, 0, 0, 0, false)
 
-			for k, v in pairs(colors) do
-				local x = i % 256
-				local y = math.ceil(i / 256)
+					colors[k] = i
 
-				surface.SetDrawColor(v)
-				surface.DrawLine(x, y, x + 1, y + 1)
-
-				colors[k] = i
-
-				i = i + 1
-			end
-		cam.End2D()
-
+					i = i + 1
+				end
+			cam.End2D()
 		render.PopRenderTarget()
 
 		self.Mat = CreateMaterial(name, "VertexLitGeneric", {
-			["$basetexture"] = rendertarget:GetName(),
+			["$basetexture"] = renderTarget:GetName(),
+			["$blendtintbybasealpha"] = 1,
+			["$tintmasktexture"] = "vgui/alpha-back",
 			["$halflambert"] = 1
 		})
 
@@ -143,8 +148,8 @@ if CLIENT then
 				for _, v in pairs(side) do
 					local colorIndex = colors[tostring(col)]
 
-					local uvX = (colorIndex % 256) / 256
-					local uvY = (math.ceil(colorIndex / 256)) / 256
+					local uvX = ((colorIndex % 256) - 1) / 256
+					local uvY = (math.ceil(colorIndex / 256) - 1) / 256
 
 					local offset = 0.5 / 256
 

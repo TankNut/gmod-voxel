@@ -33,7 +33,8 @@ SWEP.Modes = {
 	{Name = "SHIFT", Prefix = "Shift"},
 	{Name = "ROTATE", Prefix = "Rotate"},
 	{Name = "PAINT", Prefix = "Paint"},
-	{Name = "SHADE", Prefix = "Shade"}
+	{Name = "SHADE", Prefix = "Shade"},
+	{Name = "MASK", Prefix = "Mask"}
 }
 
 SWEP.Min = -128
@@ -180,6 +181,12 @@ function SWEP:GetSelectedColor()
 
 	if not IsValid(ply) then
 		return color_white
+	end
+
+	if self:GetSelectedMode() == 6 then
+		local col = ply:GetInfoNum("voxel_col_r", 255)
+
+		return Color(col, col, col)
 	end
 
 	return Color(ply:GetInfoNum("voxel_col_r", 255), ply:GetInfoNum("voxel_col_g", 255), ply:GetInfoNum("voxel_col_b", 255))

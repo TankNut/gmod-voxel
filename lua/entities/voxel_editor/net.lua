@@ -12,7 +12,7 @@ function ENT:Set(x, y, z, color)
 
 			if color then
 				net.WriteBool(true)
-				net.WriteColor(color, false)
+				net.WriteColor(color, true)
 			else
 				net.WriteBool(false)
 			end
@@ -37,7 +37,7 @@ if CLIENT then
 		local z = net.ReadInt(8)
 
 		if net.ReadBool() then
-			ent.Grid:Set(x, y, z, net.ReadColor(false))
+			ent.Grid:Set(x, y, z, net.ReadColor(true))
 		else
 			ent.Grid:Set(x, y, z, nil)
 		end

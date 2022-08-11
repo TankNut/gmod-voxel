@@ -285,3 +285,40 @@ function SWEP:ModeShadeInfo(alt)
 		{Text = "Reload: Open UI", Color = colors.Foreground}
 	}
 end
+
+-- Mask
+
+function SWEP:ModeMaskPrimary(ent, normal, x, y, z, alt)
+	if not normal then
+		return
+	end
+
+	local color = ColorAlpha(ent.Grid:Get(x, y, z), self:GetSelectedColor().r)
+
+	ent:Set(x, y, z, color)
+end
+
+function SWEP:ModeMaskSecondary(ent, normal, x, y, z, alt)
+	if not normal then
+		return
+	end
+
+	local col = ent.Grid:Get(x, y, z)
+	local ply = self:GetOwner()
+
+	ply:ConCommand("voxel_col_r " .. col.a)
+	ply:ConCommand("voxel_col_g " .. col.a)
+	ply:ConCommand("voxel_col_b " .. col.a)
+end
+
+function SWEP:ModeMaskInfo(alt)
+	local colors = self.Colors
+	local color = self:GetTrace() and colors.Foreground or colors.ForegroundDisabled
+
+	return {
+		{Text = "Left: Apply mask", Color = color},
+		{Text = "Right: Copy mask", Color = color},
+		true,
+		{Text = "Reload: Open UI", Color = colors.Foreground}
+	}
+end

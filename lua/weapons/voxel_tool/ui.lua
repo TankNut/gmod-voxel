@@ -213,7 +213,8 @@ function SWEP:AddColorPicker(ui)
 
 	mixer:Dock(FILL)
 	mixer:SetAlphaBar(false)
-	mixer:SetColor(self:GetSelectedColor())
+
+	mixer:SetColor(Color(GetConVar("voxel_col_r"):GetInt(), GetConVar("voxel_col_g"):GetInt(), GetConVar("voxel_col_b"):GetInt()))
 
 	mixer:SetConVarR("voxel_col_r")
 	mixer:SetConVarG("voxel_col_g")

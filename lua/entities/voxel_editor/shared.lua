@@ -129,6 +129,9 @@ if CLIENT then
 
 		scaleVec:SetUnpacked(scale, scale, scale)
 
+		local weapon = LocalPlayer():GetActiveWeapon()
+		local mask = IsValid(weapon) and weapon:GetClass() == "voxel_tool" and weapon:GetSelectedMode() == 6
+
 		for index, color in pairs(self.Grid.Items) do
 			local x, y, z = fromIndex(index)
 
@@ -138,7 +141,11 @@ if CLIENT then
 
 			local pos = self:LocalToWorld(vec)
 
-			colorVec:SetUnpacked(color.r * rgbToVec, color.g * rgbToVec, color.b * rgbToVec)
+			if mask then
+				colorVec:SetUnpacked(color.a * rgbToVec, color.a * rgbToVec, color.a * rgbToVec)
+			else
+				colorVec:SetUnpacked(color.r * rgbToVec, color.g * rgbToVec, color.b * rgbToVec)
+			end
 
 			voxel.Mat:SetVector("$color2", colorVec)
 
