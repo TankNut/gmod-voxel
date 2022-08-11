@@ -293,9 +293,19 @@ function SWEP:ModeMaskPrimary(ent, normal, x, y, z, alt)
 		return
 	end
 
-	local color = ColorAlpha(ent.Grid:Get(x, y, z), self:GetSelectedColor().r)
+	if alt then
+		local a = self:GetSelectedColor().r
 
-	ent:Set(x, y, z, color)
+		for _, v in pairs(ent.Grid.Items) do
+			v.a = a
+		end
+
+		ent:SyncToPlayer()
+	else
+		local color = ColorAlpha(ent.Grid:Get(x, y, z), self:GetSelectedColor().r)
+
+		ent:Set(x, y, z, color)
+	end
 end
 
 function SWEP:ModeMaskSecondary(ent, normal, x, y, z, alt)
@@ -315,8 +325,10 @@ function SWEP:ModeMaskInfo(alt)
 	local colors = self.Colors
 	local color = self:GetTrace() and colors.Foreground or colors.ForegroundDisabled
 
+	local val = alt and " to everything" or ""
+
 	return {
-		{Text = "Left: Apply mask", Color = color},
+		{Text = "Left: Apply mask" .. val, Color = color},
 		{Text = "Right: Copy mask", Color = color},
 		true,
 		{Text = "Reload: Open UI", Color = colors.Foreground}
