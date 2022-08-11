@@ -1,15 +1,17 @@
 AddCSLuaFile()
 
-ENT.RenderGroup 			= RENDERGROUP_OPAQUE
+ENT.RenderGroup = RENDERGROUP_OPAQUE
 
-ENT.Base 					= "base_anim"
-ENT.Type 					= "anim"
+ENT.Base = "base_anim"
+ENT.Type = "anim"
 
-ENT.PrintName 				= "Voxel Editor"
-ENT.Author 					= "TankNut"
+ENT.PrintName = "Editor"
+ENT.Category = "Voxel"
 
-ENT.Spawnable 				= true
-ENT.AdminOnly				= false
+ENT.Author = "TankNut"
+
+ENT.Spawnable = true
+ENT.AdminOnly = true
 
 include("net.lua")
 

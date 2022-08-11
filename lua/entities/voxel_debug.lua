@@ -6,6 +6,7 @@ ENT.Base = "base_anim"
 ENT.Type = "anim"
 
 ENT.PrintName = "Model Viewer"
+ENT.Category = "Voxel"
 
 ENT.Author = "TankNut"
 
