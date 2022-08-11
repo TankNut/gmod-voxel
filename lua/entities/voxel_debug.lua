@@ -33,6 +33,10 @@ function ENT:SetupDataTables()
 
 	if SERVER then
 		self:SetVoxelModel("builtin/directions")
+
+		self:SetDrawOrigin(true)
+		self:SetDrawAttachments(false)
+		self:SetDrawSubModels(true)
 	end
 end
 
