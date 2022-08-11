@@ -203,7 +203,6 @@ function SWEP:ModePaintSecondary(ent, normal, x, y, z, alt)
 	ply:ConCommand("voxel_col_r " .. col.r)
 	ply:ConCommand("voxel_col_g " .. col.g)
 	ply:ConCommand("voxel_col_b " .. col.b)
-	ply:ConCommand("voxel_col_a " .. col.a)
 end
 
 function SWEP:ModePaintInfo(alt)

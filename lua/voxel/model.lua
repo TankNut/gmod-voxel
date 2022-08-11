@@ -77,7 +77,7 @@ if CLIENT then
 		local vMesh = self:GetVMesh()
 
 		if drawSelf then
-			vMesh:Draw(render.GetColorModulation())
+			vMesh:Draw()
 		end
 
 		local matrix = Matrix()
@@ -101,7 +101,7 @@ if CLIENT then
 					local subMesh = voxel.GetMesh(v.Mesh)
 
 					if subMesh then
-						subMesh:Draw(render.GetColorModulation())
+						subMesh:Draw()
 					end
 				elseif v.Model then
 					local subModel = voxel.GetModel(v.Model)

@@ -182,7 +182,7 @@ function SWEP:GetSelectedColor()
 		return color_white
 	end
 
-	return Color(ply:GetInfoNum("voxel_col_r", 255), ply:GetInfoNum("voxel_col_g", 255), ply:GetInfoNum("voxel_col_b", 255), ply:GetInfoNum("voxel_col_a", 255))
+	return Color(ply:GetInfoNum("voxel_col_r", 255), ply:GetInfoNum("voxel_col_g", 255), ply:GetInfoNum("voxel_col_b", 255))
 end
 
 function SWEP:GetTrace()

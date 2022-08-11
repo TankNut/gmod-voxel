@@ -4,7 +4,8 @@ end
 
 function SWEP:PreDrawViewModel()
 	render.ModelMaterialOverride(voxel.Mat)
-	render.SetColorModulation(self:GetSelectedColor():ToVector():Unpack())
+
+	voxel.Mat:SetVector("$color2", self:GetSelectedColor():ToVector())
 end
 
 function SWEP:PostDrawViewModel()

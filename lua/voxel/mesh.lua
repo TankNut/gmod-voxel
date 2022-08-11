@@ -14,10 +14,10 @@ end
 
 -- Mesh making
 if CLIENT then
-	function meta:Draw(r, g, b)
+	function meta:Draw()
 		render.SetMaterial(self.Mat)
 
-		self.Mat:SetVector("$color2", Vector(r or 1, g or 1, b or 1))
+		self.Mat:SetVector("$color2", Vector(render.GetColorModulation()))
 		self.Mesh:Draw()
 	end
 
