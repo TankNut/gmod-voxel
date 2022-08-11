@@ -13,8 +13,6 @@ ENT.Author = "TankNut"
 ENT.Spawnable = true
 ENT.AdminOnly = true
 
-ENT.Scale = 1
-
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 
@@ -27,12 +25,16 @@ end
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "VoxelModel")
 
+	self:NetworkVar("Int", 0, "VoxelScale")
+
 	self:NetworkVar("Bool", 0, "DrawOrigin")
 	self:NetworkVar("Bool", 1, "DrawAttachments")
 	self:NetworkVar("Bool", 2, "DrawSubModels")
 
 	if SERVER then
 		self:SetVoxelModel("builtin/directions")
+
+		self:SetVoxelScale(1)
 
 		self:SetDrawOrigin(true)
 		self:SetDrawAttachments(false)
@@ -43,8 +45,8 @@ end
 function ENT:SetupPhysics()
 	local mins, maxs = self:GetVModel():GetBounds()
 
-	mins = mins * self.Scale
-	maxs = maxs * self.Scale
+	mins = mins * self:GetVoxelScale()
+	maxs = maxs * self:GetVoxelScale()
 
 	if IsValid(self.PhysCollide) then
 		self.PhysCollide:Destroy()
@@ -76,14 +78,18 @@ end
 
 function ENT:Think()
 	local model = self:GetVoxelModel()
+	local scale = self:GetVoxelScale()
 
 	if not self.CachedModel then
 		self.CachedModel = model
+		self.CachedScale = scale
 	end
 
-	if self.CachedModel != model then
+	if self.CachedModel != model or self.CachedScale != scale then
 		self:UpdateModel()
+
 		self.CachedModel = model
+		self.CachedScale = scale
 	end
 end
 
@@ -118,7 +124,7 @@ end
 function ENT:GetVAttachment(attachment)
 	attachment = self:GetVModel().Attachments[attachment]
 
-	return LocalToWorld(attachment.Offset * self.Scale, attachment.Angles, self:GetPos(), self:GetAngles())
+	return LocalToWorld(attachment.Offset * self:GetVoxelScale(), attachment.Angles, self:GetPos(), self:GetAngles())
 end
 
 if CLIENT then
@@ -130,7 +136,7 @@ if CLIENT then
 
 		model:GetRenderBounds(mins, maxs, model)
 
-		return mins, maxs
+		return mins * self:GetVoxelScale(), maxs * self:GetVoxelScale()
 	end
 
 	function ENT:UpdateRenderBounds()
@@ -141,8 +147,9 @@ if CLIENT then
 		self:DrawModel()
 
 		local matrix = self:GetWorldTransformMatrix()
+		local scale = self:GetVoxelScale()
 
-		matrix:SetScale(Vector(self.Scale, self.Scale, self.Scale))
+		matrix:SetScale(Vector(scale, scale, scale))
 
 		cam.PushModelMatrix(matrix, true)
 			local color = self:GetColor()
@@ -211,8 +218,9 @@ if CLIENT then
 		end
 
 		local matrix = Matrix()
+		local scale = self:GetVoxelScale()
 
-		matrix:SetScale(Vector(self.Scale, self.Scale, self.Scale))
+		matrix:SetScale(Vector(scale, scale, scale))
 		matrix:Translate(vModel.Offset)
 
 		return {
@@ -254,7 +262,18 @@ if CLIENT then
 					net.WriteEntity(ent)
 					net.WriteString(v)
 				net.SendToServer()
-			end)
+			end):SetChecked(ent:GetVoxelModel() == v)
+		end
+
+		local scaleMenu = dMenu:AddSubMenu("Scale")
+
+		for k, v in pairs({1, 2, 5, 10, 15}) do
+			scaleMenu:AddOption(v, function()
+				net.Start("voxel_debug_scale")
+					net.WriteEntity(ent)
+					net.WriteUInt(v, 4)
+				net.SendToServer()
+			end):SetChecked(ent:GetVoxelScale() == v)
 		end
 
 		dMenu:Open(ScrW() * 0.5, ScrH() * 0.5)
@@ -262,10 +281,12 @@ if CLIENT then
 else
 	util.AddNetworkString("voxel_debug_menu")
 
-	util.AddNetworkString("voxel_debug_model")
 	util.AddNetworkString("voxel_debug_origin")
 	util.AddNetworkString("voxel_debug_attachments")
 	util.AddNetworkString("voxel_debug_submodels")
+
+	util.AddNetworkString("voxel_debug_model")
+	util.AddNetworkString("voxel_debug_scale")
 
 	function ENT:Use(ply)
 		self.LastPlayer = ply
@@ -319,5 +340,21 @@ else
 		end
 
 		ent:SetVoxelModel(model)
+	end)
+
+	net.Receive("voxel_debug_scale", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if IsValid(ent.LastPlayer) and ent.LastPlayer != ply then
+			return
+		end
+
+		local scale = net.ReadUInt(4)
+
+		if scale == ent:GetVoxelScale() then
+			return
+		end
+
+		ent:SetVoxelScale(scale)
 	end)
 end
