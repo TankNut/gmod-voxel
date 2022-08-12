@@ -1,5 +1,5 @@
-lua/voxel/meshes/*.lua
+lua/voxel/meshes/**/*.lua
 !lua/voxel/meshes/builtin
 
-lua/voxel/models/*.lua
+lua/voxel/models/**/*.lua
 !lua/voxel/models/builtin
