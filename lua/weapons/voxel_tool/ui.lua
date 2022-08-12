@@ -199,6 +199,7 @@ function SWEP:AddMenuBar(ui)
 	local resMenu = prefMenu:AddSubMenu("Shade Amount")
 
 	resMenu:SetDeleteSelf(false)
+	resMenu:AddCVar("1", "voxel_shade_res", "1")
 	resMenu:AddCVar("0.1", "voxel_shade_res", "0.1")
 	resMenu:AddCVar("0.05", "voxel_shade_res", "0.05")
 	resMenu:AddCVar("0.025", "voxel_shade_res", "0.025")
