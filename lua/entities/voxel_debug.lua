@@ -19,7 +19,7 @@ function ENT:Initialize()
 	self:DrawShadow(false)
 	self:EnableCustomCollisions(true)
 
-	self:UpdateModel()
+	self:SetupVoxelModel(self:GetVoxelModel(), self:GetVoxelScale())
 end
 
 function ENT:SetupDataTables()
@@ -31,9 +31,11 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 1, "DrawAttachments")
 	self:NetworkVar("Bool", 2, "DrawSubModels")
 
+	self:NetworkVarNotify("VoxelModel", self.NotifyChanged)
+	self:NetworkVarNotify("VoxelScale", self.NotifyChanged)
+
 	if SERVER then
 		self:SetVoxelModel("builtin/directions")
-
 		self:SetVoxelScale(1)
 
 		self:SetDrawOrigin(true)
@@ -42,11 +44,11 @@ function ENT:SetupDataTables()
 	end
 end
 
-function ENT:SetupPhysics()
-	local mins, maxs = self:GetVModel():GetBounds()
+function ENT:SetupPhysics(model, scale)
+	local mins, maxs = voxel.GetModel(model):GetBounds()
 
-	mins = mins * self:GetVoxelScale()
-	maxs = maxs * self:GetVoxelScale()
+	mins = mins * scale
+	maxs = maxs * scale
 
 	if IsValid(self.PhysCollide) then
 		self.PhysCollide:Destroy()
@@ -68,28 +70,21 @@ function ENT:SetupPhysics()
 	end
 end
 
-function ENT:UpdateModel()
-	self:SetupPhysics()
-
-	if CLIENT then
-		self:UpdateRenderBounds()
+function ENT:NotifyChanged(name, old, new)
+	if old == new then
+		return
 	end
+
+	self:SetupVoxelModel(
+		name == "VoxelModel" and new or self:GetVoxelModel(),
+		name == "VoxelScale" and new or self:GetVoxelScale())
 end
 
-function ENT:Think()
-	local model = self:GetVoxelModel()
-	local scale = self:GetVoxelScale()
+function ENT:SetupVoxelModel(model, scale)
+	self:SetupPhysics(model, scale)
 
-	if not self.CachedModel then
-		self.CachedModel = model
-		self.CachedScale = scale
-	end
-
-	if self.CachedModel != model or self.CachedScale != scale then
-		self:UpdateModel()
-
-		self.CachedModel = model
-		self.CachedScale = scale
+	if CLIENT then
+		self:UpdateRenderBounds(model, scale)
 	end
 end
 
@@ -128,19 +123,15 @@ function ENT:GetVAttachment(attachment)
 end
 
 if CLIENT then
-	function ENT:GetVRenderBounds()
+	function ENT:UpdateRenderBounds(model, scale)
 		local mins = Vector(math.huge, math.huge, math.huge)
 		local maxs = Vector(-math.huge, -math.huge, -math.huge)
 
-		local vModel = self:GetVModel()
+		local vModel = voxel.GetModel(model)
 
 		vModel:GetComplexBounds(mins, maxs, vModel.SubModels)
 
-		return mins * self:GetVoxelScale(), maxs * self:GetVoxelScale()
-	end
-
-	function ENT:UpdateRenderBounds()
-		self:SetRenderBounds(self:GetVRenderBounds())
+		self:SetRenderBounds(mins * scale, maxs * scale)
 	end
 
 	function ENT:Draw()
@@ -153,13 +144,11 @@ if CLIENT then
 
 		cam.PushModelMatrix(matrix, true)
 			local color = self:GetColor()
-
 			local vModel = self:GetVModel()
-
 			local subModels = self:GetDrawSubModels() and vModel.SubModels or {}
 
 			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
-				self:GetVModel():Draw(subModels, false)
+				vModel:Draw(subModels)
 			render.SetColorModulation(1, 1, 1)
 
 			if self:GetDrawOrigin() then
