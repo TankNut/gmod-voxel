@@ -132,9 +132,9 @@ if CLIENT then
 		local mins = Vector(math.huge, math.huge, math.huge)
 		local maxs = Vector(-math.huge, -math.huge, -math.huge)
 
-		local model = self:GetVModel()
+		local vModel = self:GetVModel()
 
-		model:GetRenderBounds(mins, maxs, model)
+		vModel:GetComplexBounds(mins, maxs, vModel.SubModels)
 
 		return mins * self:GetVoxelScale(), maxs * self:GetVoxelScale()
 	end

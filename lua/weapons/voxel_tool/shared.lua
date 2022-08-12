@@ -1,32 +1,32 @@
 AddCSLuaFile()
 
-SWEP.PrintName 				= "Voxel Tool"
-SWEP.Author 				= "TankNut"
+SWEP.PrintName = "Voxel Tool"
+SWEP.Author = "TankNut"
 
-SWEP.RenderGroup 			= RENDERGROUP_OPAQUE
+SWEP.RenderGroup = RENDERGROUP_OPAQUE
 
-SWEP.Slot 					= 5
-SWEP.SlotPos 				= 10
+SWEP.Slot = 5
+SWEP.SlotPos = 10
 
-SWEP.DrawCrosshair 			= true
+SWEP.DrawCrosshair = true
 
-SWEP.ViewModel 				= Model("models/hunter/blocks/cube025x025x025.mdl")
-SWEP.WorldModel 			= ""
+SWEP.ViewModel = Model("models/hunter/blocks/cube025x025x025.mdl")
+SWEP.WorldModel = ""
 
-SWEP.UseHands 				= false
+SWEP.UseHands = false
 
-SWEP.AutoSwitchTo 			= false
-SWEP.AutoSwitchFrom 		= false
+SWEP.AutoSwitchTo = false
+SWEP.AutoSwitchFrom = false
 
-SWEP.Primary.ClipSize 		= -1
-SWEP.Primary.DefaultClip 	= -1
-SWEP.Primary.Ammo 			= ""
-SWEP.Primary.Automatic 		= false
+SWEP.Primary.ClipSize = -1
+SWEP.Primary.DefaultClip = -1
+SWEP.Primary.Ammo = ""
+SWEP.Primary.Automatic = false
 
-SWEP.Secondary.ClipSize 	= -1
-SWEP.Secondary.DefaultClip 	= -1
-SWEP.Secondary.Ammo 		= ""
-SWEP.Secondary.Automatic 	= false
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = -1
+SWEP.Secondary.Ammo = ""
+SWEP.Secondary.Automatic = false
 
 SWEP.Modes = {
 	{Name = "BUILD", Prefix = "Build"},

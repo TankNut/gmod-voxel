@@ -8,71 +8,73 @@ end})
 
 -- Functions
 
-function meta:GetBounds()
-	return self.Mins, self.Maxs
-end
-
 function meta:GetVMesh()
 	return voxel.GetMesh(self.Mesh)
 end
 
-if CLIENT then
-	function meta:GetRenderBounds(mins, maxs, subModels)
-		local transform = cam.GetModelMatrix()
+-- Returns the mins and maxs as loaded
+function meta:GetBounds()
+	return self.Mins, self.Maxs
+end
 
-		local transformMins = transform * self.Mins
-		local transformMaxs = transform * self.Maxs
+-- Returns the mins and maxs expanded to include submodels
+function meta:GetComplexBounds(mins, maxs, subModels, transform)
+	if not transform then
+		transform = Matrix()
+	end
 
-		mins.x = math.min(mins.x, transformMins.x, transformMaxs.x)
-		mins.y = math.min(mins.y, transformMins.y, transformMaxs.y)
-		mins.z = math.min(mins.z, transformMins.z, transformMaxs.z)
+	local transformMins = transform * self.Mins
+	local transformMaxs = transform * self.Maxs
 
-		maxs.x = math.max(maxs.x, transformMins.x, transformMaxs.x)
-		maxs.y = math.max(maxs.y, transformMins.y, transformMaxs.y)
-		maxs.z = math.max(maxs.z, transformMins.z, transformMaxs.z)
+	mins.x = math.min(mins.x, transformMins.x, transformMaxs.x)
+	mins.y = math.min(mins.y, transformMins.y, transformMaxs.y)
+	mins.z = math.min(mins.z, transformMins.z, transformMaxs.z)
 
-		for _, v in pairs(subModels) do
-			local matrix = Matrix()
+	maxs.x = math.max(maxs.x, transformMins.x, transformMaxs.x)
+	maxs.y = math.max(maxs.y, transformMins.y, transformMaxs.y)
+	maxs.z = math.max(maxs.z, transformMins.z, transformMaxs.z)
 
-			if v.Attachment then
-				local attachment = self.Attachments[v.Attachment]
+	for _, v in pairs(subModels) do
+		local matrix = Matrix()
 
-				matrix:Translate(attachment.Offset)
-				matrix:Rotate(attachment.Angles)
+		if v.Attachment then
+			local attachment = self.Attachments[v.Attachment]
+
+			matrix:Translate(attachment.Offset)
+			matrix:Rotate(attachment.Angles)
+		end
+
+		if v.Offset then matrix:Translate(v.Offset) end
+		if v.Angles then matrix:Rotate(v.Angles) end
+		if v.Scale then matrix:SetScale(isnumber(v.Scale) and Vector(v.Scale, v.Scale, v.Scale) or v.Scale) end
+
+		if v.Mesh then
+			local subMesh = voxel.GetMesh(v.Mesh)
+
+			if subMesh then
+				local newMatrix = transform * matrix
+				local newMins = newMatrix * subMesh.Mins
+				local newMaxs = newMatrix * subMesh.Maxs
+
+				mins.x = math.min(mins.x, newMins.x, newMaxs.x)
+				mins.y = math.min(mins.y, newMins.y, newMaxs.y)
+				mins.z = math.min(mins.z, newMins.z, newMaxs.z)
+
+				maxs.x = math.max(maxs.x, newMins.x, newMaxs.x)
+				maxs.y = math.max(maxs.y, newMins.y, newMaxs.y)
+				maxs.z = math.max(maxs.z, newMins.z, newMaxs.z)
 			end
+		elseif v.Model then
+			local subModel = voxel.GetModel(v.Model)
 
-			if v.Offset then matrix:Translate(v.Offset) end
-			if v.Angles then matrix:Rotate(v.Angles) end
-			if v.Scale then matrix:SetScale(isnumber(v.Scale) and Vector(v.Scale, v.Scale, v.Scale) or v.Scale) end
-
-			if v.Mesh then
-				local subMesh = voxel.GetMesh(v.Mesh)
-
-				if subMesh then
-					local newMatrix = transform * matrix
-					local newMins = newMatrix * subMesh.Mins
-					local newMaxs = newMatrix * subMesh.Maxs
-
-					mins.x = math.min(mins.x, newMins.x, newMaxs.x)
-					mins.y = math.min(mins.y, newMins.y, newMaxs.y)
-					mins.z = math.min(mins.z, newMins.z, newMaxs.z)
-
-					maxs.x = math.max(maxs.x, newMins.x, newMaxs.x)
-					maxs.y = math.max(maxs.y, newMins.y, newMaxs.y)
-					maxs.z = math.max(maxs.z, newMins.z, newMaxs.z)
-				end
-			elseif v.Model then
-				local subModel = voxel.GetModel(v.Model)
-
-				if subModel then
-					cam.PushModelMatrix(matrix, true)
-						subModel:GetRenderBounds(mins, maxs, subModel.SubModels)
-					cam.PopModelMatrix()
-				end
+			if subModel then
+				subModel:GetComplexBounds(mins, maxs, subModel.SubModels, transform * matrix)
 			end
 		end
 	end
+end
 
+if CLIENT then
 	function meta:Draw(subModels, drawSelf)
 		local vMesh = self:GetVMesh()
 
