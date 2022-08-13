@@ -83,6 +83,7 @@ if CLIENT then
 		end
 
 		local matrix = Matrix()
+		local colorMod = Vector(render.GetColorModulation())
 
 		for _, v in pairs(subModels) do
 			matrix:Identity()
@@ -101,9 +102,14 @@ if CLIENT then
 			cam.PushModelMatrix(matrix, true)
 				if v.Mesh then
 					local subMesh = voxel.GetMesh(v.Mesh)
+					local col = colorMod
+
+					if v.Color then
+						col = v.Color:ToVector()
+					end
 
 					if subMesh then
-						subMesh:Draw()
+						subMesh:Draw(col)
 					end
 				elseif v.Model then
 					local subModel = voxel.GetModel(v.Model)
