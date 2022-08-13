@@ -23,8 +23,8 @@ function meta:GetComplexBounds(mins, maxs, subModels, transform)
 		transform = Matrix()
 	end
 
-	local transformMins = transform * self.Mins
-	local transformMaxs = transform * self.Maxs
+	local transformMins = transform * self.RenderMins
+	local transformMaxs = transform * self.RenderMaxs
 
 	mins.x = math.min(mins.x, transformMins.x, transformMaxs.x)
 	mins.y = math.min(mins.y, transformMins.y, transformMaxs.y)
@@ -131,6 +131,8 @@ function meta.Load(path)
 	vModel.Offset = data.Offset or Vector()
 
 	local vMesh = assert(voxel.GetMesh(data.Mesh), string.format("vModel %s references missing vMesh '%s'", name, vModel.Mesh))
+
+	vModel.RenderMins, vModel.RenderMaxs = vMesh:GetBounds()
 
 	if data.UseMeshBounds then
 		vModel.Mins, vModel.Maxs = vMesh:GetBounds()
