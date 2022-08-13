@@ -25,7 +25,7 @@ function voxel.LoadMeshes()
 	table.Empty(voxel.Meshes)
 
 	local function load(folder)
-		local files, folders = file.Find(folder .. "*", "LUA")
+		local files, folders = file.Find(folder .. "*.lua", "LUA")
 
 		for _, v in pairs(files) do
 			local path = folder .. v
@@ -46,7 +46,7 @@ function voxel.LoadModels()
 	table.Empty(voxel.Models)
 
 	local function load(folder)
-		local files, folders = file.Find(folder .. "*", "LUA")
+		local files, folders = file.Find(folder .. "*.lua", "LUA")
 
 		for _, v in pairs(files) do
 			local path = folder .. v
