@@ -188,6 +188,7 @@ function SWEP:AddMenuBar(ui)
 	local prefMenu = bar:AddMenu("Preferences")
 
 	prefMenu:AddCVar("Draw Model Origin", "voxel_draw_origin", "1", "0")
+	prefMenu:AddCVar("Show Extra Info", "voxel_extra_info", "1", "0")
 	prefMenu:AddSpacer()
 
 	local shadeMenu = prefMenu:AddSubMenu("Shade Mode")
