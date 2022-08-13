@@ -120,4 +120,19 @@ if CLIENT then
 
 	voxel.Cube = Mesh()
 	voxel.Cube:BuildFromTriangles(verts)
+else
+	function voxel.CreateProp(pos, ang, model, scale)
+		local ent = ents.Create("voxel_base")
+
+		ent:SetPos(pos)
+		ent:SetAngles(ang)
+
+		ent:SetVoxelModel(model)
+		ent:SetVoxelScale(scale)
+
+		ent:Spawn()
+		ent:Activate()
+
+		return ent
+	end
 end
