@@ -153,7 +153,7 @@ function meta:GetSize()
 
 	local minBounds, maxBounds = self:GetBounds()
 
-	return self:WriteCache("Size", maxBounds - minBounds)
+	return self:WriteCache("Size", maxBounds - minBounds + Vector(1, 1, 1))
 end
 
 -- Caching
