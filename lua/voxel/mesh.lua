@@ -128,7 +128,6 @@ if CLIENT then
 		self.Mat = CreateMaterial(name, "VertexLitGeneric", {
 			["$basetexture"] = renderTarget:GetName(),
 			["$blendtintbybasealpha"] = 1,
-			["$tintmasktexture"] = "vgui/alpha-back",
 			["$halflambert"] = 1
 		})
 
