@@ -5,6 +5,8 @@ ENT.Base = "base_anim"
 
 ENT.RenderGroup = RENDERGROUP_OPAQUE
 
+ENT.CopySubModels = true
+
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 
@@ -20,10 +22,15 @@ end
 
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "VoxelModel")
-	self:NetworkVar("Int", 0, "VoxelScale")
+	self:NetworkVar("Float", 0, "VoxelScale")
 
 	self:NetworkVarNotify("VoxelModel", self.NotifyChanged)
 	self:NetworkVarNotify("VoxelScale", self.NotifyChanged)
+
+	if SERVER and self.VoxelModel then
+		self:SetVoxelModel(self.VoxelModel)
+		self:SetVoxelScale(self.VoxelScale)
+	end
 end
 
 function ENT:SetupPhysics(model, scale)
@@ -77,7 +84,10 @@ function ENT:SetupVoxelModel(model, scale)
 	self:SetupPhysics(model, scale)
 
 	if CLIENT then
-		self.SubModels = table.Copy(voxel.GetModel(model).SubModels)
+		if self.CopySubModels then
+			self.SubModels = table.Copy(voxel.GetModel(model).SubModels)
+		end
+
 		self:UpdateRenderBounds(model, scale)
 	end
 end
