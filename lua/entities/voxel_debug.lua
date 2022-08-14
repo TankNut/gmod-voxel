@@ -137,6 +137,12 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 
+		local vModel = self:GetVModel()
+
+		if not vModel then
+			return
+		end
+
 		local matrix = self:GetWorldTransformMatrix()
 		local scale = self:GetVoxelScale()
 
@@ -144,7 +150,6 @@ if CLIENT then
 
 		cam.PushModelMatrix(matrix, true)
 			local color = self:GetColor()
-			local vModel = self:GetVModel()
 			local subModels = self:GetDrawSubModels() and vModel.SubModels or {}
 
 			render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
@@ -193,6 +198,11 @@ if CLIENT then
 
 	function ENT:GetRenderMesh()
 		local vModel = self:GetVModel()
+
+		if not vModel then
+			return
+		end
+
 		local vMesh = vModel:GetVMesh()
 
 		local renderMesh
