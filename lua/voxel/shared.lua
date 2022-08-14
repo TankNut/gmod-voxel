@@ -120,7 +120,27 @@ if CLIENT then
 
 	voxel.Cube = Mesh()
 	voxel.Cube:BuildFromTriangles(verts)
+
+	net.Receive("voxel_reload", function()
+		voxel.LoadMeshes()
+		voxel.LoadModels()
+	end)
 else
+	util.AddNetworkString("voxel_reload")
+
+	concommand.Add("voxel_reload", function(ply)
+		if IsValid(ply) then
+			net.Start("voxel_reload")
+			net.Send(ply)
+		else
+			voxel.LoadMeshes()
+			voxel.LoadModels()
+
+			net.Start("voxel_reload")
+			net.Broadcast()
+		end
+	end)
+
 	function voxel.CreateProp(pos, ang, model, scale)
 		assert(voxel.GetModel(model), string.format("Cannot create voxel prop: Model '%s' doesn't exist.", model))
 		assert(scale > 0, "Cannot create voxel prop: Scale cannot be 0.")
