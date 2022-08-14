@@ -122,6 +122,9 @@ if CLIENT then
 	voxel.Cube:BuildFromTriangles(verts)
 else
 	function voxel.CreateProp(pos, ang, model, scale)
+		assert(voxel.GetModel(model), string.format("Cannot create voxel prop: Model '%s' doesn't exist.", model))
+		assert(scale > 0, "Cannot create voxel prop: Scale cannot be 0.")
+
 		local ent = ents.Create("voxel_base")
 
 		ent:SetPos(pos)
