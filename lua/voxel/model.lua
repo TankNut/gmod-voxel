@@ -74,16 +74,24 @@ function meta:GetComplexBounds(mins, maxs, subModels, transform)
 	end
 end
 
+function meta:GetAttachment(att)
+	if not self.Attachments[att] then
+		return Vector(), Angle()
+	end
+
+	return self.Attachments[att].Offset, self.Attachments[att].Angles
+end
+
 if CLIENT then
 	function meta:Draw(subModels, drawSelf)
+		local colorMod = Vector(render.GetColorModulation())
 		local vMesh = self:GetVMesh()
 
 		if drawSelf then
-			vMesh:Draw()
+			vMesh:Draw(colorMod)
 		end
 
 		local matrix = Matrix()
-		local colorMod = Vector(render.GetColorModulation())
 
 		for _, v in pairs(subModels) do
 			matrix:Identity()
