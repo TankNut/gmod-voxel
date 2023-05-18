@@ -114,6 +114,10 @@ function SWEP:AddMenuBar(ui)
 		self:ImportFileDialog("*.vox", voxel.LoadVOX)
 	end)
 
+	importMenu:AddOption("Model (.mdl)", function()
+		self:FromModelDialog()
+	end)
+
 	local optMenu = bar:AddMenu("Options")
 
 	do -- Scale menu
@@ -410,6 +414,104 @@ function SWEP:ImportFileDialog(extensions, importer)
 	end
 end
 
+function SWEP:FromModelDialog()
+	local ui = vgui.Create("DFrame")
+
+	ui:SetSize(500, 300)
+	ui:SetTitle("Import Model")
+	ui:MakePopup()
+	ui:Center()
+
+	ui:DoModal()
+	ui:SetKeyboardInputEnabled(true)
+
+	local think = ui.Think
+
+	ui.Think = function()
+		think(ui)
+
+		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
+			ui:Close()
+
+			gui.HideGameUI()
+		end
+	end
+
+	ui.OnClose = function()
+		self.UI:RequestFocus()
+	end
+
+	local entry = ui:Add("DTextEntry")
+
+	entry:Dock(TOP)
+	entry:SetPlaceholderText("Model path (copy/paste from the spawnmenu)")
+	entry:SetUpdateOnType(true)
+
+	local scale = ui:Add("DNumSlider")
+
+	scale:DockMargin(2, 0, 0, 0)
+	scale:Dock(TOP)
+	scale:SetText("Import scale")
+	scale:SetMinMax(0, 2)
+	scale:SetDefaultValue(1)
+	scale:SetValue(1)
+
+	local buttons = ui:Add("DPanel")
+
+	buttons:SetPaintBackground(false)
+	buttons:Dock(TOP)
+	buttons:DockMargin(0, 5, 0, 0)
+	buttons:SetTall(22)
+
+	local cancel = buttons:Add("DButton")
+
+	cancel:SetText("Cancel")
+	cancel:Dock(LEFT)
+
+	cancel.DoClick = function()
+		ui:Close()
+	end
+
+	local ok = buttons:Add("DButton")
+
+	ok:SetText("Ok")
+	ok:Dock(RIGHT)
+	ok:SetDisabled(true)
+
+	ok.DoClick = function()
+		local mdl = entry:GetValue()
+		local mdlScale = scale:GetValue()
+
+		local ent = self:GetEditEntity()
+
+		ui:Close()
+		self.UI:Close()
+
+		voxel.SaveGrid("voxel_temp.dat", voxel.FromModel(mdl, mdlScale))
+
+		local payload = file.Read("voxel_temp.dat", "DATA")
+
+		net.Start("voxel_editor_opencl")
+			net.WriteEntity(ent)
+			net.WriteUInt(#payload, 16)
+			net.WriteData(payload, #payload)
+		net.SendToServer()
+	end
+
+	entry.OnValueChange = function(_, val)
+		ok:SetDisabled(not util.IsValidModel(val))
+	end
+
+	entry.OnEnter = function()
+		if util.IsValidModel(entry:GetValue()) then
+			ok:DoClick()
+		end
+	end
+
+	ui:InvalidateLayout(true)
+	ui:SizeToChildren(false, true)
+end
+
 local blacklist = {
 	["\""] = true,
 	[" "] = true,
@@ -484,7 +586,7 @@ function SWEP:SaveFileDialog()
 		ui:Close()
 		self.UI:Close()
 
-		file.CreateDir(string.GetPathFromFilename(val))
+		file.CreateDir("voxel/" .. string.GetPathFromFilename(val))
 
 		voxel.SaveGrid("voxel/" .. val .. ".dat", ent.Grid)
 

@@ -228,3 +228,102 @@ function voxel.LoadVOX(path)
 
 	return grid
 end
+
+-- Mdl
+if CLIENT then
+	local steps = 6
+
+	local function voxelize(grid, scale, t1, t2, t3)
+		local p1 = t1.pos * scale
+		local p2 = t2.pos * scale
+		local p3 = t3.pos * scale
+
+		t1.uv = Vector(t1.u, t1.v)
+		t2.uv = Vector(t2.u, t2.v)
+		t3.uv = Vector(t3.u, t3.v)
+
+		local b1 = p2 - p1
+		local len1 = b1:Length()
+		local b2 = p3 - p1
+		local len2 = b2:Length()
+
+		local u1 = t2.uv - t1.uv
+		local u2 = t3.uv - t1.uv
+
+		for l1 = 0, 1, 1 / (len1 * steps) do
+			for l2 = 0, 1, 1 / (len2 * steps) do
+				if l1 + l2 <= 1 then
+					local res = (b1 * l1) + (b2 * l2)
+					local pos = p1 + res
+
+					local uv = t1.uv + (u1 * l1) + (u2 * l2)
+
+					local x = math.floor(uv.x * 1024)
+					local y = math.floor(uv.y * 1024)
+
+					local col = grid:Get(pos.x, pos.y, pos.z)
+
+					if col then
+						table.insert(col, Color(render.ReadPixel(x, y)))
+					else
+						grid:Set(pos.x, pos.y, pos.z, {Color(render.ReadPixel(x, y))})
+					end
+				end
+			end
+		end
+
+		for k, v in pairs(grid.Items) do
+			if v.r then
+				continue
+			end
+
+			local r = 0
+			local g = 0
+			local b = 0
+
+			for _, col in pairs(v) do
+				r = r + col.r * col.r
+				g = g + col.g * col.g
+				b = b + col.b * col.b
+			end
+
+			grid.Items[k] = Color(math.sqrt(r / #v), math.sqrt(g / #v), math.sqrt(b / #v))
+		end
+	end
+
+	local rt = GetRenderTarget("voxel_from_model", 1024, 1024)
+
+	function voxel.FromModel(mdl, scale)
+		local grid = voxel.Grid()
+		local data = util.GetModelMeshes(mdl)
+
+		local buffer = {}
+
+		for _, iMesh in pairs(data) do
+			cam.Start2D()
+			render.PushRenderTarget(rt)
+				render.Clear(255, 255, 255, 255, true, true)
+
+				render.SuppressEngineLighting(true)
+				render.SetMaterial(Material(iMesh.material))
+				render.DrawScreenQuad()
+				render.SuppressEngineLighting(false)
+
+				render.CapturePixels()
+			render.PopRenderTarget()
+			cam.End2D()
+
+			for i = 1, #iMesh.triangles do
+				local offset = i % 3
+
+				if offset == 0 then
+					voxelize(grid, scale, buffer[1], buffer[2], iMesh.triangles[i])
+				else
+					buffer[offset] = iMesh.triangles[i]
+				end
+			end
+		end
+
+		return grid
+	end
+end
