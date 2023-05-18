@@ -25,9 +25,13 @@ function voxel.LoadMeshes()
 	table.Empty(voxel.Meshes)
 
 	local function load(folder)
-		local files, folders = file.Find(folder .. "*.lua", "LUA")
+		local files, folders = file.Find(folder .. "*", "LUA")
 
 		for _, v in pairs(files) do
+			if string.Right(v, 4) != ".lua" then
+				continue
+			end
+
 			local path = folder .. v
 
 			AddCSLuaFile(path)
@@ -46,9 +50,13 @@ function voxel.LoadModels()
 	table.Empty(voxel.Models)
 
 	local function load(folder)
-		local files, folders = file.Find(folder .. "*.lua", "LUA")
+		local files, folders = file.Find(folder .. "*", "LUA")
 
 		for _, v in pairs(files) do
+			if string.Right(v, 4) != ".lua" then
+				continue
+			end
+
 			local path = folder .. v
 
 			AddCSLuaFile(path)
