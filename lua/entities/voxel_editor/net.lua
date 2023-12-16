@@ -58,7 +58,7 @@ if CLIENT then
 
 		local grid = voxel.Grid()
 
-		for i = 1, net.ReadUInt(24) do
+		for i = 1, net.ReadUInt(16) do
 			grid:Set(net.ReadInt(8), net.ReadInt(8), net.ReadInt(8), colors[net.ReadUInt(16)])
 		end
 
@@ -183,7 +183,7 @@ else
 				net.WriteUInt(v.a, 8)
 			end
 
-			net.WriteUInt(self.Grid:GetCount(), 24)
+			net.WriteUInt(self.Grid:GetCount(), 16)
 
 			for index, col in pairs(self.Grid.Items) do
 				local x, y, z = voxel.Grid.FromIndex(index)
