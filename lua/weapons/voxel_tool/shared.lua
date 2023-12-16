@@ -77,7 +77,7 @@ end
 function SWEP:PrimaryAttack()
 	local ent = self:GetEditEntity()
 
-	if not IsValid(ent) then
+	if not IsValid(ent) or not IsFirstTimePredicted() then
 		return
 	end
 
@@ -96,7 +96,7 @@ end
 function SWEP:SecondaryAttack()
 	local ent = self:GetEditEntity()
 
-	if not IsValid(ent) then
+	if not IsValid(ent) or not IsFirstTimePredicted() then
 		return
 	end
 
@@ -115,6 +115,8 @@ end
 function SWEP:Reload()
 	if game.SinglePlayer() then
 		self:CallOnClient("Reload")
+	elseif not IsFirstTimePredicted() then
+		return
 	end
 
 	if SERVER or self.Reloaded then

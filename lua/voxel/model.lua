@@ -83,7 +83,7 @@ function meta:GetAttachment(att)
 end
 
 if CLIENT then
-	function meta:Draw(subModels, drawSelf)
+	function meta:Draw(submodels, drawSelf)
 		local colorMod = Vector(render.GetColorModulation())
 		local vMesh = self:GetVMesh()
 
@@ -93,7 +93,7 @@ if CLIENT then
 
 		local matrix = Matrix()
 
-		for _, v in pairs(subModels) do
+		for _, v in pairs(submodels) do
 			matrix:Identity()
 
 			if v.Attachment and self.Attachments[v.Attachment] then
@@ -109,21 +109,21 @@ if CLIENT then
 
 			cam.PushModelMatrix(matrix, true)
 				if v.Mesh then
-					local subMesh = voxel.GetMesh(v.Mesh)
+					local submesh = voxel.GetMesh(v.Mesh)
 					local col = colorMod
 
 					if v.Color then
 						col = v.Color:ToVector()
 					end
 
-					if subMesh then
-						subMesh:Draw(col)
+					if submesh then
+						submesh:Draw(col)
 					end
 				elseif v.Model then
-					local subModel = voxel.GetModel(v.Model)
+					local submodel = voxel.GetModel(v.Model)
 
-					if subModel then
-						subModel:Draw(subModel.Submodels, true)
+					if submodel then
+						submodel:Draw(submodel.Submodels, true)
 					end
 				end
 			cam.PopModelMatrix()
