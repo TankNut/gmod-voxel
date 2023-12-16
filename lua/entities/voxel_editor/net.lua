@@ -66,7 +66,13 @@ if CLIENT then
 	end)
 
 	net.Receive("voxel_editor_switch", function()
-		input.SelectWeapon(LocalPlayer():GetWeapon("voxel_tool"))
+		timer.Simple(0, function()
+			local weapon = LocalPlayer():GetWeapon("voxel_tool")
+
+			if IsValid(weapon) then
+				input.SelectWeapon(weapon)
+			end
+		end)
 	end)
 else
 	util.AddNetworkString("voxel_editor_set")
