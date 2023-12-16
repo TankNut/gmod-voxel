@@ -156,6 +156,35 @@ function meta:GetSize()
 	return self:WriteCache("Size", maxBounds - minBounds + Vector(1, 1, 1))
 end
 
+-- Max complexity for IMesh:BuildFromTriangles, not going to mess around with multi-part meshes so if this exceeds 1 we block saving
+function meta:GetComplexity()
+	local cache = self:GetCache("Complexity")
+
+	if cache then
+		return unpack(cache)
+	end
+
+	local complexity = 0
+
+	for index in pairs(self.Items) do
+		local x, y, z = fromIndex(index)
+		local faces = 0
+
+		if self:Get(x - 1, y, z) then faces = faces + 1 end
+		if self:Get(x + 1, y, z) then faces = faces + 1 end
+		if self:Get(x, y - 1, z) then faces = faces + 1 end
+		if self:Get(x, y + 1, z) then faces = faces + 1 end
+		if self:Get(x, y, z - 1) then faces = faces + 1 end
+		if self:Get(x, y, z + 1) then faces = faces + 1 end
+
+		complexity = complexity + faces
+	end
+
+	complexity = (complexity * 6) / 65535
+
+	return self:WriteCache("Complexity", complexity)
+end
+
 -- Caching
 
 function meta:GetCache(index)

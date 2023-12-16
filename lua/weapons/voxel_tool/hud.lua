@@ -97,6 +97,7 @@ function SWEP:DrawExtraInfo()
 	local lines = {
 		string.format("Grid size: [%i, %i, %i]", ent.Grid:GetSize():Unpack()),
 		"Voxel count: " .. ent.Grid:GetCount(),
+		string.format("Complexity: %.1i%%", ent.Grid:GetComplexity() * 100),
 		true,
 		string.format("Cursor position: [%i, %i, %i]",
 			normal and cursorX or 0,
