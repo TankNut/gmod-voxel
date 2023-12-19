@@ -1,20 +1,26 @@
 AddCSLuaFile()
 
--- Initial setup
+local meta = voxel.Model
 
-local meta = voxel.Mesh or setmetatable({}, {__call = function(self)
-	return setmetatable({}, {__index = self})
-end})
+function meta:Rebuild()
+	local mins, maxs = self.Grid:GetBounds()
 
--- Functions
+	self.Mins = mins - Vector(0.5, 0.5, 0.5)
+	self.Maxs = maxs + Vector(0.5, 0.5, 0.5)
 
-function meta:GetBounds()
-	return self.Mins, self.Maxs
+	if CLIENT then
+		self:RebuildMesh()
+	end
+
+	hook.Run("VoxelModelLoaded", self)
 end
 
--- Mesh making
 if CLIENT then
 	function meta:Draw(col)
+		if not col then
+			col = Vector(render.GetColorModulation())
+		end
+
 		render.SetMaterial(self.Mat)
 
 		self.Mat:SetVector("$color2", col)
@@ -50,7 +56,7 @@ if CLIENT then
 		{5, 6, 1, 1, 6, 2}, -- left
 	}
 
-	function meta:Rebuild()
+	function meta:RebuildMesh()
 		local grid = self.Grid
 		local mins, maxs = grid:GetBounds()
 
@@ -96,7 +102,7 @@ if CLIENT then
 			end
 		end
 
-		local name = "voxel_" .. string.Replace(SysTime(), ".", "_")
+		local name = "voxel_" .. self.Name
 		local renderTarget = GetRenderTargetEx(name,
 			256, 256,
 			RT_SIZE_NO_CHANGE,
@@ -125,11 +131,15 @@ if CLIENT then
 			cam.End2D()
 		render.PopRenderTarget()
 
-		self.Mat = CreateMaterial(name, "VertexLitGeneric", {
-			["$basetexture"] = renderTarget:GetName(),
-			["$blendtintbybasealpha"] = 1,
-			["$halflambert"] = 1
-		})
+		if self.Mat then
+			self.Mat:SetTexture("$basetexture", renderTarget)
+		else
+			self.Mat = CreateMaterial(name, "VertexLitGeneric", {
+				["$basetexture"] = renderTarget:GetName(),
+				["$blendtintbybasealpha"] = 1,
+				["$halflambert"] = 1
+			})
+		end
 
 		local verts = {}
 
@@ -166,28 +176,3 @@ if CLIENT then
 		self.Mesh:BuildFromTriangles(verts)
 	end
 end
-
-local function filename(path)
-	return string.Replace(string.StripExtension(path), "voxel/meshes/", "")
-end
-
-function meta.Load(path)
-	local vMesh = meta()
-
-	vMesh.Grid = voxel.LoadGrid(path)
-
-	local mins, maxs = vMesh.Grid:GetBounds()
-
-	vMesh.Mins = mins - Vector(0.5, 0.5, 0.5)
-	vMesh.Maxs = maxs + Vector(0.5, 0.5, 0.5)
-
-	if CLIENT then
-		vMesh:Rebuild()
-	end
-
-	voxel.Meshes[filename(path)] = vMesh
-
-	return vMesh
-end
-
-voxel.Mesh = meta

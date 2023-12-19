@@ -59,7 +59,7 @@ function EFFECT:IsDrawingVM()
 end
 
 function EFFECT:GetStartPos(ent)
-	local pos, ang = ent:GetVoxelModel():GetAttachment("muzzle")
+	local pos, ang = ent.VoxelModel:GetAttachment("muzzle")
 
 	if self:IsDrawingVM() then
 		pos, ang = LocalToWorld(pos * ent.VoxelData.Scale, ang, ent:GetViewPos())

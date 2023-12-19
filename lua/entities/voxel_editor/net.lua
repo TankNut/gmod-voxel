@@ -43,26 +43,32 @@ if CLIENT then
 		end
 	end)
 
-	net.Receive("voxel_editor_sync", function()
+	net.Receive("voxel_editor_shift", function()
 		local ent = net.ReadEntity()
 
 		if not IsValid(ent) then
 			return
 		end
 
-		local colors = {}
+		local x = net.ReadInt(8)
+		local y = net.ReadInt(8)
+		local z = net.ReadInt(8)
 
-		for i = 1, net.ReadUInt(16) do
-			colors[i] = Color(net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(8))
-		end
+		ent.Grid:Shift(x, y, z)
+	end)
 
-		local grid = voxel.Grid()
+	net.Receive("voxel_editor_sync", function()
+		local ent = net.ReadEntity()
 
-		for i = 1, net.ReadUInt(16) do
-			grid:Set(net.ReadInt(8), net.ReadInt(8), net.ReadInt(8), colors[net.ReadUInt(16)])
-		end
+		local fs = file.Open("voxel_editor_temp.dat", "wb", "DATA")
+
+		fs:Write(util.Decompress(net.ReadData(net.ReadUInt(16))))
+		fs:Close()
+
+		local grid, attachments = voxel.LoadFromFile("voxel_editor_temp.dat", "DATA")
 
 		ent.Grid = grid
+		ent.Attachments = attachments
 	end)
 
 	net.Receive("voxel_editor_switch", function()
@@ -76,10 +82,14 @@ if CLIENT then
 	end)
 else
 	util.AddNetworkString("voxel_editor_set")
+	util.AddNetworkString("voxel_editor_shift")
 	util.AddNetworkString("voxel_editor_sync")
 	util.AddNetworkString("voxel_editor_switch")
+
 	util.AddNetworkString("voxel_editor_new")
 	util.AddNetworkString("voxel_editor_opencl")
+	util.AddNetworkString("voxel_editor_opensv")
+
 	util.AddNetworkString("voxel_editor_scale")
 	util.AddNetworkString("voxel_editor_offset")
 
@@ -106,6 +116,7 @@ else
 
 		ent.Grid = voxel.Grid()
 		ent.Grid:Set(0, 0, 0, color_white)
+		table.Empty(ent.Attachments)
 
 		ent:SyncToPlayer()
 	end)
@@ -123,9 +134,45 @@ else
 
 		local size = net.ReadUInt(16)
 
-		file.Write("voxel_temp.dat", net.ReadData(size))
+		file.Write("voxel_editor_temp.dat", util.Decompress(net.ReadData(size)))
 
-		ent.Grid = voxel.LoadGrid("voxel_temp.dat", true)
+		local grid, attachments = voxel.LoadFromFile("voxel_editor_temp.dat", "DATA")
+
+		ent.Grid = grid
+		ent.Attachments = attachments
+		ent:SyncToPlayer()
+	end)
+
+	net.Receive("voxel_editor_opensv", function(_, ply)
+		local ent = net.ReadEntity()
+
+		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
+			return
+		end
+
+		if ent:GetOwningPlayer() != ply then
+			return
+		end
+
+		local name = net.ReadString()
+		local path = net.ReadBool() and "DATA" or "GAME"
+
+		if string.Right(name, 4) != ".dat" then
+			return
+		elseif path == "DATA" and not string.find(name, "^voxel/") then
+			return
+		elseif path == "GAME" and not string.find(name, "^data_static/voxel/") then
+			return
+		end
+
+		if not file.Exists(name, path) then
+			return
+		end
+
+		local grid, attachments = voxel.LoadFromFile(name, path)
+
+		ent.Grid = grid
+		ent.Attachments = attachments
 		ent:SyncToPlayer()
 	end)
 
@@ -158,41 +205,15 @@ else
 	end)
 
 	function ENT:SyncToPlayer(ply)
+		voxel.SaveToFile("voxel_editor_temp.dat", self.Grid, self.Attachments)
+
+		local data = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
+
 		net.Start("voxel_editor_sync")
 			net.WriteEntity(self)
 
-			local colors = {}
-			local lookup = {}
-
-			for _, v in pairs(self.Grid.Items) do
-				local col = tostring(v)
-
-				if lookup[col] then
-					continue
-				end
-
-				lookup[col] = table.insert(colors, v)
-			end
-
-			net.WriteUInt(#colors, 16)
-
-			for _, v in ipairs(colors) do
-				net.WriteUInt(v.r, 8)
-				net.WriteUInt(v.g, 8)
-				net.WriteUInt(v.b, 8)
-				net.WriteUInt(v.a, 8)
-			end
-
-			net.WriteUInt(self.Grid:GetCount(), 16)
-
-			for index, col in pairs(self.Grid.Items) do
-				local x, y, z = voxel.Grid.FromIndex(index)
-
-				net.WriteInt(x, 8)
-				net.WriteInt(y, 8)
-				net.WriteInt(z, 8)
-				net.WriteUInt(lookup[tostring(col)], 16)
-			end
+			net.WriteUInt(#data, 16)
+			net.WriteData(data)
 
 		if ply == nil then
 			net.Broadcast()
@@ -203,7 +224,14 @@ else
 
 	function ENT:Shift(x, y, z)
 		self.Grid:Shift(x, y, z)
-		self:SyncToPlayer()
+
+		net.Start("voxel_editor_shift")
+			net.WriteEntity(self)
+
+			net.WriteInt(x, 8)
+			net.WriteInt(y, 8)
+			net.WriteInt(z, 8)
+		net.Broadcast()
 	end
 
 	function ENT:Rotate(ang)

@@ -9,6 +9,8 @@ SWEP.VoxelData = {
 	Model = "",
 	Scale = 1,
 
+	Offset = Vector(),
+
 	ViewPos = {
 		Pos = Vector(),
 		Ang = Angle()

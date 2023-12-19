@@ -11,27 +11,28 @@ function SWEP:GetViewPos()
 end
 
 function SWEP:GetTracerOrigin()
-	local pos, ang = self:GetVoxelModel():GetAttachment("muzzle")
+	local pos, ang = self.VoxelModel:GetAttachment("muzzle")
 
 	return LocalToWorld(pos, ang, self:GetViewPos())
 end
 
 function SWEP:PreDrawViewModel()
-	local model, scale = self:GetVoxelModel()
+	local model = self.VoxelModel
 
-	if not model then
+	if not IsValid(model) then
 		return
 	end
 
 	local pos, ang = self:GetViewPos()
 	local matrix = Matrix()
+	local scale = self.VoxelData.Scale
 
 	matrix:SetTranslation(pos)
 	matrix:SetAngles(ang)
 	matrix:SetScale(Vector(scale, scale, scale))
 
 	cam.PushModelMatrix(matrix, true)
-		model:Draw({}, true)
+		model:Draw()
 	cam.PopModelMatrix()
 
 	render.ModelMaterialOverride(mat)
@@ -40,20 +41,21 @@ end
 function SWEP:PostDrawViewModel()
 	render.ModelMaterialOverride()
 
-	local model, scale = self:GetVoxelModel()
+	local model = self.VoxelModel
 
-	if not model then
+	if not IsValid(model) then
 		return
 	end
 
 	local pos, ang = self:GetViewPos()
 	local matrix = Matrix()
+	local scale = self.VoxelData.Scale
 
 	matrix:SetTranslation(pos)
 	matrix:SetAngles(ang)
 	matrix:SetScale(Vector(scale, scale, scale))
 
 	cam.PushModelMatrix(matrix, true)
-		model:Draw({}, true)
+		model:Draw()
 	cam.PopModelMatrix()
 end

@@ -1,24 +1,20 @@
 AddCSLuaFile()
 
-function SWEP:GetVoxelModel()
-	return voxel.GetModel(self.VoxelData.Model), self.VoxelData.Scale
-end
-
 function SWEP:SetupModel()
-	local model, scale = self:GetVoxelModel()
+	self.VoxelModel = VoxelModel(self.VoxelData.Model)
 
-	self:SetupPhysics(model, scale)
+	self:SetupPhysics()
 
 	if CLIENT then
-		self:UpdateRenderBounds(model, scale)
+		self:UpdateRenderBounds()
 	end
 end
 
-function SWEP:SetupPhysics(model, scale)
-	local mins, maxs = model:GetBounds()
+function SWEP:SetupPhysics()
+	local mins, maxs = self.VoxelModel:GetBounds()
 
-	mins = mins * scale
-	maxs = maxs * scale
+	mins = (mins + self.VoxelData.Offset) * self.VoxelData.Scale
+	maxs = (maxs + self.VoxelData.Offset) * self.VoxelData.Scale
 
 	if IsValid(self.PhysCollide) then
 		self.PhysCollide:Destroy()
@@ -41,12 +37,9 @@ function SWEP:SetupPhysics(model, scale)
 end
 
 if CLIENT then
-	function SWEP:UpdateRenderBounds(model, scale)
-		local mins = Vector(math.huge, math.huge, math.huge)
-		local maxs = Vector(-math.huge, -math.huge, -math.huge)
+	function SWEP:UpdateRenderBounds()
+		local mins, maxs = self.VoxelModel:GetBounds()
 
-		model:GetComplexBounds(mins, maxs, {})
-
-		self:SetRenderBounds(mins * scale, maxs * scale)
+		self:SetRenderBounds(mins * self.VoxelData.Scale, maxs * self.VoxelData.Scale)
 	end
 end

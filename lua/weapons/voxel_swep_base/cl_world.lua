@@ -21,20 +21,21 @@ function SWEP:DrawWorldModel()
 		self:DrawModel()
 	render.ModelMaterialOverride()
 
-	local model, scale = self:GetVoxelModel()
+	local model = self.VoxelModel
 
-	if not model then
+	if not IsValid(model) then
 		return
 	end
 
 	local pos, ang = self:GetWorldPos()
 	local matrix = Matrix()
+	local scale = self.VoxelData.Scale
 
 	matrix:SetTranslation(pos)
 	matrix:SetAngles(ang)
 	matrix:SetScale(Vector(scale, scale, scale))
 
 	cam.PushModelMatrix(matrix, true)
-		model:Draw({}, true)
+		model:Draw()
 	cam.PopModelMatrix()
 end

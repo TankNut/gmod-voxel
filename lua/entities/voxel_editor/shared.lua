@@ -60,6 +60,7 @@ function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 
 	self.Grid = voxel.Grid()
+	self.Attachments = {}
 
 	if CLIENT then
 		net.Start("voxel_editor_sync")
@@ -155,6 +156,7 @@ if CLIENT then
 
 			cam.PushModelMatrix(matrix)
 				voxel.Cube:Draw()
+				render.RenderFlashlights(function() voxel.Cube:Draw() end)
 			cam.PopModelMatrix()
 		end
 	end

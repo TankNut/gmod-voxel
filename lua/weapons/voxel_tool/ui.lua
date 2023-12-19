@@ -80,25 +80,62 @@ function SWEP:AddMenuBar(ui)
 	end):SetDisabled(not isOwner)
 
 	fileMenu:AddOption("Open", function()
-		self:OpenFileDialog(true)
-	end):SetDisabled(not isOwner)
-
-	fileMenu:AddOption("Open From Server", function()
 		self:OpenFileDialog()
 	end):SetDisabled(not isOwner)
 
+	fileMenu:AddOption("Open From Server", function()
+		self:OpenRemoteDialog()
+	end):SetDisabled(not isOwner)
+
 	fileMenu:AddOption("Save", function()
-		if ent.SavePath then
-			voxel.SaveGrid("voxel/" .. ent.SavePath .. ".dat", ent.Grid)
+		if ent.Grid:GetComplexity() > 1 then
+			Derma_Message("Cannot save, model is too complex.", "Error", "Ok")
 
 			return
 		end
 
-		self:SaveFileDialog()
+		if ent.SavePath then
+			voxel.SaveToFile("voxel/" .. ent.SavePath .. ".dat", ent.Grid, ent.Attachments)
+
+			return
+		end
+
+		self:SaveFileDialog(function(val)
+			voxel.SaveToFile("voxel/" .. val .. ".dat", ent.Grid, ent.Attachments)
+			ent.SavePath = val
+		end)
 	end)
 
 	fileMenu:AddOption("Save As...", function()
-		self:SaveFileDialog()
+		if ent.Grid:GetComplexity() > 1 then
+			Derma_Message("Cannot save, model is too complex.", "Error", "Ok")
+
+			return
+		end
+
+		self:SaveFileDialog(function(val)
+			voxel.SaveToFile("voxel/" .. val .. ".dat", ent.Grid, ent.Attachments)
+			ent.SavePath = val
+		end)
+	end)
+
+	fileMenu:AddSpacer()
+
+	fileMenu:AddOption("Save To Server", function()
+		if ent.Grid:GetComplexity() > 1 then
+			Derma_Message("Cannot save, model is too complex.", "Error", "Ok")
+
+			return
+		end
+
+		self:SaveFileDialog(function(val)
+			net.Start("voxel_model_save")
+				net.WriteEntity(ent)
+				net.WriteString(val)
+			net.SendToServer()
+
+			ent.SavePath = val
+		end)
 	end)
 
 	fileMenu:AddSpacer()
@@ -298,7 +335,7 @@ function SWEP:NewFileDialog()
 	ui:SizeToChildren(false, true)
 end
 
-function SWEP:OpenFileDialog(data)
+function SWEP:OpenFileDialog()
 	local ui = vgui.Create("DFrame")
 
 	ui:SetSize(500, 300)
@@ -329,32 +366,122 @@ function SWEP:OpenFileDialog(data)
 
 	browser:Dock(FILL)
 
-	browser:SetPath(data and "DATA" or "LUA")
-	browser:SetBaseFolder(data and "voxel" or "voxel/meshes")
-	browser:SetFileTypes(data and "*.dat" or "*.lua")
-	browser:SetCurrentFolder(data and "voxel" or "voxel/meshes")
+	browser:SetPath("DATA")
+	browser:SetBaseFolder("voxel")
+	browser:SetFileTypes("*.dat")
+	browser:SetCurrentFolder("voxel")
 	browser:SetOpen(true)
 
 	browser.OnDoubleClick = function(pnl, path)
-		local payload = file.Read(path, data and "DATA" or "LUA")
+		local payload = util.Compress(file.Read(path, "DATA"))
 		local ent = self:GetEditEntity()
 
-		if data then
-			ent.SavePath = string.Replace(path, "voxel/", "")
-			ent.SavePath = string.Replace(ent.SavePath, ".dat", "")
-		else
-			ent.SavePath = nil
-		end
+		ent.SavePath = nil
 
 		net.Start("voxel_editor_opencl")
 			net.WriteEntity(ent)
 			net.WriteUInt(#payload, 16)
-			net.WriteData(payload, #payload)
+			net.WriteData(payload)
 		net.SendToServer()
 
 		ui:Close()
 		self.UI:Close()
 	end
+end
+
+function SWEP:OpenRemoteDialog()
+	local ui = vgui.Create("DFrame")
+
+	ui:SetSize(500, 300)
+	ui:SetTitle("Open Remote File")
+	ui:MakePopup()
+	ui:Center()
+
+	ui:DoModal()
+	ui:SetKeyboardInputEnabled(true)
+
+	local think = ui.Think
+
+	ui.Think = function()
+		think(ui)
+
+		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
+			ui:Close()
+
+			gui.HideGameUI()
+		end
+	end
+
+	ui.OnClose = function()
+		self.UI:RequestFocus()
+	end
+
+	local tree = ui:Add("DTree")
+
+	tree:Dock(FILL)
+
+	local data = {
+		Files = {},
+		Folders = {},
+		Lookup = {}
+	}
+
+	for name, path in pairs(voxel.FileList) do
+		local current = data
+		local formatted = voxel.FormatFilename(name)
+
+		for v in formatted:gmatch("([^/]+)/") do
+			if current.Lookup[v] then
+				current = current.Lookup[v]
+
+				continue
+			end
+
+			local new = {
+				Name = v,
+				Files = {},
+				Folders = {},
+				Lookup = {}
+			}
+
+			table.insert(current.Folders, new)
+
+			current.Lookup[v] = new
+			current = new
+		end
+
+		table.insert(current.Files, {
+			Name = name,
+			Path = path
+		})
+	end
+
+	local function populate(current, node)
+		for _, v in SortedPairsByMemberValue(current.Folders, "Name") do
+			populate(v, node:AddNode(v.Name))
+		end
+
+		for _, v in SortedPairsByMemberValue(current.Files, "Name") do
+			local option = node:AddNode(string.GetFileFromFilename(v.Name), v.Path == "DATA" and "icon16/page.png" or "icon16/world.png")
+
+			option.Label.DoDoubleClick = function()
+				local ent = self:GetEditEntity()
+
+				ent.SavePath = voxel.FormatFilename(v.Name):gsub(".dat$", "")
+
+				ui:Close()
+				self.UI:Close()
+
+				net.Start("voxel_editor_opensv")
+					net.WriteEntity(ent)
+					net.WriteString(v.Name)
+					net.WriteBool(v.Path == "DATA")
+				net.SendToServer()
+			end
+		end
+	end
+
+	populate(data, tree:Root())
 end
 
 function SWEP:ImportFileDialog(extensions, importer)
@@ -402,14 +529,14 @@ function SWEP:ImportFileDialog(extensions, importer)
 		ui:Close()
 		self.UI:Close()
 
-		voxel.SaveGrid("voxel_temp.dat", importer(path, true))
+		voxel.SaveToFile("voxel_editor_temp.dat", importer(path, true), {})
 
-		local payload = file.Read("voxel_temp.dat", "DATA")
+		local payload = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
 
 		net.Start("voxel_editor_opencl")
 			net.WriteEntity(ent)
 			net.WriteUInt(#payload, 16)
-			net.WriteData(payload, #payload)
+			net.WriteData(payload)
 		net.SendToServer()
 	end
 end
@@ -480,21 +607,21 @@ function SWEP:FromModelDialog()
 
 	ok.DoClick = function()
 		local mdl = entry:GetValue()
-		local mdlScale = scale:GetValue()
+		local mdlScale = scale:GetValue() * 0.5
 
 		local ent = self:GetEditEntity()
 
 		ui:Close()
 		self.UI:Close()
 
-		voxel.SaveGrid("voxel_temp.dat", voxel.FromModel(mdl, mdlScale))
+		voxel.SaveToFile("voxel_editor_temp.dat", voxel.FromModel(mdl, mdlScale), {})
 
-		local payload = file.Read("voxel_temp.dat", "DATA")
+		local payload = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
 
 		net.Start("voxel_editor_opencl")
 			net.WriteEntity(ent)
 			net.WriteUInt(#payload, 16)
-			net.WriteData(payload, #payload)
+			net.WriteData(payload)
 		net.SendToServer()
 	end
 
@@ -519,7 +646,7 @@ local blacklist = {
 	["."] = true
 }
 
-function SWEP:SaveFileDialog()
+function SWEP:SaveFileDialog(callback)
 	local ui = vgui.Create("DFrame")
 
 	ui:SetWide(400)
@@ -580,17 +707,10 @@ function SWEP:SaveFileDialog()
 	ok:Dock(RIGHT)
 
 	ok.DoClick = function()
-		local val = entry:GetValue()
-		local ent = self:GetEditEntity()
-
 		ui:Close()
 		self.UI:Close()
 
-		file.CreateDir("voxel/" .. string.GetPathFromFilename(val))
-
-		voxel.SaveGrid("voxel/" .. val .. ".dat", ent.Grid)
-
-		ent.SavePath = val
+		callback(entry:GetValue())
 	end
 
 	entry.OnEnter = function()

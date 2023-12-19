@@ -89,7 +89,7 @@ function meta:Rotate(ang)
 
 		vec:Rotate(ang)
 
-		new[toIndex(vec.x, vec.y, vec.z)] = val
+		new[toIndex(math.Round(vec.x), math.Round(vec.y), math.Round(vec.z))] = val
 	end
 
 	self.Items = new

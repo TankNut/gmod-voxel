@@ -1,78 +1,50 @@
 AddCSLuaFile()
 
 voxel = voxel or {
-	Meshes = {},
-	Models = {}
+	Models = {},
+	FileList = {},
+	FileCache = {}
 }
 
 -- Shared
 
+file.CreateDir("voxel")
+file.CreateDir("voxel-import")
+
 include("convars.lua")
 include("file.lua")
 include("grid.lua")
-include("mesh.lua")
+include("import.lua")
+
 include("model.lua")
+include("mesh.lua")
+include("net.lua")
 
-function voxel.GetMesh(vMesh)
-	return voxel.Meshes[vMesh]
-end
-
-function voxel.GetModel(vModel)
-	return voxel.Models[vModel]
-end
-
-function voxel.LoadMeshes()
-	table.Empty(voxel.Meshes)
-
-	local function load(folder)
-		local files, folders = file.Find(folder .. "*", "LUA")
-
-		for _, v in pairs(files) do
-			if string.Right(v, 4) != ".lua" then
-				continue
-			end
-
-			local path = folder .. v
-
-			AddCSLuaFile(path)
-			voxel.Mesh.Load(path)
-		end
-
-		for _, v in pairs(folders) do
-			load(folder .. v .. "/")
-		end
+function VoxelModel(path)
+	if SERVER or voxel.Models[path] then
+		return voxel.Models[path]
 	end
 
-	load("voxel/meshes/")
+	local model = voxel.Model(path)
+
+	model:RequestModelData()
+
+	return model
 end
 
-function voxel.LoadModels()
-	table.Empty(voxel.Models)
+function VoxelModelExists(path)
+	return tobool(voxel.Models[path])
+end
 
-	local function load(folder)
-		local files, folders = file.Find(folder .. "*", "LUA")
+function voxel.FormatFilename(name)
+	local sub, count = name:StripExtension():gsub("^data_static/voxel/", "")
 
-		for _, v in pairs(files) do
-			if string.Right(v, 4) != ".lua" then
-				continue
-			end
-
-			local path = folder .. v
-
-			AddCSLuaFile(path)
-			voxel.Model.Load(path)
-		end
-
-		for _, v in pairs(folders) do
-			load(folder .. v .. "/")
-		end
+	if count == 0 then
+		sub, count = sub:gsub("^voxel/", "")
 	end
 
-	load("voxel/models/")
+	return sub
 end
-
-voxel.LoadMeshes()
-voxel.LoadModels()
 
 -- Client
 
@@ -130,8 +102,12 @@ if CLIENT then
 	voxel.Cube:BuildFromTriangles(verts)
 
 	net.Receive("voxel_reload", function()
-		voxel.LoadMeshes()
-		voxel.LoadModels()
+		-- Placeholder
+	end)
+
+	hook.Add("InitPostEntity", "voxel", function()
+		net.Start("voxel_model_list")
+		net.SendToServer()
 	end)
 else
 	util.AddNetworkString("voxel_reload")
@@ -141,19 +117,16 @@ else
 			net.Start("voxel_reload")
 			net.Send(ply)
 		else
-			voxel.LoadMeshes()
-			voxel.LoadModels()
-
 			net.Start("voxel_reload")
 			net.Broadcast()
 		end
 	end)
 
 	function voxel.CreateProp(pos, ang, model, scale)
-		assert(voxel.GetModel(model), string.format("Cannot create voxel prop: Model '%s' doesn't exist.", model))
+		assert(voxel.Models[model], string.format("Cannot create voxel prop: Model '%s' doesn't exist.", model))
 		assert(scale > 0, "Cannot create voxel prop: Scale cannot be 0.")
 
-		local ent = ents.Create("voxel_base")
+		local ent = ents.Create("voxel_base_dynamic")
 
 		ent:SetPos(pos)
 		ent:SetAngles(ang)
@@ -165,5 +138,39 @@ else
 		ent:Activate()
 
 		return ent
+	end
+
+	local loadList = {}
+
+	local function buildList(folder, path)
+		local files, folders = file.Find(folder .. "*", path)
+
+		for _, v in pairs(files) do
+			local name = folder .. v
+
+			loadList[voxel.FormatFilename(name)] = {name, path}
+			voxel.FileList[name] = path
+		end
+
+		for _, v in pairs(folders) do
+			buildList(folder .. v .. "/", path)
+		end
+	end
+
+	buildList("data_static/voxel/", "GAME")
+	buildList("voxel/", "DATA")
+
+	for name, data in pairs(loadList) do
+		local model = voxel.Model(name)
+
+		model.File = data[1]
+		model.Path = data[2]
+
+		local grid, attachments = voxel.LoadFromFile(data[1], data[2])
+
+		model.Grid = grid
+		model.Attachments = attachments
+		model:SendToClient()
+		model:Rebuild()
 	end
 end
