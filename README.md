@@ -6,7 +6,6 @@ Voxel is a Garry's Mod addon that lets you build your own weapon and entity mode
 * A simple, easy to use interface
 * Multiplayer support
 * Shift, rotation and shading tools
-* A powerful virtual model system that lets you define submeshes, models and attachments
 * Base entities to simplify implementing this system into your own work
 
 # Installation
