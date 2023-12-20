@@ -95,26 +95,26 @@ function SWEP:DrawExtraInfo()
 	local normal, cursorX, cursorY, cursorZ = self:GetTrace()
 
 	local lines = {
-		string.format("Grid size: [%i, %i, %i]", ent.Grid:GetSize():Unpack()),
-		"Voxel count: " .. ent.Grid:GetCount(),
-		string.format("Complexity: %.1i%%", ent.Grid:GetComplexity() * 100),
-		true,
-		string.format("Cursor position: [%i, %i, %i]",
+		{string.format("Grid size: [%i, %i, %i]", ent.Grid:GetSize():Unpack())},
+		{"Voxel count: " .. ent.Grid:GetCount()},
+		{string.format("Complexity: %.1i%%", ent.Grid:GetComplexity() * 100), ent.Grid:GetComplexity() > 1},
+		{true},
+		{string.format("Cursor position: [%i, %i, %i]",
 			normal and cursorX or 0,
 			normal and cursorY or 0,
-			normal and cursorZ or 0),
-		string.format("Cursor normal: [%.1f, %.1f, %.1f]",
+			normal and cursorZ or 0)},
+		{string.format("Cursor normal: [%i, %i, %i]",
 			normal and normal.x or 0,
 			normal and normal.y or 0,
-			normal and normal.z or 0)
+			normal and normal.z or 0)}
 	}
 
 	for k, v in pairs(lines) do
-		if v == true then
+		if v[1] == true then
 			continue
 		end
 
-		local w = surface.GetTextSize(v)
+		local w = surface.GetTextSize(v[1])
 
 		width = math.max(width, w)
 	end
@@ -125,10 +125,16 @@ function SWEP:DrawExtraInfo()
 	draw.RoundedBox(8, offset, y, width + inset * 2, #lines * 22 + inset * 2, colors.Background)
 
 	for k, v in pairs(lines) do
-		if v == true then
+		if v[1] == true then
 			continue
 		end
 
-		draw.SimpleText(v, "HudDefault", x + inset, y + inset + 22 * (k - 1), colors.Foreground, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+		local color = colors.Foreground
+
+		if v[2] then
+			color = colors.ForegroundSelected
+		end
+
+		draw.SimpleText(v[1], "HudDefault", x + inset, y + inset + 22 * (k - 1), color, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 	end
 end
