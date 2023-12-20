@@ -572,7 +572,6 @@ function SWEP:FromModelDialog()
 
 	entry:Dock(TOP)
 	entry:SetPlaceholderText("Model path (copy/paste from the spawnmenu)")
-	entry:SetUpdateOnType(true)
 
 	local scale = ui:Add("DNumSlider")
 
@@ -603,7 +602,6 @@ function SWEP:FromModelDialog()
 
 	ok:SetText("Ok")
 	ok:Dock(RIGHT)
-	ok:SetDisabled(true)
 
 	ok.DoClick = function()
 		local mdl = entry:GetValue()
@@ -625,14 +623,8 @@ function SWEP:FromModelDialog()
 		net.SendToServer()
 	end
 
-	entry.OnValueChange = function(_, val)
-		ok:SetDisabled(not util.IsValidModel(val))
-	end
-
 	entry.OnEnter = function()
-		if util.IsValidModel(entry:GetValue()) then
-			ok:DoClick()
-		end
+		ok:DoClick()
 	end
 
 	ui:InvalidateLayout(true)
