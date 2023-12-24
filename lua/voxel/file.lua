@@ -11,14 +11,17 @@ function voxel.LoadFromFile(name, path)
 
 	local colors = {}
 
+	-- Color index
 	for i = 1, fs:ReadUShort() do
 		colors[i] = Color(fs:ReadByte(), fs:ReadByte(), fs:ReadByte(), fs:ReadByte())
 	end
 
+	-- Point list
 	for i = 1, fs:ReadULong() do
 		grid:Set(fs:ReadByte() - 128, fs:ReadByte() - 128, fs:ReadByte() - 128, colors[fs:ReadUShort()])
 	end
 
+	-- Attachments
 	for i = 1, fs:ReadByte() do
 		attachments[fs:Read(fs:ReadByte())] = {
 			Offset = Vector(fs:ReadFloat(), fs:ReadFloat(), fs:ReadFloat()),
@@ -63,7 +66,7 @@ function voxel.SaveToFile(name, grid, attachments)
 		fs:WriteByte(v.a)
 	end
 
-	-- Write point data
+	-- Write point list
 	fs:WriteULong(grid:GetCount())
 
 	for index, col in pairs(grid.Items) do
@@ -76,7 +79,7 @@ function voxel.SaveToFile(name, grid, attachments)
 	end
 
 	-- Write attachments
-	fs:WriteByte(#attachments)
+	fs:WriteByte(table.Count(attachments))
 
 	for attachment, data in pairs(attachments) do
 		-- Name
