@@ -20,6 +20,8 @@ include("model.lua")
 include("mesh.lua")
 include("net.lua")
 
+include("vgui.lua")
+
 function VoxelModel(path)
 	if SERVER or voxel.Models[path] then
 		return voxel.Models[path]

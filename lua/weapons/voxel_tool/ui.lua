@@ -1,6 +1,30 @@
 local persistMouse = CreateClientConVar("voxel_ui_save_mouse", "0", true, false, "", 0, 1)
 local persistWindow = CreateClientConVar("voxel_ui_save_window", "0", true, false, "", 0, 1)
 
+local function installThink(ui, ent)
+	local think = ui.Think
+
+	ui.Editor = ent
+
+	ui.Think = function()
+		-- Close if we lose our editor
+		if not IsValid(ent) then
+			ui:Close()
+
+			return
+		end
+
+		think(ui)
+
+		-- Close on escape
+		if gui.IsGameUIVisible() and (not IsValid(vgui.GetKeyboardFocus()) or vgui.FocusedHasParent(ui)) then
+			ui:Close()
+
+			gui.HideGameUI()
+		end
+	end
+end
+
 function SWEP:ToggleUI()
 	if IsValid(self.UI) then
 		self.UI:Close()
@@ -20,17 +44,7 @@ function SWEP:ToggleUI()
 	ui:MakePopup()
 	ui:Center()
 
-	local think = ui.Think
-
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and not IsValid(vgui.GetKeyboardFocus()) then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
-	end
+	installThink(ui, self:GetEditEntity())
 
 	ui.OnClose = function()
 		background:Remove()
@@ -72,7 +86,7 @@ function SWEP:AddMenuBar(ui)
 	bar:DockMargin(-3, -6, -3, 3)
 
 	local fileMenu = bar:AddMenu("File")
-	local ent = self:GetEditEntity()
+	local ent = ui.Editor
 	local isOwner = LocalPlayer() == ent:GetOwningPlayer()
 
 	fileMenu:AddOption("New", function()
@@ -130,7 +144,6 @@ function SWEP:AddMenuBar(ui)
 
 		self:SaveFileDialog(function(val)
 			net.Start("voxel_model_save")
-				net.WriteEntity(ent)
 				net.WriteString(val)
 			net.SendToServer()
 
@@ -155,6 +168,12 @@ function SWEP:AddMenuBar(ui)
 		self:FromModelDialog()
 	end)
 
+	local modelMenu = bar:AddMenu("Model")
+
+	modelMenu:AddOption("Attachments", function()
+		self:AttachmentDialog()
+	end)
+
 	local optMenu = bar:AddMenu("Options")
 
 	do -- Scale menu
@@ -174,7 +193,6 @@ function SWEP:AddMenuBar(ui)
 		for k, v in pairs({1, 2, 5, 10, 15}) do
 			local pnl = scaleMenu:AddOption(v, function()
 				net.Start("voxel_editor_scale")
-					net.WriteEntity(ent)
 					net.WriteUInt(v, 4)
 				net.SendToServer()
 
@@ -206,7 +224,6 @@ function SWEP:AddMenuBar(ui)
 		for k, v in pairs({0, 10, 20, 25, 50}) do
 			local pnl = offsetMenu:AddOption(v, function()
 				net.Start("voxel_editor_offset")
-					net.WriteEntity(ent)
 					net.WriteUInt(v, 6)
 				net.SendToServer()
 
@@ -279,17 +296,7 @@ function SWEP:NewFileDialog()
 	ui:DoModal()
 	ui:SetKeyboardInputEnabled(true)
 
-	local think = ui.Think
-
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
-	end
+	installThink(ui, self:GetEditEntity())
 
 	local label = ui:Add("DLabel")
 
@@ -300,14 +307,15 @@ function SWEP:NewFileDialog()
 	local buttons = ui:Add("DPanel")
 
 	buttons:SetPaintBackground(false)
-	buttons:Dock(TOP)
 	buttons:DockMargin(0, 5, 0, 0)
+	buttons:Dock(TOP)
 	buttons:SetTall(22)
 
 	local cancel = buttons:Add("DButton")
 
 	cancel:SetText("Cancel")
-	cancel:Dock(LEFT)
+	cancel:DockMargin(5, 0, 0, 0)
+	cancel:Dock(RIGHT)
 
 	cancel.DoClick = function()
 		ui:Close()
@@ -319,13 +327,10 @@ function SWEP:NewFileDialog()
 	ok:Dock(RIGHT)
 
 	ok.DoClick = function()
-		local ent = self:GetEditEntity()
-
 		net.Start("voxel_editor_new")
-			net.WriteEntity(ent)
 		net.SendToServer()
 
-		ent.SavePath = nil
+		ui.Editor.SavePath = nil
 
 		ui:Close()
 		self.UI:Close()
@@ -346,17 +351,7 @@ function SWEP:OpenFileDialog()
 	ui:DoModal()
 	ui:SetKeyboardInputEnabled(true)
 
-	local think = ui.Think
-
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
-	end
+	installThink(ui, self:GetEditEntity())
 
 	ui.OnClose = function()
 		self.UI:RequestFocus()
@@ -374,12 +369,10 @@ function SWEP:OpenFileDialog()
 
 	browser.OnDoubleClick = function(pnl, path)
 		local payload = util.Compress(file.Read(path, "DATA"))
-		local ent = self:GetEditEntity()
 
-		ent.SavePath = nil
+		ui.Editor.SavePath = voxel.FormatFilename(path):gsub(".dat$", "")
 
 		net.Start("voxel_editor_opencl")
-			net.WriteEntity(ent)
 			net.WriteUInt(#payload, 16)
 			net.WriteData(payload)
 		net.SendToServer()
@@ -400,17 +393,7 @@ function SWEP:OpenRemoteDialog()
 	ui:DoModal()
 	ui:SetKeyboardInputEnabled(true)
 
-	local think = ui.Think
-
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
-	end
+	installThink(ui, self:GetEditEntity())
 
 	ui.OnClose = function()
 		self.UI:RequestFocus()
@@ -465,15 +448,12 @@ function SWEP:OpenRemoteDialog()
 			local option = node:AddNode(string.GetFileFromFilename(v.Name), v.Path == "DATA" and "icon16/page.png" or "icon16/world.png")
 
 			option.Label.DoDoubleClick = function()
-				local ent = self:GetEditEntity()
-
-				ent.SavePath = voxel.FormatFilename(v.Name):gsub(".dat$", "")
+				ui.Editor.SavePath = voxel.FormatFilename(v.Name):gsub(".dat$", "")
 
 				ui:Close()
 				self.UI:Close()
 
 				net.Start("voxel_editor_opensv")
-					net.WriteEntity(ent)
 					net.WriteString(v.Name)
 					net.WriteBool(v.Path == "DATA")
 				net.SendToServer()
@@ -495,17 +475,7 @@ function SWEP:ImportFileDialog(extensions, importer)
 	ui:DoModal()
 	ui:SetKeyboardInputEnabled(true)
 
-	local think = ui.Think
-
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
-	end
+	installThink(ui, self:GetEditEntity())
 
 	ui.OnClose = function()
 		self.UI:RequestFocus()
@@ -522,9 +492,7 @@ function SWEP:ImportFileDialog(extensions, importer)
 	browser:SetOpen(true)
 
 	browser.OnDoubleClick = function(pnl, path)
-		local ent = self:GetEditEntity()
-
-		ent.SavePath = nil
+		ui.Editor.SavePath = nil
 
 		ui:Close()
 		self.UI:Close()
@@ -534,7 +502,6 @@ function SWEP:ImportFileDialog(extensions, importer)
 		local payload = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
 
 		net.Start("voxel_editor_opencl")
-			net.WriteEntity(ent)
 			net.WriteUInt(#payload, 16)
 			net.WriteData(payload)
 		net.SendToServer()
@@ -544,7 +511,7 @@ end
 function SWEP:FromModelDialog()
 	local ui = vgui.Create("DFrame")
 
-	ui:SetSize(500, 300)
+	ui:SetSize(350, 300)
 	ui:SetTitle("Import Model")
 	ui:MakePopup()
 	ui:Center()
@@ -552,17 +519,7 @@ function SWEP:FromModelDialog()
 	ui:DoModal()
 	ui:SetKeyboardInputEnabled(true)
 
-	local think = ui.Think
-
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
-	end
+	installThink(ui, self:GetEditEntity())
 
 	ui.OnClose = function()
 		self.UI:RequestFocus()
@@ -592,7 +549,8 @@ function SWEP:FromModelDialog()
 	local cancel = buttons:Add("DButton")
 
 	cancel:SetText("Cancel")
-	cancel:Dock(LEFT)
+	cancel:DockMargin(5, 0, 0, 0)
+	cancel:Dock(RIGHT)
 
 	cancel.DoClick = function()
 		ui:Close()
@@ -607,8 +565,6 @@ function SWEP:FromModelDialog()
 		local mdl = entry:GetValue()
 		local mdlScale = scale:GetValue() * 0.5
 
-		local ent = self:GetEditEntity()
-
 		ui:Close()
 		self.UI:Close()
 
@@ -617,7 +573,6 @@ function SWEP:FromModelDialog()
 		local payload = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
 
 		net.Start("voxel_editor_opencl")
-			net.WriteEntity(ent)
 			net.WriteUInt(#payload, 16)
 			net.WriteData(payload)
 		net.SendToServer()
@@ -649,16 +604,10 @@ function SWEP:SaveFileDialog(callback)
 	ui:DoModal()
 	ui:SetKeyboardInputEnabled(true)
 
-	local think = ui.Think
+	installThink(ui, self:GetEditEntity())
 
-	ui.Think = function()
-		think(ui)
-
-		if gui.IsGameUIVisible() and ui:HasHierarchicalFocus() then
-			ui:Close()
-
-			gui.HideGameUI()
-		end
+	ui.OnClose = function()
+		self.UI:RequestFocus()
 	end
 
 	local entry = ui:Add("DTextEntry")
@@ -671,7 +620,7 @@ function SWEP:SaveFileDialog(callback)
 		end
 	end
 
-	local saved = self:GetEditEntity().SavePath
+	local saved = ui.Editor.SavePath
 
 	if saved then
 		entry:SetValue(string.Replace(saved, ".dat", ""))
@@ -708,6 +657,245 @@ function SWEP:SaveFileDialog(callback)
 	entry.OnEnter = function()
 		ok:DoClick()
 	end
+
+	ui:InvalidateLayout(true)
+	ui:SizeToChildren(false, true)
+end
+
+function SWEP:AttachmentDialog()
+	local ui = vgui.Create("DFrame")
+
+	ui:SetSize(500, 300)
+	ui:SetTitle("Attachments")
+	ui:MakePopup()
+	ui:Center()
+
+	ui:DoModal()
+	ui:SetKeyboardInputEnabled(true)
+
+	installThink(ui, self:GetEditEntity())
+
+	ui.OnClose = function()
+		self.UI:RequestFocus()
+	end
+
+	local buttons = ui:Add("DPanel")
+
+	buttons:SetPaintBackground(false)
+	buttons:Dock(BOTTOM)
+	buttons:DockMargin(0, 5, 0, 2)
+	buttons:SetTall(22)
+
+	local newButton = buttons:Add("DButton")
+
+	newButton:Dock(LEFT)
+	newButton:DockMargin(0, 0, 5, 0)
+	newButton:SetText("New...")
+	newButton:SizeToContents()
+	newButton:SetDisabled(true)
+
+	local nameEntry = buttons:Add("DTextEntry")
+
+	nameEntry:Dock(LEFT)
+	nameEntry:DockMargin(0, 0, 5, 0)
+	nameEntry:SetWide(200)
+	nameEntry:SetPlaceholderText("Attachment Name")
+	nameEntry:SetUpdateOnType(true)
+
+	nameEntry.OnValueChange = function(_, val)
+		local name = string.lower(val):Trim()
+
+		newButton:SetDisabled(tobool(ui.Editor.Attachments[name]) or #name == 0)
+		newButton:SetTooltip(newButton:GetDisabled() and "Attachment name is invalid (already exists?)" or nil)
+	end
+
+	local renameButton = buttons:Add("DButton")
+
+	renameButton:Dock(LEFT)
+	renameButton:DockMargin(0, 0, 5, 0)
+	renameButton:SetText("Rename")
+	renameButton:SizeToContents()
+	renameButton:SetDisabled(true)
+
+	renameButton.DoClick = function()
+		local name = string.lower(nameEntry:GetValue()):Trim()
+
+		net.Start("voxel_editor_att_rename")
+			net.WriteString(ui.Attachment.Name)
+			net.WriteString(name)
+		net.SendToServer()
+
+		ui.Attachment.Name = name
+	end
+
+	local deleteButton = buttons:Add("DButton")
+
+	deleteButton:Dock(LEFT)
+	deleteButton:DockMargin(0, 0, 5, 0)
+	deleteButton:SetText("Delete")
+	deleteButton:SizeToContents()
+	deleteButton:SetDisabled(true)
+
+	deleteButton.DoClick = function()
+		nameEntry:SetValue("")
+
+		renameButton:SetDisabled(true)
+		deleteButton:SetDisabled(true)
+
+		net.Start("voxel_editor_att_delete")
+			net.WriteString(ui.Attachment.Name)
+		net.SendToServer()
+	end
+
+	local propertyList = ui:Add("DProperties")
+
+	propertyList:DockMargin(2, 1, 0, 0)
+	propertyList:Dock(RIGHT)
+	propertyList:SetWide(200)
+
+	local function updateOffset(prop, val)
+		if not ui.Attachment then
+			return
+		end
+
+		ui.Attachment.Offset[prop] = tonumber(val) and val or 0
+	end
+
+	local function submitOffset()
+		net.Start("voxel_editor_att_offset")
+			net.WriteString(ui.Attachment.Name)
+			net.WriteVector(ui.Attachment.Offset)
+		net.SendToServer()
+	end
+
+	local offsetX = propertyList:CreateRow("Offset", "Offset: X")
+	offsetX:Setup("VoxelOffset")
+	offsetX.DataChanged = function(_, val) updateOffset("x", val) end
+	offsetX.OnEnter = function() submitOffset() end
+
+	local offsetY = propertyList:CreateRow("Offset", "Offset: Y")
+	offsetY:Setup("VoxelOffset")
+	offsetY.DataChanged = function(_, val) updateOffset("y", val) end
+	offsetY.OnEnter = function() submitOffset() end
+
+	local offsetZ = propertyList:CreateRow("Offset", "Offset: Z")
+	offsetZ:Setup("VoxelOffset")
+	offsetZ.DataChanged = function(_, val) updateOffset("z", val) end
+	offsetZ.OnEnter = function() submitOffset() end
+
+	local function updateAngle(prop, val)
+		if not ui.Attachment then
+			return
+		end
+
+		ui.Attachment.Angles[prop] = tonumber(val) and val or 0
+	end
+
+	local function submitAngle()
+		net.Start("voxel_editor_att_angles")
+			net.WriteString(ui.Attachment.Name)
+			net.WriteAngle(ui.Attachment.Angles)
+		net.SendToServer()
+	end
+
+	local angleP = propertyList:CreateRow("Angles", "Angles: Pitch")
+	angleP:Setup("VoxelOffset")
+	angleP.DataChanged = function(_, val) updateAngle("p", val) end
+	angleP.OnEnter = function() submitAngle() end
+
+	local angleY = propertyList:CreateRow("Angles", "Angles: Yaw")
+	angleY:Setup("VoxelOffset")
+	angleY.DataChanged = function(_, val) updateAngle("y", val) end
+	angleY.OnEnter = function() submitAngle() end
+
+	local angleR = propertyList:CreateRow("Angles", "Angles: Roll")
+	angleR:Setup("VoxelOffset")
+	angleR.DataChanged = function(_, val) updateAngle("r", val) end
+	angleR.OnEnter = function() submitAngle() end
+
+	local listView = ui:Add("DListView")
+
+	listView:Dock(FILL)
+	listView:AddColumn("Attachment"):SetFixedWidth(120)
+	listView:AddColumn("Offset")
+	listView:AddColumn("Angles")
+
+	listView.OnRowSelected = function(_, index, row)
+		local attachment = ui.Editor.Attachments[row.Name]
+
+		-- Need to explicitly copy here to avoid 'false' updates for the client
+		ui.Attachment = {
+			Name = row.Name,
+			Offset = Vector(attachment.Offset),
+			Angles = Angle(attachment.Angles)
+		}
+
+		nameEntry:SetValue(row.Name)
+		nameEntry:SetCaretPos(#row.Name)
+
+		newButton:SetDisabled(true)
+		renameButton:SetDisabled(false)
+		deleteButton:SetDisabled(false)
+
+		offsetX:SetValue(attachment.Offset.x)
+		offsetY:SetValue(attachment.Offset.y)
+		offsetZ:SetValue(attachment.Offset.z)
+
+		angleP:SetValue(attachment.Angles.p)
+		angleY:SetValue(attachment.Angles.y)
+		angleR:SetValue(attachment.Angles.r)
+	end
+
+	newButton.DoClick = function()
+		local name = string.lower(nameEntry:GetValue()):Trim()
+
+		if ui.Editor.Attachments[name] then
+			return
+		end
+
+		net.Start("voxel_editor_att_create")
+			net.WriteString(name)
+		net.SendToServer()
+
+		ui.Attachment = {
+			Name = name,
+			Offset = Vector(),
+			Angles = Angle()
+		}
+
+		offsetX:SetValue(0)
+		offsetY:SetValue(0)
+		offsetZ:SetValue(0)
+
+		angleP:SetValue(0)
+		angleY:SetValue(0)
+		angleR:SetValue(0)
+	end
+
+	local function populate()
+		listView:Clear()
+
+		for name, data in SortedPairs(ui.Editor.Attachments) do
+			local line = listView:AddLine(name,
+				string.format("[%i, %i, %i]", data.Offset.x, data.Offset.y, data.Offset.z),
+				string.format("[%i, %i, %i]", data.Angles.p, data.Angles.y, data.Angles.r)
+			)
+
+			line.Name = name
+
+			if ui.Attachment and ui.Attachment.Name == name then
+				line:SetSelected(true)
+			end
+		end
+	end
+
+	hook.Add("VoxelEditorAttachmentSync", ui, function(_, ent)
+		if ent == ui.Editor then
+			populate()
+		end
+	end)
+
+	populate()
 
 	ui:InvalidateLayout(true)
 	ui:SizeToChildren(false, true)

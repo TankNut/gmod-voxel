@@ -60,6 +60,10 @@ if CLIENT then
 	net.Receive("voxel_editor_sync", function()
 		local ent = net.ReadEntity()
 
+		if not IsValid(ent) then
+			return
+		end
+
 		local fs = file.Open("voxel_editor_temp.dat", "wb", "DATA")
 
 		fs:Write(util.Decompress(net.ReadData(net.ReadUInt(16))))
@@ -69,6 +73,27 @@ if CLIENT then
 
 		ent.Grid = grid
 		ent.Attachments = attachments
+	end)
+
+	net.Receive("voxel_editor_att_sync", function()
+		local ent = net.ReadEntity()
+
+		if not IsValid(ent) then
+			return
+		end
+
+		table.Empty(ent.Attachments)
+
+		local count = net.ReadUInt(8)
+
+		for i = 1, count do
+			ent.Attachments[net.ReadString()] = {
+				Offset = net.ReadVector(),
+				Angles = net.ReadAngle()
+			}
+		end
+
+		hook.Run("VoxelEditorAttachmentSync", ent)
 	end)
 
 	net.Receive("voxel_editor_switch", function()
@@ -93,6 +118,31 @@ else
 	util.AddNetworkString("voxel_editor_scale")
 	util.AddNetworkString("voxel_editor_offset")
 
+	util.AddNetworkString("voxel_editor_att_create")
+	util.AddNetworkString("voxel_editor_att_sync")
+	util.AddNetworkString("voxel_editor_att_rename")
+	util.AddNetworkString("voxel_editor_att_delete")
+
+	util.AddNetworkString("voxel_editor_att_offset")
+	util.AddNetworkString("voxel_editor_att_angles")
+
+	-- Restrict SetEditEntity = basic access control
+	local function getEditor(ply, owner)
+		local weapon = ply:GetActiveWeapon()
+
+		if not IsValid(weapon) or weapon:GetClass() != "voxel_tool" then
+			return NULL
+		end
+
+		local editor = weapon:GetEditEntity()
+
+		if owner and editor:GetOwningPlayer() != ply then
+			return NULL
+		end
+
+		return weapon:GetEditEntity()
+	end
+
 	net.Receive("voxel_editor_sync", function(_, ply)
 		local ent = net.ReadEntity()
 
@@ -104,13 +154,9 @@ else
 	end)
 
 	net.Receive("voxel_editor_new", function(_, ply)
-		local ent = net.ReadEntity()
+		local ent = getEditor(ply, true)
 
-		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
-			return
-		end
-
-		if ent:GetOwningPlayer() != ply then
+		if not IsValid(ent) then
 			return
 		end
 
@@ -122,13 +168,9 @@ else
 	end)
 
 	net.Receive("voxel_editor_opencl", function(_, ply)
-		local ent = net.ReadEntity()
+		local ent = getEditor(ply, true)
 
-		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
-			return
-		end
-
-		if ent:GetOwningPlayer() != ply then
+		if not IsValid(ent) then
 			return
 		end
 
@@ -144,13 +186,9 @@ else
 	end)
 
 	net.Receive("voxel_editor_opensv", function(_, ply)
-		local ent = net.ReadEntity()
+		local ent = getEditor(ply, true)
 
-		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
-			return
-		end
-
-		if ent:GetOwningPlayer() != ply then
+		if not IsValid(ent) then
 			return
 		end
 
@@ -177,13 +215,9 @@ else
 	end)
 
 	net.Receive("voxel_editor_scale", function(_, ply)
-		local ent = net.ReadEntity()
+		local ent = getEditor(ply, true)
 
-		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
-			return
-		end
-
-		if ent:GetOwningPlayer() != ply then
+		if not IsValid(ent) then
 			return
 		end
 
@@ -191,18 +225,120 @@ else
 	end)
 
 	net.Receive("voxel_editor_offset", function(_, ply)
-		local ent = net.ReadEntity()
+		local ent = getEditor(ply, true)
 
-		if not IsValid(ent) or ent:GetClass() != "voxel_editor" then
-			return
-		end
-
-		if ent:GetOwningPlayer() != ply then
+		if not IsValid(ent) then
 			return
 		end
 
 		ent:SetVoxelOffset(Vector(0, 0, net.ReadUInt(6)))
 	end)
+
+	net.Receive("voxel_editor_att_create", function(_, ply)
+		local ent = getEditor(ply)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		local name = string.lower(net.ReadString()):Trim()
+
+		if ent.Attachments[name] then
+			return
+		end
+
+		ent.Attachments[name] = {
+			Offset = Vector(),
+			Angles = Angle()
+		}
+
+		ent:SyncAttachments()
+	end)
+
+	net.Receive("voxel_editor_att_offset", function(_, ply)
+		local ent = getEditor(ply)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		local name = net.ReadString()
+
+		if not ent.Attachments[name] then
+			return
+		end
+
+		ent.Attachments[name].Offset = net.ReadVector()
+		ent:SyncAttachments()
+	end)
+
+	net.Receive("voxel_editor_att_angles", function(_, ply)
+		local ent = getEditor(ply)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		local name = net.ReadString()
+
+		if not ent.Attachments[name] then
+			return
+		end
+
+		ent.Attachments[name].Angles = net.ReadAngle()
+		ent:SyncAttachments()
+	end)
+
+	net.Receive("voxel_editor_att_rename", function(_, ply)
+		local ent = getEditor(ply)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		local old = net.ReadString()
+		local new = string.lower(net.ReadString()):Trim()
+
+		local attachment = ent.Attachments[old]
+
+		if not attachment then
+			return
+		end
+
+		ent.Attachments[old] = nil
+		ent.Attachments[new] = attachment
+		ent:SyncAttachments()
+	end)
+
+	net.Receive("voxel_editor_att_delete", function(_, ply)
+		local ent = getEditor(ply)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		local name = net.ReadString()
+
+		if not ent.Attachments[name] then
+			return
+		end
+
+		ent.Attachments[name] = nil
+		ent:SyncAttachments()
+	end)
+
+	function ENT:SyncAttachments()
+		net.Start("voxel_editor_att_sync")
+			net.WriteEntity(self)
+			net.WriteUInt(table.Count(self.Attachments), 8)
+
+			for k, v in pairs(self.Attachments) do
+				net.WriteString(k)
+				net.WriteVector(v.Offset)
+				net.WriteAngle(v.Angles)
+			end
+		net.Broadcast()
+	end
 
 	function ENT:SyncToPlayer(ply)
 		voxel.SaveToFile("voxel_editor_temp.dat", self.Grid, self.Attachments)

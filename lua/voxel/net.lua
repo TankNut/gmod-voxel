@@ -45,6 +45,23 @@ if CLIENT then
 		end
 	end)
 else
+	-- Restrict SetEditEntity = basic access control
+	local function getEditor(ply, owner)
+		local weapon = ply:GetActiveWeapon()
+
+		if not IsValid(weapon) or weapon:GetClass() != "voxel_tool" then
+			return NULL
+		end
+
+		local editor = weapon:GetEditEntity()
+
+		if owner and editor:GetOwningPlayer() != ply then
+			return NULL
+		end
+
+		return weapon:GetEditEntity()
+	end
+
 	function meta:SendToClient(ply, refresh)
 		local data = voxel.FileCache[self.Name]
 
@@ -79,7 +96,12 @@ else
 	end)
 
 	net.Receive("voxel_model_save", function(_, ply)
-		local ent = net.ReadEntity()
+		local ent = getEditor(ply)
+
+		if not IsValid(ent) then
+			return
+		end
+
 		local path = net.ReadString()
 
 		local model = voxel.Models[path] or voxel.Model(path)
