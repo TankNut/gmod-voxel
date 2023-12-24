@@ -813,6 +813,25 @@ function SWEP:AttachmentDialog()
 	angleR.DataChanged = function(_, val) updateAngle("r", val) end
 	angleR.OnEnter = function() submitAngle() end
 
+	local function setAttachment(att)
+		ui.Attachment = att
+
+		nameEntry:SetValue(att.Name)
+		nameEntry:SetCaretPos(#att.Name)
+
+		newButton:SetDisabled(true)
+		renameButton:SetDisabled(false)
+		deleteButton:SetDisabled(false)
+
+		offsetX:SetValue(att.Offset.x)
+		offsetY:SetValue(att.Offset.y)
+		offsetZ:SetValue(att.Offset.z)
+
+		angleP:SetValue(att.Angles.p)
+		angleY:SetValue(att.Angles.y)
+		angleR:SetValue(att.Angles.r)
+	end
+
 	local listView = ui:Add("DListView")
 
 	listView:Dock(FILL)
@@ -824,26 +843,11 @@ function SWEP:AttachmentDialog()
 		local attachment = ui.Editor.Attachments[row.Name]
 
 		-- Need to explicitly copy here to avoid 'false' updates for the client
-		ui.Attachment = {
+		setAttachment({
 			Name = row.Name,
 			Offset = Vector(attachment.Offset),
 			Angles = Angle(attachment.Angles)
-		}
-
-		nameEntry:SetValue(row.Name)
-		nameEntry:SetCaretPos(#row.Name)
-
-		newButton:SetDisabled(true)
-		renameButton:SetDisabled(false)
-		deleteButton:SetDisabled(false)
-
-		offsetX:SetValue(attachment.Offset.x)
-		offsetY:SetValue(attachment.Offset.y)
-		offsetZ:SetValue(attachment.Offset.z)
-
-		angleP:SetValue(attachment.Angles.p)
-		angleY:SetValue(attachment.Angles.y)
-		angleR:SetValue(attachment.Angles.r)
+		})
 	end
 
 	newButton.DoClick = function()
@@ -857,19 +861,11 @@ function SWEP:AttachmentDialog()
 			net.WriteString(name)
 		net.SendToServer()
 
-		ui.Attachment = {
+		setAttachment({
 			Name = name,
 			Offset = Vector(),
 			Angles = Angle()
-		}
-
-		offsetX:SetValue(0)
-		offsetY:SetValue(0)
-		offsetZ:SetValue(0)
-
-		angleP:SetValue(0)
-		angleY:SetValue(0)
-		angleR:SetValue(0)
+		})
 	end
 
 	local function populate()
