@@ -48,6 +48,32 @@ function voxel.FormatFilename(name)
 	return sub
 end
 
+function voxel.GetTool(ply)
+	local weapon = ply:GetActiveWeapon()
+
+	if not IsValid(weapon) or weapon:GetClass() != "voxel_tool" then
+		return NULL
+	end
+
+	return weapon
+end
+
+function voxel.GetEditor(ply, ownerOnly)
+	local weapon = voxel.GetTool(ply)
+
+	if not IsValid(weapon) then
+		return NULL
+	end
+
+	local editor = weapon:GetEditEntity()
+
+	if not IsValid(editor) or (ownerOnly and editor:GetOwningPlayer() != ply) then
+		return NULL
+	end
+
+	return editor
+end
+
 -- Client
 
 if CLIENT then
