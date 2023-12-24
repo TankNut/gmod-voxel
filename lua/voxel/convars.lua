@@ -9,6 +9,7 @@ if CLIENT then
 	voxel.Convars.Access = CreateClientConVar("voxel_access", "0", true, true, "", 0, 1)
 
 	voxel.Convars.DrawOrigin = CreateClientConVar("voxel_draw_origin", "1", true, false, "", 0, 1)
+	voxel.Convars.DrawAttachments = CreateClientConVar("voxel_draw_attachments", "1", true, false, "", 0, 1)
 	voxel.Convars.ExtraInfo = CreateClientConVar("voxel_extra_info", "1", true, false, "", 0, 1)
 
 	voxel.Convars.ColorR = CreateClientConVar("voxel_col_r", 255, true, true, "", 0, 255)

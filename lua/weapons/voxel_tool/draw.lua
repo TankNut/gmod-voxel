@@ -44,11 +44,42 @@ function SWEP:PostDrawOpaqueRenderables(depth, skybox)
 			render.SetColorMaterialIgnoreZ()
 
 			local pos = ent:LocalToWorld(offset)
+
 			render.DrawSphere(ent:LocalToWorld(offset), scale * 0.2, 20, 20)
 
 			render.DrawLine(pos, pos + ent:GetForward() * scale, colorR)
 			render.DrawLine(pos, pos + ent:GetRight() * scale, colorG)
 			render.DrawLine(pos, pos + ent:GetUp() * scale, colorB)
+		end
+
+		if voxel.Convars.DrawAttachments:GetBool() then
+			for name, data in pairs(ent.Attachments) do
+				local pos = ent:LocalToWorld(offset + data.Offset * scale)
+				local dir = ent:LocalToWorldAngles(data.Angles)
+
+				render.DrawLine(pos, pos + dir:Forward() * scale, colorR)
+				render.DrawLine(pos, pos + dir:Right() * scale, colorG)
+				render.DrawLine(pos, pos + dir:Up() * scale, colorB)
+
+				local ang = (EyePos() - pos + Vector(0, 0, 3)):Angle()
+
+				ang:RotateAroundAxis(ang:Forward(), 90)
+				ang:RotateAroundAxis(ang:Right(), -90)
+
+				cam.Start3D2D(pos + Vector(0, 0, 3), ang, 0.1)
+					cam.IgnoreZ(true)
+
+					render.PushFilterMag(TEXFILTER.POINT)
+					render.PushFilterMin(TEXFILTER.POINT)
+
+					draw.DrawText(name, "BudgetLabel", 0, 0, color_white, TEXT_ALIGN_CENTER)
+
+					render.PopFilterMin()
+					render.PopFilterMag()
+
+					cam.IgnoreZ(false)
+				cam.End3D2D()
+			end
 		end
 
 		if normal then
