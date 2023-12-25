@@ -13,6 +13,8 @@ ENT.Author = "TankNut"
 ENT.Spawnable = true
 ENT.AdminOnly = true
 
+include("attachments.lua")
+include("grid.lua")
 include("net.lua")
 
 local spawnOffset = 75
