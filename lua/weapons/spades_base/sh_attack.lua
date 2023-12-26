@@ -52,6 +52,10 @@ function SWEP:FireWeapon()
 
 	ply:FireBullets(bullet)
 
+	if SERVER then
+		sound.EmitHint(SOUND_COMBAT, self:GetPos(), 1500, 0.2, ply)
+	end
+
 	if self.MuzzleEffect then
 		local effect = EffectData()
 
