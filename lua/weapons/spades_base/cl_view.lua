@@ -39,6 +39,17 @@ function SWEP:GetRecoilDepth()
 	return math.Clamp(math.Remap(CurTime() - self:GetLastFire(), 0, self.Recoil.RecoveryTime, 1, 0), 0, 1)
 end
 
+function SWEP:GetAngularRecoilDepth()
+	local buffer = 1 + 0.05 * self.Recoil.RecoveryTime
+	local map = math.Remap(CurTime() - self:GetLastFire(), 0, self.Recoil.RecoveryTime, buffer, 0)
+
+	if map > 1 then
+		return -math.ease.InExpo(math.Remap(map, 1, buffer, 1, 0))
+	else
+		return -math.ease.InBack(math.Clamp(map, 0, 1))
+	end
+end
+
 -- 0.75 inspired linear offset
 function SWEP:GetVMRecoil(pos, ang)
 	local aim = self:GetAimFraction()
@@ -51,7 +62,7 @@ function SWEP:GetVMRecoil(pos, ang)
 	local z = math.ease.InCubic(depth) * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Offset.z, self.Recoil.Aim.Offset.z)
 
 	local offset = Vector(x, y, z)
-	local angle = Angle(-math.ease.InBack(depth) * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Angle.p, self.Recoil.Aim.Angle.p))
+	local angle = Angle(self:GetAngularRecoilDepth() * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Angle.p, self.Recoil.Aim.Angle.p))
 
 	return pos + offset, ang + angle
 end
@@ -68,7 +79,7 @@ function SWEP:GetViewPos()
 	tPos, tAng = self:GetVMRecoil(tPos, tAng)
 
 	local vm = self:GetOwner():GetViewModel()
-	local pos, ang = vm:GetPos(), vm:GetAngles()
+	local pos, ang = LocalToWorld(tPos, tAng, vm:GetPos(), vm:GetAngles())
 
-	return LocalToWorld(tPos, tAng, pos, ang)
+	return pos, ang
 end

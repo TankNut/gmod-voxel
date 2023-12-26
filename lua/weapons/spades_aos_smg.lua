@@ -32,23 +32,23 @@ SWEP.Damage = 29
 SWEP.Spread = 0.69
 
 SWEP.Recoil = {
-	Kick = Angle(0.36, 0.37),
+	Kick = Angle(0.6, 0.35),
 
 	Hipfire = {
-		Offset = Vector(-11, 1, 1),
-		Angle = Angle(0, 0, 0),
+		Offset = Vector(-5, 0, 0),
+		Angle = Angle(4, 0, 0)
 	},
 
 	Aim = {
-		Offset = Vector(-5.5, 0, 0),
-		Angle = Angle(0, 0, 0),
+		Offset = Vector(-5, 0, 0),
+		Angle = Angle(2, 0, 0)
 	},
 
 	RecoveryTime = 0.5
 }
 
 SWEP.AimTime = 0.4
-SWEP.AimDistance = 10
+SWEP.AimDistance = 12
 
 SWEP.TracerFrequency = 2
 
@@ -59,7 +59,7 @@ SWEP.VoxelData = {
 	Scale = 1.2,
 
 	ViewPos = {
-		Pos = Vector(14, -6, -7.5),
+		Pos = Vector(15, -6, -7.5),
 		Ang = Angle()
 	},
 

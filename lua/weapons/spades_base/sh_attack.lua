@@ -115,7 +115,7 @@ function SWEP:ApplyRecoil()
 	ang.y = math.NormalizeAngle(ang.y)
 	ang.r = math.NormalizeAngle(ang.r)
 
-	ply:ViewPunch(-ang * 2)
+	ply:SetViewPunchVelocity(ang * -20)
 
 	if game.SinglePlayer() or (CLIENT and IsFirstTimePredicted()) then
 		ply:SetEyeAngles(dir:Angle())

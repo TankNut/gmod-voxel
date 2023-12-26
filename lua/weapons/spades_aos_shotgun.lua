@@ -36,12 +36,12 @@ SWEP.Recoil = {
 
 	Hipfire = {
 		Offset = Vector(-22, 2, 2),
-		Angle = Angle(0, 0, 0),
+		Angle = Angle(5, 0, 0)
 	},
 
 	Aim = {
 		Offset = Vector(-11, 0, 0),
-		Angle = Angle(0, 0, 0),
+		Angle = Angle(2, 0, 0)
 	},
 
 	RecoveryTime = 1
