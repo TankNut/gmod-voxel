@@ -43,17 +43,6 @@ end
 function SWEP:GetVMRecoil(pos, ang)
 	local aim = self:GetAimFraction()
 
-	-- Apply viewpunch to weapon
-	local ply = self:GetOwner()
-
-	if IsValid(ply) then
-		local const = math.pi / 360
-		local fov, vmfov = ply:GetFOV(), self.ViewModelFOV
-		local ratio = math.tan(math.min(fov, vmfov) * const) / math.tan(math.max(fov, vmfov) * const)
-
-		ang = ang + ply:GetViewPunchAngles() * ratio * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Ratio, self.Recoil.Aim.Ratio)
-	end
-
 	-- Recoil
 	local depth = self:GetRecoilDepth()
 
