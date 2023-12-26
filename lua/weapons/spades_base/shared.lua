@@ -41,9 +41,26 @@ SWEP.BulletCount = 1
 SWEP.Damage = 50
 SWEP.Spread = 0.34
 
-SWEP.Recoil = Angle(2.86, 1.47)
-SWEP.RecoilPunch = 10
-SWEP.RecoveryTime = 1
+SWEP.Recoil = {
+	Kick = Angle(2.86, 1.47),
+
+	Hipfire = {
+		Offset = Vector(-11, 1, 1),
+		Angle = Angle(0, 0, 0),
+		Ratio = 1
+	},
+
+	Aim = {
+		Offset = Vector(-5.5, 0, 0),
+		Angle = Angle(1, 0, 0),
+		Ratio = 0.5
+	},
+
+	RecoveryTime = 1
+}
+
+SWEP.AimTime = 0.4
+SWEP.AimDistance = 15
 
 SWEP.TracerName = "voxel_tracer_smg"
 SWEP.TracerFrequency = 1
@@ -90,6 +107,8 @@ function SWEP:Initialize()
 
 	if CLIENT then
 		self.SmoothSprintState = 0
+		self.SmoothAimState = 0
+		self.SmoothRoll = 0
 	end
 end
 
@@ -119,7 +138,9 @@ function SWEP:SetupDataTables()
 	self:AddNetworkVar("Float", "DeployTime")
 	self:AddNetworkVar("Float", "FinishReload")
 	self:AddNetworkVar("Float", "LastFire")
+
 	self:AddNetworkVar("Float", "SprintState")
+	self:AddNetworkVar("Float", "AimState")
 end
 
 function SWEP:ShouldLower()
@@ -133,15 +154,21 @@ function SWEP:ShouldLower()
 		return false
 	end
 
-	if ply:KeyDown(IN_ATTACK2) then
-		return true
-	end
-
 	if ply:IsSprinting() and ply:GetVelocity():Length() > ply:GetWalkSpeed() then
 		return true
 	end
 
 	return false
+end
+
+function SWEP:ShouldAim()
+	if self:ShouldLower() then
+		return false
+	end
+
+	local ply = self:GetOwner()
+
+	return ply:KeyDown(IN_ATTACK2)
 end
 
 function SWEP:OnReloaded()

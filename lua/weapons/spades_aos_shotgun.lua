@@ -31,9 +31,26 @@ SWEP.BulletCount = 8
 SWEP.Damage = 16
 SWEP.Spread = 1.38
 
-SWEP.Recoil = Angle(2.85, 1.45)
-SWEP.RecoilPunch = 20
-SWEP.RecoveryTime = 1
+SWEP.Recoil = {
+	Kick = Angle(2.85, 1.45),
+
+	Hipfire = {
+		Offset = Vector(-22, 2, 2),
+		Angle = Angle(0, 0, 0),
+		Ratio = 1
+	},
+
+	Aim = {
+		Offset = Vector(-11, 0, 0),
+		Angle = Angle(0, 0, 0),
+		Ratio = 1
+	},
+
+	RecoveryTime = 1
+}
+
+SWEP.AimTime = 0.4
+SWEP.AimDistance = 15
 
 SWEP.TracerFrequency = 2
 

@@ -64,7 +64,7 @@ function SWEP:FireWeapon()
 end
 
 function SWEP:GetRecoil()
-	return self.Recoil
+	return self.Recoil.Kick
 end
 
 function SWEP:GetRecoilMultiplier()

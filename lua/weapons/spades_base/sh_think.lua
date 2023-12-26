@@ -3,6 +3,7 @@ AddCSLuaFile()
 function SWEP:Think()
 	self:HoldTypeThink()
 	self:SprintThink()
+	self:AimThink()
 end
 
 function SWEP:GetIdealHoldType()
@@ -41,5 +42,33 @@ function SWEP:SprintThink()
 		else
 			self.SmoothSprintState = self.SmoothSprintState - (self.SmoothSprintState - smooth) * (1 - math.pow(0.001, dt))
 		end
+	end
+end
+
+function SWEP:AimThink()
+	local dt = engine.TickInterval()
+	local aim = self:GetAimState()
+	local old = aim
+
+	if self:ShouldAim() then
+		aim = math.min(aim + dt * (1 / self.AimTime), 1)
+	else
+		aim = math.max(aim - dt * (1 / self.AimTime), 0)
+	end
+
+	if old != aim then
+		self:SetAimState(aim)
+	end
+
+	if CLIENT then
+		local smooth = aim * aim
+
+		if smooth > self.SmoothAimState then
+			self.SmoothAimState = self.SmoothAimState + (smooth - self.SmoothAimState) * (1 - math.pow(0.001, dt))
+		else
+			self.SmoothAimState = self.SmoothAimState - (self.SmoothAimState - smooth) * (1 - math.pow(0.001, dt))
+		end
+
+		self.BobScale = 1 - self.SmoothAimState * 0.8
 	end
 end
