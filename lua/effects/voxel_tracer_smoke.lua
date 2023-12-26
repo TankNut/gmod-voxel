@@ -26,7 +26,7 @@ end
 function EFFECT:Init(data)
 	self.Ent = data:GetEntity()
 
-	self.Start = self:GetStartPos(self.Ent)
+	self.Start = self:GetStartPos(self.Ent) or data:GetStart()
 	self.End = data:GetOrigin()
 	self.Normal = (self.End - self.Start):GetNormalized()
 
@@ -43,6 +43,10 @@ function EFFECT:IsDrawingVM()
 end
 
 function EFFECT:GetStartPos(ent)
+	if not ent.VoxelModel then
+		return
+	end
+
 	local pos, ang = ent.VoxelModel:GetAttachment("muzzle")
 
 	if self:IsDrawingVM() then
