@@ -35,33 +35,6 @@ function SWEP:GetAimPos(pos, ang)
 	return pos, ang
 end
 
-local function sign(num)
-	if num == 0 then
-		return 0
-	end
-
-	return num > 0 and 1 or -1
-end
-
-function SWEP:GetAimRoll(pos, ang)
-	local ply = self:GetOwner()
-
-	local eye = ply:EyeAngles()
-	local vel = ply:GetVelocity()
-
-	local dot = vel:Dot(eye:Right())
-
-	local roll = math.min(math.abs(dot / ply:GetWalkSpeed()), 1)
-
-	roll = math.ease.OutCubic(roll) * 10 * sign(dot)
-
-	pos:Rotate(Angle(0, 0, roll))
-
-	ang.r = ang.r + roll
-
-	return pos, ang
-end
-
 function SWEP:GetRecoilDepth()
 	return math.Clamp(math.Remap(CurTime() - self:GetLastFire(), 0, self.Recoil.RecoveryTime, 1, 0), 0, 1)
 end
@@ -103,7 +76,6 @@ function SWEP:GetViewPos()
 	tPos, tAng = self:GetLowerPos(tPos, tAng)
 	tPos, tAng = self:GetAimPos(tPos, tAng)
 
-	tPos, tAng = self:GetAimRoll(tPos, tAng)
 	tPos, tAng = self:GetVMRecoil(tPos, tAng)
 
 	local vm = self:GetOwner():GetViewModel()
