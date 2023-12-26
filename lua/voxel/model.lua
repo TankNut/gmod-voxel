@@ -27,5 +27,5 @@ function meta:GetAttachment(name)
 		return Vector(), Angle()
 	end
 
-	return attachment.Offset, attachment.Angles
+	return Vector(attachment.Offset), Angle(attachment.Angles)
 end
