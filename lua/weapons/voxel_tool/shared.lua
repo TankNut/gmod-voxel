@@ -81,6 +81,10 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
+	if CLIENT and self:GetOwner():IsListenServerHost() then
+		return
+	end
+
 	local normal, x, y, z = self:GetTrace()
 	local alt = self:GetAlt()
 
@@ -97,6 +101,10 @@ function SWEP:SecondaryAttack()
 	local ent = self:GetEditEntity()
 
 	if not IsValid(ent) or not IsFirstTimePredicted() then
+		return
+	end
+
+	if CLIENT and self:GetOwner():IsListenServerHost() then
 		return
 	end
 
