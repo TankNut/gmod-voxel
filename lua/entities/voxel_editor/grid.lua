@@ -56,20 +56,9 @@ if CLIENT then
 
 		ent.Grid:Shift(x, y, z)
 	end)
-
-	net.Receive("voxel_editor_switch", function()
-		timer.Simple(0, function()
-			local weapon = LocalPlayer():GetWeapon("voxel_tool")
-
-			if IsValid(weapon) then
-				input.SelectWeapon(weapon)
-			end
-		end)
-	end)
 else
 	util.AddNetworkString("voxel_editor_set")
 	util.AddNetworkString("voxel_editor_shift")
-	util.AddNetworkString("voxel_editor_switch")
 
 	function ENT:Shift(x, y, z)
 		self.Grid:Shift(x, y, z)

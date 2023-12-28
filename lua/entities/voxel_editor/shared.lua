@@ -172,7 +172,6 @@ else
 
 		tool:SetEditEntity(self)
 
-		net.Start("voxel_editor_switch")
-		net.Send(ply)
+		ply:SelectWeapon("voxel_tool")
 	end
 end
