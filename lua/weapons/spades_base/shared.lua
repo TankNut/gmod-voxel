@@ -97,6 +97,7 @@ else
 end
 
 include("sh_attack.lua")
+include("sh_recoil.lua")
 include("sh_sound.lua")
 include("sh_think.lua")
 
