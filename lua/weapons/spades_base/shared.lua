@@ -138,8 +138,8 @@ function SWEP:SetupDataTables()
 	self:AddNetworkVar("Float", "FinishReload")
 	self:AddNetworkVar("Float", "LastFire")
 
-	self:AddNetworkVar("Float", "SprintState")
-	self:AddNetworkVar("Float", "AimState")
+	self:AddNetworkVar("Float", "NWSprintState")
+	self:AddNetworkVar("Float", "NWAimState")
 end
 
 function SWEP:ShouldLower()

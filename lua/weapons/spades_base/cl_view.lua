@@ -1,14 +1,14 @@
 DEFINE_BASECLASS("voxel_swep_base")
 
 function SWEP:GetLowerFraction()
-	local sprint = self.SmoothSprintState
-	local deploy = math.ease.InCubic(math.Clamp(math.Remap(CurTime() - self:GetDeployTime(), 0, 0.5, 1, 0), 0, 1))
+	local sprint = self:GetSprintState()
+	local deploy = math.Clamp(math.Remap(CurTime() - self:GetDeployTime(), 0, 0.5, 1, 0), 0, 1)
 
-	return sprint + deploy
+	return math.ease.InOutSine(math.Clamp(sprint + deploy, 0, 1))
 end
 
 function SWEP:GetAimFraction()
-	return math.ease.OutCubic(self.SmoothAimState)
+	return math.pow(math.sin(self:GetAimState() * math.pi * 0.5), math.pi)
 end
 
 function SWEP:GetLowerPos(pos, ang)

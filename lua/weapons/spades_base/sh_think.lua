@@ -2,8 +2,11 @@ AddCSLuaFile()
 
 function SWEP:Think()
 	self:HoldTypeThink()
-	self:SprintThink()
-	self:AimThink()
+
+	if game.SinglePlayer() or IsFirstTimePredicted() then
+		self:SetSprintState(math.Approach(self:GetSprintState(), self:ShouldLower() and 1 or 0, FrameTime() / self.AimTime))
+		self:SetAimState(math.Approach(self:GetAimState(), self:ShouldAim() and 1 or 0, FrameTime() / self.AimTime))
+	end
 end
 
 function SWEP:GetIdealHoldType()
@@ -19,56 +22,42 @@ function SWEP:HoldTypeThink()
 	end
 end
 
-function SWEP:SprintThink()
-	local dt = engine.TickInterval()
-	local sprint = self:GetSprintState()
-	local old = sprint
+SWEP.SprintState = 0
 
-	if self:ShouldLower() then
-		sprint = math.min(sprint + dt * 4, 1)
-	else
-		sprint = math.max(sprint - dt * 3, 0)
+function SWEP:GetSprintState()
+	if not game.SinglePlayer() and CLIENT then
+		return self.SprintState
 	end
 
-	if old != sprint then
-		self:SetSprintState(sprint)
-	end
-
-	if CLIENT then
-		local smooth = sprint * sprint
-
-		if smooth > self.SmoothSprintState then
-			self.SmoothSprintState = self.SmoothSprintState + (smooth - self.SmoothSprintState) * (1 - math.pow(0.001, dt))
-		else
-			self.SmoothSprintState = self.SmoothSprintState - (self.SmoothSprintState - smooth) * (1 - math.pow(0.001, dt))
-		end
-	end
+	return self:GetNWSprintState()
 end
 
-function SWEP:AimThink()
-	local dt = engine.TickInterval()
-	local aim = self:GetAimState()
-	local old = aim
-
-	if self:ShouldAim() then
-		aim = math.min(aim + dt * (1 / self.AimTime), 1)
-	else
-		aim = math.max(aim - dt * (1 / self.AimTime), 0)
+function SWEP:SetSprintState(state)
+	if not game.SinglePlayer() and CLIENT then
+		self.SprintState = state
 	end
 
-	if old != aim then
-		self:SetAimState(aim)
+	self:SetNWSprintState(state)
+end
+
+SWEP.AimState = 0
+
+function SWEP:GetAimState()
+	if not game.SinglePlayer() and CLIENT then
+		return self.AimState
 	end
+
+	return self:GetNWAimState()
+end
+
+function SWEP:SetAimState(state)
+	if not game.SinglePlayer() and CLIENT then
+		self.AimState = state
+	end
+
+	self:SetNWAimState(state)
 
 	if CLIENT then
-		local smooth = aim * aim
-
-		if smooth > self.SmoothAimState then
-			self.SmoothAimState = self.SmoothAimState + (smooth - self.SmoothAimState) * (1 - math.pow(0.001, dt))
-		else
-			self.SmoothAimState = self.SmoothAimState - (self.SmoothAimState - smooth) * (1 - math.pow(0.001, dt))
-		end
-
-		self.BobScale = 1 - self.SmoothAimState * 0.8
+		self.BobScale = Lerp(state, 1, 0.1)
 	end
 end
