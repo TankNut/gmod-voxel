@@ -17,6 +17,7 @@ function SWEP:GetWorldPos()
 end
 
 function SWEP:DrawWorldModel()
+	-- Needed for lighting
 	render.ModelMaterialOverride(mat)
 		self:DrawModel()
 	render.ModelMaterialOverride()

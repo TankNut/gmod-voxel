@@ -17,24 +17,7 @@ function SWEP:GetTracerOrigin()
 end
 
 function SWEP:PreDrawViewModel()
-	local model = self.VoxelModel
-
-	if not IsValid(model) then
-		return
-	end
-
-	local pos, ang = self:GetViewPos()
-	local matrix = Matrix()
-	local scale = self.VoxelData.Scale
-
-	matrix:SetTranslation(pos)
-	matrix:SetAngles(ang)
-	matrix:SetScale(Vector(scale, scale, scale))
-
-	cam.PushModelMatrix(matrix, true)
-		model:Draw()
-	cam.PopModelMatrix()
-
+	-- Need to render the viewmodel for lighting
 	render.ModelMaterialOverride(mat)
 end
 
