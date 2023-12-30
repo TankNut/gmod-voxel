@@ -7,10 +7,6 @@ function SWEP:GetLowerFraction()
 	return math.Clamp(sprint + deploy, 0, 1)
 end
 
-function SWEP:GetAimFraction()
-	return math.pow(math.sin(self:GetAimState() * math.pi * 0.5), math.pi)
-end
-
 function SWEP:GetRecoilDepth()
 	return math.Clamp(math.Remap(CurTime() - self:GetLastFire(), 0, self.Recoil.RecoveryTime, 1, 0), 0, 1)
 end
@@ -21,53 +17,14 @@ function SWEP:GetAngularRecoilDepth()
 	return -math.ease.InBack(math.Clamp(map, 0, 1))
 end
 
--- 0.75 inspired linear offset
-function SWEP:GetVMRecoil(pos, ang)
-	local aim = self:GetAimFraction()
-
-	-- Recoil
-	local depth = self:GetRecoilDepth()
-
-	local x = math.ease.InCubic(depth) * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Offset.x, self.Recoil.Aim.Offset.x)
-	local y = math.ease.InQuart(depth) * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Offset.y, self.Recoil.Aim.Offset.y)
-	local z = math.ease.InCubic(depth) * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Offset.z, self.Recoil.Aim.Offset.z)
-
-	local offset = Vector(x, y, z)
-	local angle = Angle(self:GetAngularRecoilDepth() * math.Remap(aim, 0, 1, self.Recoil.Hipfire.Angle.p, self.Recoil.Aim.Angle.p))
-
-	return pos + offset, ang + angle
+function SWEP:ResetViewModelData()
+	self.VMData = self:GetViewModelTarget()
 end
 
-local timescale = GetConVar("host_timescale")
-local lastFrameTime = SysTime()
-
-function SWEP:FrameTime(comp)
-	local delta = (SysTime() - lastFrameTime) * timescale:GetFloat()
-
-	-- Stabilizes delta if our FPS is too low
-	if comp then
-		local target = (1 / delta) / 66.66
-
-		if target < 1 then
-			delta = delta * target
-		end
-	end
-
-	lastFrameTime = SysTime()
-
-	return delta
-end
-
--- We're going to do what I call a programmer move and copy much of the logic from ArcCW instead of trying to reinvent the wheel
-function SWEP:GetViewPos(noRecoil)
+function SWEP:GetViewModelTarget()
 	local target = {
 		Pos = Vector(self.VoxelData.ViewPos.Pos),
 		Ang = Angle(self.VoxelData.ViewPos.Ang)
-	}
-
-	local add = {
-		Pos = Vector(),
-		Ang = Angle()
 	}
 
 	-- Lower/sprint offset
@@ -91,6 +48,29 @@ function SWEP:GetViewPos(noRecoil)
 		target.Ang:Add(angles * aimState)
 	end
 
+	return target
+end
+
+local timescale = GetConVar("host_timescale")
+local lastDelta = SysTime()
+
+-- We're going to do what I call a programmer move and copy much of the logic from ArcCW instead of trying to reinvent the wheel
+function SWEP:GetViewPos(noRecoil)
+	-- The target position the viewmodel transitions to
+	local target = self:GetViewModelTarget()
+
+	if not self.VMData then
+		self:ResetViewModelData()
+	end
+
+	-- Constant offset applied to the resulting position
+	local add = {
+		Pos = Vector(),
+		Ang = Angle()
+	}
+
+	local aimState = self:GetAimFraction()
+
 	-- Recoil
 	if not noRecoil then
 		local depth = self:GetRecoilDepth()
@@ -103,15 +83,21 @@ function SWEP:GetViewPos(noRecoil)
 		add.Ang:Add(Angle(self:GetAngularRecoilDepth() * math.Remap(aimState, 0, 1, self.Recoil.Hipfire.Angle.p, self.Recoil.Aim.Angle.p)))
 	end
 
-	if not self.VMData then
-		self.VMData = {
-			Pos = Vector(target.Pos),
-			Ang = Angle(target.Ang)
-		}
+	local delta
+
+	-- Frametime
+	do
+		delta = (SysTime() - lastDelta) * timescale:GetFloat()
+
+		local comp = (1 / delta) / 66.66
+
+		if comp < 1 then
+			delta = delta * comp
+		end
 	end
 
 	-- TODO: Why is the multiplayer multiplier needed?
-	local speed = 15 * self:FrameTime(true) * (game.SinglePlayer() and 1 or 2)
+	local speed = 15 * delta * (game.SinglePlayer() and 1 or 2)
 
 	-- I know that this isn't the 'correct' way of using lerp but honestly I can't figure out a better way that doesn't feel stilted
 	self.VMData.Pos = LerpVector(speed, self.VMData.Pos, target.Pos)

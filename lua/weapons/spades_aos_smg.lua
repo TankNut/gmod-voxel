@@ -47,7 +47,7 @@ SWEP.Recoil = {
 	RecoveryTime = 0.5
 }
 
-SWEP.AimTime = 0.35
+SWEP.AimTime = 0.3
 SWEP.AimDistance = 12
 
 SWEP.TracerFrequency = 2

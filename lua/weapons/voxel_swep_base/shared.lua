@@ -2,6 +2,8 @@ AddCSLuaFile()
 
 SWEP.Base = "weapon_base"
 
+SWEP.BaseViewModelFOV = 54
+
 SWEP.ViewModel = Model("models/weapons/c_smg1.mdl")
 SWEP.WorldModel = Model("models/weapons/w_smg1.mdl")
 
@@ -30,6 +32,8 @@ else
 	AddCSLuaFile("cl_world.lua")
 end
 
+include("sh_fov.lua")
+include("sh_helpers.lua")
 include("sh_model.lua")
 
 function SWEP:Initialize()

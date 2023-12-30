@@ -6,8 +6,6 @@ SWEP.Base = "voxel_swep_base"
 
 SWEP.DrawWeaponInfoBox = false
 
-SWEP.ViewModelFOV = 54
-
 SWEP.ViewModel = Model("models/weapons/c_smg1.mdl")
 SWEP.WorldModel = Model("models/weapons/w_smg1.mdl")
 
@@ -57,7 +55,7 @@ SWEP.Recoil = {
 	RecoveryTime = 1
 }
 
-SWEP.AimTime = 0.4
+SWEP.AimTime = 0.3
 SWEP.AimDistance = 15
 
 SWEP.TracerName = "voxel_tracer_smg"
@@ -101,16 +99,6 @@ include("sh_recoil.lua")
 include("sh_sound.lua")
 include("sh_think.lua")
 
-function SWEP:Initialize()
-	BaseClass.Initialize(self)
-
-	if CLIENT then
-		self.SmoothSprintState = 0
-		self.SmoothAimState = 0
-		self.SmoothRoll = 0
-	end
-end
-
 function SWEP:Deploy()
 	self:SetHoldType(self.LowerType)
 	self:SetSprintState(self:ShouldLower() and 1 or 0)
@@ -119,15 +107,9 @@ function SWEP:Deploy()
 	self:SetNextPrimaryFire(CurTime() + self.DeployTime)
 
 	if game.SinglePlayer() then
-		self:CallOnClient("SetSmoothSprintState", self:ShouldLower() and 1 or 0)
+		self:CallOnClient("ResetViewModelData")
 	elseif CLIENT then
-		self.SmoothSprintState = self:GetSprintState()
-	end
-end
-
-if CLIENT then
-	function SWEP:SetSmoothSprintState(num)
-		self.SmoothSprintState = tonumber(num)
+		self:ResetViewModelData()
 	end
 end
 
@@ -198,4 +180,12 @@ function SWEP:TranslateActivity(act)
 	end
 
 	return replacements[translated] and replacements[translated] or translated
+end
+
+function SWEP:GetAimFraction()
+	return math.pow(math.sin(self:GetAimState() * math.pi * 0.5), math.pi)
+end
+
+function SWEP:GetZoom()
+	return Lerp(self:GetAimFraction(), 1, 2)
 end

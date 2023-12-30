@@ -47,7 +47,7 @@ SWEP.Recoil = {
 	RecoveryTime = 1
 }
 
-SWEP.AimTime = 0.4
+SWEP.AimTime = 0.3
 SWEP.AimDistance = 15
 
 SWEP.MuzzleSize = 1
