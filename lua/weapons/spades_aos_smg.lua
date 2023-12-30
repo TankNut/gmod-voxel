@@ -35,8 +35,8 @@ SWEP.Recoil = {
 	Kick = Angle(0.6, 0.35),
 
 	Hipfire = {
-		Offset = Vector(-5, 0, 0),
-		Angle = Angle(4, 0, 0)
+		Offset = Vector(-5, 0, -1),
+		Angle = Angle(2, 0, 0)
 	},
 
 	Aim = {
@@ -46,6 +46,8 @@ SWEP.Recoil = {
 
 	RecoveryTime = 0.5
 }
+
+SWEP.AimZoom = 1.2
 
 SWEP.AimTime = 0.3
 SWEP.AimDistance = 12

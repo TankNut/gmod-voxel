@@ -55,6 +55,8 @@ SWEP.Recoil = {
 	RecoveryTime = 1
 }
 
+SWEP.AimZoom = 1.2
+
 SWEP.AimTime = 0.3
 SWEP.AimDistance = 15
 
@@ -187,5 +189,5 @@ function SWEP:GetAimFraction()
 end
 
 function SWEP:GetZoom()
-	return Lerp(self:GetAimFraction(), 1, 2)
+	return Lerp(self:GetAimFraction(), 1, self.AimZoom)
 end

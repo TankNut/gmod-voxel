@@ -40,12 +40,14 @@ SWEP.Recoil = {
 	},
 
 	Aim = {
-		Offset = Vector(-5.5, 0, 0),
+		Offset = Vector(-10, 0, 0),
 		Angle = Angle(2, 0, 0)
 	},
 
 	RecoveryTime = 1
 }
+
+SWEP.AimZoom = 2
 
 SWEP.AimTime = 0.3
 SWEP.AimDistance = 15

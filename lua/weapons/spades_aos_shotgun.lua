@@ -47,6 +47,8 @@ SWEP.Recoil = {
 	RecoveryTime = 1
 }
 
+SWEP.AimZoom = 1.2
+
 SWEP.AimTime = 0.3
 SWEP.AimDistance = 15
 
