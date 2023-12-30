@@ -42,6 +42,10 @@ function EFFECT:Init(data)
 	self.Ent = data:GetEntity()
 	self.Scale = data:GetScale()
 
+	if not IsValid(self.Ent) then
+		return
+	end
+
 	if self.Ent:IsCarriedByLocalPlayer() then
 		self:ParticleInitVM()
 	end
