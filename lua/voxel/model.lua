@@ -20,6 +20,10 @@ function meta:IsValid()
 	return SERVER or tobool(self.Mesh)
 end
 
+function meta:HasAttachment(name)
+	return tobool(self.Attachments[name])
+end
+
 function meta:GetAttachment(name)
 	local attachment = self.Attachments[name]
 
