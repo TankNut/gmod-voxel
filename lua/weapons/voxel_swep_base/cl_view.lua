@@ -16,6 +16,11 @@ function SWEP:GetTracerOrigin()
 	return LocalToWorld(pos, ang, self:GetViewPos())
 end
 
+-- Using this instead of ShouldDrawViewModel so GetViewPos can continue to update even if we're not drawing
+function SWEP:ShouldHideViewModel()
+	return false
+end
+
 function SWEP:PreDrawViewModel()
 	-- Need to render the viewmodel for lighting
 	render.ModelMaterialOverride(mat)
@@ -31,6 +36,11 @@ function SWEP:PostDrawViewModel()
 	end
 
 	local pos, ang = self:GetViewPos()
+
+	if self:ShouldHideViewModel() then
+		return
+	end
+
 	local matrix = Matrix()
 	local scale = self.VoxelData.Scale
 

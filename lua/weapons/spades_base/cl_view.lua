@@ -108,3 +108,7 @@ function SWEP:GetViewPos(noRecoil)
 
 	return pos, ang
 end
+
+function SWEP:ShouldHideViewModel()
+	return false
+end
