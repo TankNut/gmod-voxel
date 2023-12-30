@@ -105,12 +105,12 @@ function SWEP:GetViewPos(noRecoil)
 
 	if not self.VMData then
 		self.VMData = {
-			Pos = Vector(),
-			Ang = Angle()
+			Pos = Vector(target.Pos),
+			Ang = Angle(target.Ang)
 		}
 	end
 
-	-- TODO: Why is the singleplayer multiplier needed?
+	-- TODO: Why is the multiplayer multiplier needed?
 	local speed = 15 * self:FrameTime(true) * (game.SinglePlayer() and 1 or 2)
 
 	-- I know that this isn't the 'correct' way of using lerp but honestly I can't figure out a better way that doesn't feel stilted
