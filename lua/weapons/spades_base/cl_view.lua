@@ -68,12 +68,12 @@ function SWEP:GetViewPos(noRecoil)
 	if not noRecoil then
 		local depth = self:GetRecoilDepth()
 
-		local x = math.ease.InCubic(depth) * math.Remap(aimState, 0, 1, self.Recoil.Hipfire.Offset.x, self.Recoil.Aim.Offset.x)
-		local y = math.ease.InQuart(depth) * math.Remap(aimState, 0, 1, self.Recoil.Hipfire.Offset.y, self.Recoil.Aim.Offset.y)
-		local z = math.ease.InCubic(depth) * math.Remap(aimState, 0, 1, self.Recoil.Hipfire.Offset.z, self.Recoil.Aim.Offset.z)
+		local x = math.ease.InCubic(depth) * self.Recoil.Offset.x * (1 - aimState * 0.5)
+		local y = math.ease.InQuart(depth) * self.Recoil.Offset.y * (1 - aimState)
+		local z = math.ease.InCubic(depth) * self.Recoil.Offset.z * (1 - aimState)
 
 		add.Pos:Add(Vector(x, y, z))
-		add.Ang:Add(Angle(self:GetAngularRecoilDepth() * math.Remap(aimState, 0, 1, self.Recoil.Hipfire.Angle.p, self.Recoil.Aim.Angle.p)))
+		add.Ang:Add(Angle(self:GetAngularRecoilDepth() * self.Recoil.Angle.p * (1 - aimState * 0.5)))
 	end
 
 	local delta

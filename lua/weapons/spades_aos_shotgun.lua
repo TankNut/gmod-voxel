@@ -34,15 +34,8 @@ SWEP.Spread = 1.38
 SWEP.Recoil = {
 	Kick = Angle(2.85, 1.45),
 
-	Hipfire = {
-		Offset = Vector(-22, 2, 2),
-		Angle = Angle(5, 0, 0)
-	},
-
-	Aim = {
-		Offset = Vector(-11, 0, 0),
-		Angle = Angle(2, 0, 0)
-	},
+	Offset = Vector(-22, 2, 2),
+	Angle = Angle(5, 0, 0),
 
 	RecoveryTime = 1
 }
