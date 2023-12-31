@@ -2,6 +2,8 @@ AddCSLuaFile()
 
 SWEP.Base = "weapon_base"
 
+SWEP.m_WeaponDeploySpeed = math.huge
+
 SWEP.BaseViewModelFOV = 54
 
 SWEP.ViewModel = Model("models/weapons/c_smg1.mdl")

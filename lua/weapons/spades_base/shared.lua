@@ -31,8 +31,6 @@ SWEP.Secondary = {
 	DefaultClip = 0
 }
 
-SWEP.DeployTime = 0.5
-
 SWEP.FireRate = 0.5
 
 SWEP.BulletCount = 1
@@ -103,10 +101,7 @@ include("sh_think.lua")
 
 function SWEP:Deploy()
 	self:SetHoldType(self.LowerType)
-	self:SetSprintState(self:ShouldLower() and 1 or 0)
-	self:SetDeployTime(CurTime())
-
-	self:SetNextPrimaryFire(CurTime() + self.DeployTime)
+	self:SetSprintState(1)
 
 	if game.SinglePlayer() then
 		self:CallOnClient("ResetViewModelData")
@@ -118,12 +113,11 @@ end
 function SWEP:SetupDataTables()
 	BaseClass.SetupDataTables(self)
 
-	self:AddNetworkVar("Float", "DeployTime")
-	self:AddNetworkVar("Float", "FinishReload")
-	self:AddNetworkVar("Float", "LastFire")
-
 	self:AddNetworkVar("Float", "NWSprintState")
 	self:AddNetworkVar("Float", "NWAimState")
+
+	self:AddNetworkVar("Float", "FinishReload")
+	self:AddNetworkVar("Float", "LastFire")
 end
 
 function SWEP:ShouldLower()

@@ -1,12 +1,5 @@
 DEFINE_BASECLASS("voxel_swep_base")
 
-function SWEP:GetLowerFraction()
-	local sprint = self:GetSprintState()
-	local deploy = math.Clamp(math.Remap(CurTime() - self:GetDeployTime(), 0, 0.5, 1, 0), 0, 1)
-
-	return math.Clamp(sprint + deploy, 0, 1)
-end
-
 function SWEP:GetRecoilDepth()
 	return math.Clamp(math.Remap(CurTime() - self:GetLastFire(), 0, self.Recoil.RecoveryTime, 1, 0), 0, 1)
 end
@@ -29,7 +22,7 @@ function SWEP:GetViewModelTarget()
 
 	-- Lower/sprint offset
 	do
-		local lowerState = self:GetLowerFraction()
+		local lowerState = self:GetSprintState()
 
 		target.Pos = target.Pos + self.VoxelData.LowerPos.Pos * lowerState
 		target.Ang = target.Ang + self.VoxelData.LowerPos.Ang * lowerState
