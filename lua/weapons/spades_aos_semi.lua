@@ -68,5 +68,6 @@ SWEP.VoxelData = {
 }
 
 SWEP.Sounds = {
-	Fire = Sound("weapons/spades/semishoot.wav")
+	Fire = Sound("weapons/spades/semishoot.wav"),
+	Reload = Sound("weapons/spades/semireload.wav")
 }
