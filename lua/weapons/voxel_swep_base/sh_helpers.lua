@@ -9,3 +9,13 @@ function SWEP:HasCameraControl()
 
 	return ply:GetViewEntity() == ply
 end
+
+function SWEP:ForceStopFire()
+	local ply = self:GetOwner()
+
+	if not IsValid(ply) or not ply:IsPlayer() then
+		return
+	end
+
+	ply:ConCommand("-attack")
+end

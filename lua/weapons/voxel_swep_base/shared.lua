@@ -3,24 +3,39 @@ AddCSLuaFile()
 SWEP.Base = "weapon_base"
 
 SWEP.m_WeaponDeploySpeed = math.huge
-
 SWEP.BaseViewModelFOV = 54
 
 SWEP.ViewModel = Model("models/weapons/c_smg1.mdl")
 SWEP.WorldModel = Model("models/weapons/w_smg1.mdl")
 
-SWEP.VoxelData = {
-	Model = "",
+SWEP.Primary = {
+	Ammo = "",
+	Automatic = false,
+
+	ClipSize = -1,
+	DefaultClip = 0,
+}
+
+SWEP.Secondary = {
+	Ammo = "",
+	Automatic = false,
+
+	ClipSize = -1,
+	DefaultClip = 0
+}
+
+SWEP.Voxel = {
+	Model = "builtin/directions",
 	Scale = 1,
 
 	Offset = Vector(),
 
-	ViewPos = {
+	View = {
 		Pos = Vector(),
 		Ang = Angle()
 	},
 
-	WorldPos = {
+	World = {
 		Pos = Vector(),
 		Ang = Angle()
 	}

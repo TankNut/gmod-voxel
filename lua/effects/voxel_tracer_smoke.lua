@@ -50,11 +50,11 @@ function EFFECT:GetStartPos(ent)
 	local pos, ang = ent.VoxelModel:GetAttachment("muzzle")
 
 	if self:IsDrawingVM() then
-		pos, ang = LocalToWorld(pos * ent.VoxelData.Scale, ang, ent:GetViewPos(true))
+		pos, ang = LocalToWorld(pos * ent.Voxel.Scale, ang, ent:GetViewPos(true))
 
 		return translatefov(ent, pos), ang
 	else
-		return LocalToWorld(pos * ent.VoxelData.Scale, ang, ent:GetWorldPos())
+		return LocalToWorld(pos * ent.Voxel.Scale, ang, ent:GetWorldPos())
 	end
 end
 

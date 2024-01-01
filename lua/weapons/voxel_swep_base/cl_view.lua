@@ -5,7 +5,7 @@ function SWEP:GetViewPos()
 	local vm = ply:GetViewModel()
 	local pos, ang = vm:GetPos(), vm:GetAngles()
 
-	pos, ang = LocalToWorld(self.VoxelData.ViewPos.Pos, self.VoxelData.ViewPos.Ang, pos, ang)
+	pos, ang = LocalToWorld(self.Voxel.View.Pos, self.Voxel.View.Ang, pos, ang)
 
 	return pos, ang
 end
@@ -42,7 +42,7 @@ function SWEP:PostDrawViewModel()
 	end
 
 	local matrix = Matrix()
-	local scale = self.VoxelData.Scale
+	local scale = self.Voxel.Scale
 
 	matrix:SetTranslation(pos)
 	matrix:SetAngles(ang)

@@ -6,9 +6,6 @@ SWEP.Base = "voxel_swep_base"
 
 SWEP.DrawWeaponInfoBox = false
 
-SWEP.ViewModel = Model("models/weapons/c_smg1.mdl")
-SWEP.WorldModel = Model("models/weapons/w_smg1.mdl")
-
 SWEP.HoldType = "pistol"
 SWEP.LowerType = "normal"
 
@@ -17,61 +14,61 @@ SWEP.CustomLowerType = {}
 
 SWEP.Primary = {
 	Ammo = "AR2",
-	Automatic = true,
 
 	ClipSize = 30,
 	DefaultClip = 60,
 }
 
-SWEP.Secondary = {
-	Ammo = "",
-	Automatic = false,
+-- -1 = automatic, 0 = semi, 1+ = burst
+SWEP.Firemode = 0
 
-	ClipSize = -1,
-	DefaultClip = 0
-}
+SWEP.Delay = 0.5
+SWEP.Cost = 1 -- Amount of bullets taken per shot
 
-SWEP.FireRate = 0.5
+SWEP.Count = 1 -- Amount of pellets per shot
+SWEP.Damage = 50 -- Damage per bullet, gets divided by count internally (input final damage, not per-pellet damage)
 
-SWEP.BulletCount = 1
-SWEP.Damage = 50
 SWEP.Spread = 0.34
 
 SWEP.Recoil = {
-	Kick = Angle(2.86, 1.47),
+	Kick = Angle(2.86, 1.47), -- View kick
 
-	Offset = Vector(-11, 1, 1),
-	Angle = Angle(0, 0, 0),
+	-- Viewmodel kick
+	HipOffset = Vector(-11, 2, 2),
+	HipPitch = 5,
 
-	RecoveryTime = 1
+	AimOffset = Vector(-5.5, 0, 0),
+	AimPitch = 2.5,
+
+	Time = 1 -- Time it takes for the viewmodel to reset
 }
 
-SWEP.AimZoom = 1.2
+-- >0 for shotgun-style reloads
+SWEP.ReloadAmount = 0
 
-SWEP.AimTime = 0.3
-SWEP.AimDistance = 15
+-- Per-round time for shotgun-style reloads
+SWEP.ReloadTime = 2.5
 
-SWEP.TracerName = "voxel_tracer_smg"
-SWEP.TracerFrequency = 1
+SWEP.Sights = {
+	Enabled = true,
 
-SWEP.MuzzleEffect = "voxel_muzzle_smg"
-SWEP.MuzzleSize = 1
+	Time = 0.3, -- Time it takes to zoom in, also affects sprint and deploy times
+	Zoom = 1.2,
+	Distance = 15 -- Distance from the attachment point on the weapon model
+}
 
-SWEP.VoxelData = {
-	Model = "spades/semi",
-	Scale = 1,
+SWEP.Tracer = {
+	Effect = "",
+	Frequency = 1 -- Add a tracer every X shots
+}
 
-	ViewPos = {
-		Pos = Vector(14, -6, -6),
-		Ang = Angle()
-	},
+SWEP.Muzzle = {
+	Effect = "",
+	Size = 1
+}
 
-	WorldPos = {
-		Pos = Vector(2, 0.5, 1),
-		Ang = Angle()
-	},
-
-	LowerPos = {
+SWEP.Voxel = {
+	Lower = {
 		Pos = Vector(0, 5, -2),
 		Ang = Angle(17, 32, 6)
 	}
@@ -81,20 +78,19 @@ SWEP.Sounds = {
 	Empty = Sound("weapons/spades/empty.wav")
 }
 
-if CLIENT then
-	include("cl_view.lua")
-else
-	AddCSLuaFile("cl_view.lua")
-end
-
 include("sh_attack.lua")
+include("sh_holdtype.lua")
 include("sh_recoil.lua")
-include("sh_sound.lua")
-include("sh_think.lua")
+include("sh_reload.lua")
+include("sh_sounds.lua")
+include("sh_states.lua")
+include("sh_view.lua")
 
 function SWEP:Deploy()
 	self:SetHoldType(self.LowerType)
 	self:SetSprintState(1)
+
+	self:SetNextPrimaryFire(CurTime() + self.Sights.Time)
 
 	if game.SinglePlayer() then
 		self:CallOnClient("ResetViewModelData")
@@ -109,8 +105,10 @@ function SWEP:SetupDataTables()
 	self:AddNetworkVar("Float", "NWSprintState")
 	self:AddNetworkVar("Float", "NWAimState")
 
-	self:AddNetworkVar("Float", "FinishReload")
 	self:AddNetworkVar("Float", "LastFire")
+
+	self:AddNetworkVar("Float", "FinishReload")
+	self:AddNetworkVar("Bool", "AbortReload")
 end
 
 function SWEP:ShouldLower()
@@ -141,40 +139,15 @@ function SWEP:ShouldAim()
 	return ply:KeyDown(IN_ATTACK2)
 end
 
+function SWEP:Think()
+	self:UpdateHoldType()
+	self:CheckReload()
+
+	if game.SinglePlayer() or IsFirstTimePredicted() then
+		self:UpdateStates()
+	end
+end
+
 function SWEP:OnReloaded()
 	self:SetWeaponHoldType(self:GetIdealHoldType())
-end
-
-local replacements = {
-	-- Passive
-	[ACT_HL2MP_WALK_CROUCH_PASSIVE] = ACT_HL2MP_WALK_CROUCH,
-	[ACT_HL2MP_IDLE_CROUCH_PASSIVE] = ACT_HL2MP_IDLE_CROUCH
-}
-
-function SWEP:TranslateActivity(act)
-	local translated
-
-	if self:ShouldLower() and (act == ACT_MP_RELOAD_STAND or act == ACT_MP_RELOAD_CROUCH) and index[self.HoldType] then
-		translated = index[self.HoldType] + 6
-	end
-
-	local custom = self:ShouldLower() and self.CustomLowerHoldType or self.CustomHoldType
-
-	if custom[act] then
-		return custom[act]
-	end
-
-	if not translated then
-		translated = BaseClass.TranslateActivity(self, act)
-	end
-
-	return replacements[translated] and replacements[translated] or translated
-end
-
-function SWEP:GetAimFraction()
-	return math.pow(math.sin(self:GetAimState() * math.pi * 0.5), math.pi)
-end
-
-function SWEP:GetZoom()
-	return Lerp(self:GetAimFraction(), 1, self.AimZoom)
 end

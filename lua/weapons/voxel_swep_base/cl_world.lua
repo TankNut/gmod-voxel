@@ -10,7 +10,7 @@ function SWEP:GetWorldPos()
 		local index = ply:LookupBone("ValveBiped.Bip01_R_Hand")
 
 		pos, ang = ply:GetBonePosition(index)
-		pos, ang = LocalToWorld(self.VoxelData.WorldPos.Pos, self.VoxelData.WorldPos.Ang, pos, ang + Angle(-10, 0, 180))
+		pos, ang = LocalToWorld(self.Voxel.World.Pos, self.Voxel.World.Ang, pos, ang + Angle(-10, 0, 180))
 	end
 
 	return pos, ang
@@ -30,7 +30,7 @@ function SWEP:DrawWorldModel()
 
 	local pos, ang = self:GetWorldPos()
 	local matrix = Matrix()
-	local scale = self.VoxelData.Scale
+	local scale = self.Voxel.Scale
 
 	matrix:SetTranslation(pos)
 	matrix:SetAngles(ang)

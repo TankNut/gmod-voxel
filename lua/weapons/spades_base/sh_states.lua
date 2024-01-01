@@ -1,27 +1,5 @@
 AddCSLuaFile()
 
-function SWEP:Think()
-	self:HoldTypeThink()
-
-	if game.SinglePlayer() or IsFirstTimePredicted() then
-		self:SetSprintState(math.Approach(self:GetSprintState(), self:ShouldLower() and 1 or 0, FrameTime() / self.AimTime))
-		self:SetAimState(math.Approach(self:GetAimState(), self:ShouldAim() and 1 or 0, FrameTime() / self.AimTime))
-	end
-end
-
-function SWEP:GetIdealHoldType()
-	return self:ShouldLower() and self.LowerType or self.HoldType
-end
-
-function SWEP:HoldTypeThink()
-	local holdtype = self:GetHoldType()
-	local target = self:GetIdealHoldType()
-
-	if holdtype != target then
-		self:SetHoldType(target)
-	end
-end
-
 SWEP.SprintState = 0
 
 function SWEP:GetSprintState()
@@ -60,4 +38,9 @@ function SWEP:SetAimState(state)
 	if CLIENT then
 		self.BobScale = Lerp(state, 1, 0.1)
 	end
+end
+
+function SWEP:UpdateStates()
+	self:SetSprintState(math.Approach(self:GetSprintState(), self:ShouldLower() and 1 or 0, FrameTime() / self.Sights.Time))
+	self:SetAimState(math.Approach(self:GetAimState(), self:ShouldAim() and 1 or 0, FrameTime() / self.Sights.Time))
 end

@@ -1,8 +1,7 @@
 AddCSLuaFile()
 
 function SWEP:SetupModel()
-	self.VoxelModel = VoxelModel(self.VoxelData.Model)
-
+	self.VoxelModel = VoxelModel(self.Voxel.Model)
 	self:SetupPhysics()
 
 	if CLIENT then
@@ -13,8 +12,8 @@ end
 function SWEP:SetupPhysics()
 	local mins, maxs = self.VoxelModel:GetBounds()
 
-	mins = (mins + self.VoxelData.Offset) * self.VoxelData.Scale
-	maxs = (maxs + self.VoxelData.Offset) * self.VoxelData.Scale
+	mins = (mins + self.Voxel.Offset) * self.Voxel.Scale
+	maxs = (maxs + self.Voxel.Offset) * self.Voxel.Scale
 
 	if IsValid(self.PhysCollide) then
 		self.PhysCollide:Destroy()
@@ -40,6 +39,6 @@ if CLIENT then
 	function SWEP:UpdateRenderBounds()
 		local mins, maxs = self.VoxelModel:GetBounds()
 
-		self:SetRenderBounds(mins * self.VoxelData.Scale, maxs * self.VoxelData.Scale)
+		self:SetRenderBounds(mins * self.Voxel.Scale, maxs * self.Voxel.Scale)
 	end
 end
