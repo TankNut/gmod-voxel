@@ -44,7 +44,7 @@ function EFFECT:Init(data)
 		return
 	end
 
-	if self.Ent:IsCarriedByLocalPlayer() then
+	if self:IsDrawingVM() then
 		self:ParticleInitVM()
 	end
 
