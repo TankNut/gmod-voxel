@@ -41,4 +41,8 @@ if CLIENT then
 
 		self:SetRenderBounds(mins * self.Voxel.Scale, maxs * self.Voxel.Scale)
 	end
+
+	function SWEP:DrawVoxelModel()
+		self.VoxelModel:Draw()
+	end
 end

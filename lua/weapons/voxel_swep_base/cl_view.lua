@@ -49,6 +49,6 @@ function SWEP:PostDrawViewModel()
 	matrix:SetScale(Vector(scale, scale, scale))
 
 	cam.PushModelMatrix(matrix, true)
-		model:Draw()
+		self:DrawVoxelModel()
 	cam.PopModelMatrix()
 end
