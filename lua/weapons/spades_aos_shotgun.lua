@@ -26,12 +26,20 @@ SWEP.Primary = {
 -- -1 = automatic, 0 = semi, 1+ = burst
 SWEP.Firemode = 0
 
-SWEP.Delay = 1
+SWEP.Delay = 1 -- Delay between shots in seconds, use X / 60 for rounds per minute
+SWEP.Cost = 1 -- Amount of ammo taken out of the magazine per shot
 
-SWEP.Count = 8
-SWEP.Damage = 128 -- Damage per shot, gets divided by count internally (input final damage, not per-pellet damage)
+SWEP.Count = 8 -- Amount of bullets per shot
+SWEP.Damage = 64 -- Damage per bullet, gets divided by SWEP.Count internally (input final damage, not per-bullet damage)
 
-SWEP.Spread = 1.38
+SWEP.Range = 1500 -- Range in source units at which every shot lands in a SWEP.Accuracy sized circle
+SWEP.Accuracy = 12 -- In source units: 12 = head sized, 24 = torso sized
+
+SWEP.BaseSpread = 2 -- Diameter of a circle in degrees, divide by 60 for MOA. Applied separately to every bullet (use for shotguns)
+SWEP.HipSpread = 1 -- Same unit as SWEP.BaseSpread, added when hipfiring
+SWEP.MoveSpread = 1 -- Same unit as SWEP.BaseSpread, added when moving
+
+SWEP.MoveSpeed = 0.6 -- Movespeed multiplier: 1 = run speed, 0 = alt-walk speed
 
 SWEP.Recoil = {
 	Kick = Angle(2.85, 1.45), -- View kick

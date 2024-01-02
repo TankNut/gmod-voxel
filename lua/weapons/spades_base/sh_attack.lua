@@ -61,14 +61,48 @@ function SWEP:GetDamage()
 	return self.Damage / self.Count
 end
 
-function SWEP:GetSpread()
-	local spread = math.rad(self.Spread)
+function SWEP:GetSpread(range, accuracy)
+	range = range or self.Range
+	accuracy = accuracy or self.Accuracy
 
-	return Vector(spread, spread)
+	local inches = accuracy * 0.75
+	local yards = (range * 0.75) / 36
+
+	local spread = (inches * 100) / yards / 60
+
+	local hipSpread = math.Remap(self:GetAimFraction(), 0, 1, self.HipSpread, 0)
+
+	local ply = self:GetOwner()
+
+	local moveSpeed = ply:GetVelocity():Length()
+	local maxSpeed = math.Remap(self.MoveSpeed, 0, 1, ply:GetSlowWalkSpeed(), ply:GetWalkSpeed())
+	local moveSpread = math.Clamp(math.Remap(moveSpeed, 0, maxSpeed, 0, self.MoveSpread), 0, self.MoveSpread)
+
+	return spread + hipSpread + moveSpread
+end
+
+
+function SWEP:ApplySpread(dir, x, y)
+	local theta = math.random() * math.pi * 2
+	local unit = math.Rand(-1, 1)
+
+	x = unit * math.cos(theta) * x
+	y = unit * math.sin(theta) * y
+
+	local ang = dir:Angle()
+
+	ang:RotateAroundAxis(ang:Right(), x)
+	ang:RotateAroundAxis(ang:Up(), y)
+
+	dir:Set(ang:Forward())
+
+	return dir
 end
 
 function SWEP:FireWeapon()
 	local ply = self:GetOwner()
+
+	math.randomseed(ply:GetCurrentCommand():CommandNumber())
 
 	self:PlayWeaponSound(self.Sounds.Fire)
 
@@ -77,17 +111,35 @@ function SWEP:FireWeapon()
 	local damage = self:GetDamage()
 
 	local bullet = {
-		Num = self.Count,
+		Num = 1,
 		Src = ply:GetShootPos(),
-		Dir = (ply:EyeAngles() + ply:GetViewPunchAngles()):Forward(),
-		Spread = self:GetSpread(),
-		TracerName = self.Tracer.Name,
-		Tracer = self.Tracer.Name == "" and 0 or self.Tracer.Frequency,
-		Force = damage * 0.25,
+		TracerName = self.Tracer.Effect,
+		Tracer = 0,
+		Force = damage * 0.1,
 		Damage = damage
 	}
 
-	ply:FireBullets(bullet)
+	local baseDir = (ply:GetAimVector():Angle() + ply:GetViewPunchAngles()):Forward()
+	local spread = self:GetSpread()
+
+	self:ApplySpread(baseDir, spread, spread)
+
+	for i = 0, self.Count - 1 do
+		if self.Tracer.Frequency > 0 then
+			local index = self:Clip1() + 1 + i
+
+			bullet.Tracer = (index % self.Tracer.Frequency == 0) and 1 or 0
+		end
+
+		-- Make the first bullet accurate for shotguns
+		if self.Count > 0 and i == 0 then
+			bullet.Dir = baseDir
+		else
+			bullet.Dir = self:ApplySpread(Vector(baseDir), self.BaseSpread, self.BaseSpread)
+		end
+
+		ply:FireBullets(bullet)
+	end
 
 	if SERVER then
 		sound.EmitHint(SOUND_COMBAT, self:GetPos(), 1500, 0.2, ply)

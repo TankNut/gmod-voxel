@@ -2,6 +2,8 @@ AddCSLuaFile()
 
 DEFINE_BASECLASS("voxel_swep_base")
 
+SWEP.SpadesWeapon = true
+
 SWEP.Base = "voxel_swep_base"
 
 SWEP.DrawWeaponInfoBox = false
@@ -22,13 +24,20 @@ SWEP.Primary = {
 -- -1 = automatic, 0 = semi, 1+ = burst
 SWEP.Firemode = 0
 
-SWEP.Delay = 0.5
-SWEP.Cost = 1 -- Amount of bullets taken per shot
+SWEP.Delay = 0.5 -- Delay between shots in seconds, use X / 60 for rounds per minute
+SWEP.Cost = 1 -- Amount of bullets taken out of the magazine per shot
 
-SWEP.Count = 1 -- Amount of pellets per shot
-SWEP.Damage = 50 -- Damage per bullet, gets divided by count internally (input final damage, not per-pellet damage)
+SWEP.Count = 1 -- Amount of bullets per shot
+SWEP.Damage = 50 -- Damage per bullet, gets divided by SWEP.Count internally (input final damage, not per-bullet damage)
 
-SWEP.Spread = 0.34
+SWEP.Range = 800 -- Range in source units at which every shot lands in a SWEP.Accuracy sized circle
+SWEP.Accuracy = 12 -- In source units: 12 = head sized, 24 = torso sized
+
+SWEP.BaseSpread = 1 / 60 -- Diameter of a circle in degrees, divide by 60 for MOA. Applied separately to every bullet (use for shotguns)
+SWEP.HipSpread = 1 -- Same unit as SWEP.BaseSpread, added when hipfiring
+SWEP.MoveSpread = 1 -- Same unit as SWEP.BaseSpread, added when moving
+
+SWEP.MoveSpeed = 1 -- Movespeed multiplier: 1 = run speed, 0 = alt-walk speed
 
 SWEP.Recoil = {
 	Kick = Angle(2.86, 1.47), -- View kick
@@ -151,3 +160,23 @@ end
 function SWEP:OnReloaded()
 	self:SetWeaponHoldType(self:GetIdealHoldType())
 end
+
+hook.Add("SetupMove", "spades_base", function(ply, mv, cmd)
+	local wep = ply:GetActiveWeapon()
+
+	if not IsValid(wep) or not wep.SpadesWeapon then
+		return
+	end
+
+	if wep:GetAimFraction() > 0 then
+		local baseSpeed = ply:GetWalkSpeed()
+		local maxSpeed = math.Remap(wep.MoveSpeed, 0, 1, ply:GetSlowWalkSpeed(), baseSpeed)
+
+		local speed = math.Remap(wep:GetAimFraction(), 0, 1, baseSpeed, maxSpeed)
+
+		if speed < mv:GetMaxClientSpeed() then
+			mv:SetMaxSpeed(speed)
+			mv:SetMaxClientSpeed(speed)
+		end
+	end
+end)
