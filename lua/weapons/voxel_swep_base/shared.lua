@@ -81,6 +81,11 @@ function SWEP:AddNetworkVar(varType, name, extended)
 	self._NetworkVars[varType] = index + 1
 end
 
+function SWEP:AddNetworkVarNotify(varType, name, callback, extended)
+	self:AddNetworkVar(varType, name, extended)
+	self:NetworkVarNotify(name, callback)
+end
+
 function SWEP:PrimaryAttack()
 end
 
