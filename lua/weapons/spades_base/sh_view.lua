@@ -11,7 +11,47 @@ end
 
 if CLIENT then
 	function SWEP:DoDrawCrosshair(x, y)
-		return self:IsReloading() or self:ShouldLower() or self:GetSprintState() > 0
+		x = x - 1
+		y = y - 1
+
+		if self:IsReloading() then
+			return true
+		end
+
+		local offset = math.Round(ScrW() * 0.5 * (self:GetSpread() + self.BaseSpread) / self:GetBaseFOV())
+		local fraction = math.Clamp(self:GetAimFraction() + math.ease.OutQuart(self:GetSprintState()), 0, 1)
+		local alpha = (1 - fraction) * 200
+		local length
+
+		-- Outline
+		surface.SetDrawColor(0, 0, 0, alpha)
+		surface.DrawRect(x - 1, y - 1, 4, 4)
+
+		length = 5
+
+		surface.DrawRect(x - offset - length - 1, y - 1, length + 2, 4) -- Left
+		surface.DrawRect(x + offset + 1, y - 1, length + 2, 4) -- Right
+
+		length = 2
+
+		surface.DrawRect(x - 1, y - offset - length - 1, 4, length + 2) -- Up
+		surface.DrawRect(x - 1, y + offset + 1, 4, length + 2) -- Down
+
+		-- fill
+		surface.SetDrawColor(255, 255, 255, alpha)
+		surface.DrawRect(x, y, 2, 2)
+
+		length = 5
+
+		surface.DrawRect(x - offset - length, y, length, 2) -- Left
+		surface.DrawRect(x + offset + 2, y, length, 2) -- Right
+
+		length = 2
+
+		surface.DrawRect(x, y - offset - length, 2, length) -- Up
+		surface.DrawRect(x, y + offset + 2, 2, length) -- Down
+
+		return true
 	end
 
 	function SWEP:GetRecoilDepth()
