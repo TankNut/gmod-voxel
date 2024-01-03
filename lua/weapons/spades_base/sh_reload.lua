@@ -74,7 +74,7 @@ function SWEP:FinishReload()
 			self:SetNextPrimaryFire(CurTime() + self.ReloadTime)
 		else
 			if IsFirstTimePredicted() then
-				self:PlayWeaponSound(self.Sounds.Reload)
+				self:PlayWeaponSound(self.Sounds.ReloadSingle)
 			end
 
 			self:SetFinishReload(CurTime() + self.ReloadTime)
