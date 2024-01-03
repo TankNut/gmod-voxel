@@ -33,7 +33,7 @@ SWEP.Count = 8 -- Amount of bullets per shot
 SWEP.Damage = 64 -- Damage per bullet, gets divided by SWEP.Count internally (input final damage, not per-bullet damage)
 
 SWEP.Range = 1500 -- Range in source units at which every shot lands in a SWEP.Accuracy sized circle
-SWEP.Accuracy = 12 -- In source units: 12 = head sized, 24 = torso sized
+SWEP.Accuracy = 0 -- In source units: 12 = head sized, 24 = torso sized
 
 SWEP.BaseSpread = 2 -- Diameter of a circle in degrees, divide by 60 for MOA. Applied separately to every bullet (use for shotguns)
 SWEP.HipSpread = 1 -- Same unit as SWEP.BaseSpread, added when hipfiring

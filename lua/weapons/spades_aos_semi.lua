@@ -36,8 +36,8 @@ SWEP.Range = 2500 -- Range in source units at which every shot lands in a SWEP.A
 SWEP.Accuracy = 12 -- In source units: 12 = head sized, 24 = torso sized
 
 SWEP.BaseSpread = 1 / 60 -- Diameter of a circle in degrees, divide by 60 for MOA. Applied separately to every bullet (use for shotguns)
-SWEP.HipSpread = 1 -- Same unit as SWEP.BaseSpread, added when hipfiring
-SWEP.MoveSpread = 1 -- Same unit as SWEP.BaseSpread, added when moving
+SWEP.HipSpread = 1.5 -- Same unit as SWEP.BaseSpread, added when hipfiring
+SWEP.MoveSpread = 2 -- Same unit as SWEP.BaseSpread, added when moving
 
 SWEP.MoveSpeed = 0.4 -- Movespeed multiplier: 1 = run speed, 0 = alt-walk speed
 
