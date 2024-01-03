@@ -73,7 +73,7 @@ function SWEP:AddNetworkVar(varType, name, extended)
 	local index = assert(self._NetworkVars[varType], "Attempt to register unknown network var type " .. varType)
 	local max = varType == "String" and 3 or 31
 
-	if index >= max then
+	if index > max then
 		error("Network var limit exceeded for " .. varType)
 	end
 
