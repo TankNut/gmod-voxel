@@ -49,6 +49,7 @@ if CLIENT then
 			local offset, angles = self.VoxelModel:GetAttachment("aim")
 
 			offset = offset * self.Voxel.Scale
+			offset:Rotate(self.Voxel.View.Ang)
 			offset = -(offset + self.Voxel.View.Pos) + Vector(self.Sights.Distance, 0, 0)
 
 			target.Pos:Add(offset * aimState)
