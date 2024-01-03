@@ -85,7 +85,7 @@ if CLIENT then
 		local aimState = self:GetAimFraction()
 
 		-- Aim offset
-		if self.VoxelModel:HasAttachment("aim") then
+		if self.Sights.Enabled and self.VoxelModel:HasAttachment("aim") then
 			local offset, angles = self.VoxelModel:GetAttachment("aim")
 
 			offset = offset * self.Voxel.Scale
