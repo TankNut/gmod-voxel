@@ -5,6 +5,8 @@ ENT.Base = "base_anim"
 
 ENT.RenderGroup = RENDERGROUP_OPAQUE
 
+ENT.DisableDuplicator = true
+
 function ENT:Initialize()
 	self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 

@@ -13,6 +13,8 @@ ENT.Author = "TankNut"
 ENT.Spawnable = true
 ENT.AdminOnly = true
 
+ENT.DisableDuplicator = true
+
 include("attachments.lua")
 include("grid.lua")
 include("net.lua")
