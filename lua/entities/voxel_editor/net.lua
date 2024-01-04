@@ -96,11 +96,19 @@ else
 			return
 		end
 
+		if voxel.RateLimit(ply, "EditorSync" .. ent:EntIndex()) then
+			return
+		end
+
 		ent:SyncToPlayer(ply)
 	end)
 
 	-- 'file' operations
 	net.Receive("voxel_editor_new", function(_, ply)
+		if voxel.RateLimit(ply, "EditorNewFile") then
+			return
+		end
+
 		local ent = voxel.GetEditor(ply, true)
 
 		if not IsValid(ent) then
@@ -115,6 +123,10 @@ else
 	end)
 
 	net.Receive("voxel_editor_opencl", function(_, ply)
+		if voxel.RateLimit(ply, "EditorOpenCL", 2) then
+			return
+		end
+
 		local ent = voxel.GetEditor(ply, true)
 
 		if not IsValid(ent) then
@@ -137,6 +149,10 @@ else
 	end)
 
 	net.Receive("voxel_editor_opensv", function(_, ply)
+		if voxel.RateLimit(ply, "EditorOpenSV") then
+			return
+		end
+
 		local ent = voxel.GetEditor(ply, true)
 
 		if not IsValid(ent) then

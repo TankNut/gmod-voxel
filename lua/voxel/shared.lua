@@ -134,6 +134,24 @@ if CLIENT then
 		net.SendToServer()
 	end)
 else
+	function voxel.RateLimit(ply, key, timeout)
+		timeout = timeout or 1
+
+		if not ply.VoxelRateLimits then
+			ply.VoxelRateLimits = {}
+		end
+
+		local time = ply.VoxelRateLimits[key]
+
+		if time and time >= CurTime() then
+			return true, time - CurTime()
+		end
+
+		ply.VoxelRateLimits[key] = CurTime() + timeout
+
+		return false
+	end
+
 	concommand.Add("voxel_prop", function(ply, _, args)
 		if not IsValid(ply) or not ply:IsAdmin() then
 			return

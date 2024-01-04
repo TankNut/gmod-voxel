@@ -85,7 +85,7 @@ else
 	end)
 
 	net.Receive("voxel_model_save", function(_, ply)
-		if not ply:IsSuperAdmin() then
+		if voxel.RateLimit(ply, "SaveToServer") or not ply:IsSuperAdmin() then
 			return
 		end
 
@@ -134,6 +134,10 @@ else
 	end
 
 	net.Receive("voxel_model_list", function(_, ply)
+		if voxel.RateLimit(ply, "ModelList") then
+			return
+		end
+
 		voxel.UpdateFileList(ply)
 	end)
 end
