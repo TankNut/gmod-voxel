@@ -2,6 +2,18 @@ AddCSLuaFile()
 
 SWEP.PrintName = "Voxel Tool"
 SWEP.Author = "TankNut"
+SWEP.Instructions = [[
+Primary Fire: Left Option
+Secondary Fire: Right Option
+
+Use: Link to editor
+Use (Hold): Alt Mode
+Use (Hold) + Scroll: Change Mode
+
+Reload: Open UI
+Sprint (Hold): Rapid Fire
+Sprint + 1-6: Select Mode
+]]
 
 SWEP.RenderGroup = RENDERGROUP_OPAQUE
 
