@@ -129,25 +129,54 @@ if CLIENT then
 	voxel.Cube = Mesh()
 	voxel.Cube:BuildFromTriangles(verts)
 
-	net.Receive("voxel_reload", function()
-		-- Placeholder
-	end)
-
 	hook.Add("InitPostEntity", "voxel", function()
 		net.Start("voxel_model_list")
 		net.SendToServer()
 	end)
 else
-	util.AddNetworkString("voxel_reload")
-
-	concommand.Add("voxel_reload", function(ply)
-		if IsValid(ply) then
-			net.Start("voxel_reload")
-			net.Send(ply)
-		else
-			net.Start("voxel_reload")
-			net.Broadcast()
+	concommand.Add("voxel_prop", function(ply, _, args)
+		if not IsValid(ply) or not ply:IsAdmin() then
+			return
 		end
+
+		local model = args[1]
+		local scale = math.Clamp(tonumber(args[2]) or 1, 0.1, 10)
+
+		if not VoxelModelExists(model) then
+			net.Start("voxel_error")
+				net.WriteString("Model doesn't exist")
+			net.Send(ply)
+
+			return
+		end
+
+		model = VoxelModel(model)
+
+		local tr = ply:GetEyeTrace()
+
+		local dist = tr.StartPos:Distance(tr.HitPos)
+		local radius = model.Radius
+		local max = radius + 75
+
+		local pos
+
+		if dist > max then
+			pos = tr.StartPos + tr.Normal * 75
+		else
+			pos = tr.HitPos - tr.Normal * radius
+		end
+
+		local ang = Angle(0, ply:EyeAngles().y + 180, 0):SnapTo("y", 90)
+		local ent = voxel.CreateProp(pos, ang, model.Name, scale)
+		local phys = ent:GetPhysicsObject()
+
+		phys:EnableMotion(true)
+		phys:Wake()
+
+		undo.Create("Voxel Prop")
+			undo.AddEntity(ent)
+			undo.SetPlayer(ply)
+		undo.Finish()
 	end)
 
 	function voxel.CreateProp(pos, ang, model, scale)

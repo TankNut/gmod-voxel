@@ -7,6 +7,8 @@ if SERVER then
 	util.AddNetworkString("voxel_model_data")
 	util.AddNetworkString("voxel_model_save")
 	util.AddNetworkString("voxel_model_list")
+
+	util.AddNetworkString("voxel_error")
 end
 
 if CLIENT then
@@ -15,6 +17,10 @@ if CLIENT then
 			net.WriteString(self.Name)
 		net.SendToServer()
 	end
+
+	net.Receive("voxel_error", function()
+		MsgC(Color(255, 0, 0), "Error:" .. net.ReadString())
+	end)
 
 	net.Receive("voxel_model_data", function()
 		local path = net.ReadString()

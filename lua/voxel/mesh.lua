@@ -8,6 +8,14 @@ function meta:Rebuild()
 	self.Mins = mins - Vector(0.5, 0.5, 0.5)
 	self.Maxs = maxs + Vector(0.5, 0.5, 0.5)
 
+	self.Radius = math.max(
+		math.abs(self.Mins.x),
+		math.abs(self.Mins.y),
+		math.abs(self.Mins.z),
+		math.abs(self.Maxs.x),
+		math.abs(self.Mins.y),
+		math.abs(self.Mins.z))
+
 	if CLIENT then
 		self:RebuildMesh()
 	end
