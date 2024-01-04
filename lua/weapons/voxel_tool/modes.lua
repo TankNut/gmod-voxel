@@ -15,6 +15,8 @@ function SWEP:ModeBuildSecondary(ent, normal, x, y, z, alt)
 		return
 	end
 
+	local pickColor = ent.Grid:Get(x, y, z)
+
 	x = x + normal.x
 	y = y + normal.y
 	z = z + normal.z
@@ -23,7 +25,7 @@ function SWEP:ModeBuildSecondary(ent, normal, x, y, z, alt)
 		return
 	end
 
-	ent:Set(x, y, z, self:GetSelectedColor())
+	ent:Set(x, y, z, alt and pickColor or self:GetSelectedColor())
 end
 
 function SWEP:ModeBuildInfo(alt)
@@ -32,7 +34,7 @@ function SWEP:ModeBuildInfo(alt)
 
 	return {
 		{Text = "Left: Remove voxel", Color = color},
-		{Text = "Right: Add voxel", Color = color},
+		{Text = string.format("Right: %s voxel", alt and "Extend" or "Add"), Color = color},
 		true,
 		{Text = "Reload: Open UI", Color = colors.Foreground}
 	}
