@@ -188,15 +188,16 @@ if CLIENT then
 
 					local uv = t1.uv + (u1 * l1) + (u2 * l2)
 
-					local x = math.floor(uv.x * 1024)
-					local y = math.floor(uv.y * 1024)
+					local x = math.floor(uv.x * 1024) % 1024
+					local y = math.floor(uv.y * 1024) % 1024
 
 					local col = grid:Get(pos.x, pos.y, pos.z)
+					local new = Color(render.ReadPixel(x, y))
 
 					if col then
-						table.insert(col, Color(render.ReadPixel(x, y)))
+						table.insert(col, new)
 					else
-						grid:Set(pos.x, pos.y, pos.z, {Color(render.ReadPixel(x, y))})
+						grid:Set(pos.x, pos.y, pos.z, {new})
 					end
 				end
 			end
