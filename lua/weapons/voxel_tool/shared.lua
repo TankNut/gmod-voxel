@@ -11,7 +11,7 @@ SWEP.SlotPos = 10
 SWEP.DrawCrosshair = true
 
 SWEP.ViewModel = Model("models/hunter/blocks/cube025x025x025.mdl")
-SWEP.WorldModel = ""
+SWEP.WorldModel = Model("models/hunter/blocks/cube025x025x025.mdl")
 
 SWEP.UseHands = false
 

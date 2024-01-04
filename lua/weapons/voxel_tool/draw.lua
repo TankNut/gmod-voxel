@@ -12,6 +12,45 @@ function SWEP:PostDrawViewModel()
 	render.ModelMaterialOverride()
 end
 
+function SWEP:GetWorldPos()
+	local ply = self:GetOwner()
+
+	local pos = self:GetPos()
+	local ang = self:GetAngles()
+
+	if IsValid(ply) then
+		local index = ply:LookupBone("ValveBiped.Bip01_R_Hand")
+
+		pos, ang = ply:GetBonePosition(index)
+		pos, ang = LocalToWorld(Vector(3, 0, 0), Angle(0, 15), pos, ang + Angle(-10, 0, 180))
+	end
+
+	return pos, ang
+end
+
+local mat = Material("engine/occlusionproxy")
+
+function SWEP:DrawWorldModel()
+	render.ModelMaterialOverride(mat)
+		self:DrawModel()
+	render.ModelMaterialOverride()
+
+	local pos, ang = self:GetWorldPos()
+	local matrix = Matrix()
+
+	matrix:SetTranslation(pos)
+	matrix:SetAngles(ang)
+	matrix:SetScale(Vector(10, 10, 10))
+
+	voxel.Mat:SetVector("$color2", self:GetSelectedColor():ToVector())
+
+	render.SetMaterial(voxel.Mat)
+
+	cam.PushModelMatrix(matrix, true)
+		voxel.Cube:Draw()
+	cam.PopModelMatrix()
+end
+
 local minBounds = Vector(-0.5, -0.5, -0.5)
 local maxBounds = Vector(0.5, 0.5, 0.5)
 
