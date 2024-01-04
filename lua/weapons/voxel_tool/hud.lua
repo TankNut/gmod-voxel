@@ -1,5 +1,5 @@
 function SWEP:HUDShouldDraw(element)
-	if self:GetAlt() and element == "CHudWeaponSelection" then
+	if (self:GetShift() or self:GetAlt()) and element == "CHudWeaponSelection" then
 		return false
 	end
 
@@ -27,6 +27,7 @@ function SWEP:DrawHUD()
 		local y = ScrH() - offset - size
 
 		draw.RoundedBox(8, x, y, size, size, self.Colors.Background)
+		draw.SimpleText(k, "HudNumbersSmall", x + size * 0.1, y + size * 0.1, k == self:GetSelectedMode() and colors.ForegroundSelected or colors.Foreground, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 		draw.SimpleText(v.Name, "HudDefault", x + size * 0.5, y + size * 0.5, k == self:GetSelectedMode() and colors.ForegroundSelected or colors.Foreground, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 

@@ -65,6 +65,8 @@ function SWEP:Initialize()
 		end)
 	end
 
+	hook.Add("PlayerButtonDown", self, self.PlayerButtonDown)
+
 	self:SetSelectedMode(1)
 end
 
@@ -273,5 +275,17 @@ function SWEP:GetTrace()
 
 	if data then
 		return unpack(data)
+	end
+end
+
+function SWEP:PlayerButtonDown(ply, button)
+	if ply:GetActiveWeapon() != self or not self:GetShift() then
+		return
+	end
+
+	for i = 1, #self.Modes do
+		if button == _G["KEY_" .. i] then
+			self:SetSelectedMode(i)
+		end
 	end
 end
