@@ -127,6 +127,10 @@ else
 
 		local grid, attachments = voxel.LoadFromFile("voxel_editor_temp.dat", "DATA")
 
+		if grid:GetComplexity() > 1 then
+			return
+		end
+
 		ent.Grid = grid
 		ent.Attachments = attachments
 		ent:SyncToPlayer()
@@ -155,6 +159,8 @@ else
 		end
 
 		local grid, attachments = voxel.LoadFromFile(name, path)
+
+		-- Your server, your responsibility
 
 		ent.Grid = grid
 		ent.Attachments = attachments

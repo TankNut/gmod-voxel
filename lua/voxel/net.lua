@@ -85,6 +85,10 @@ else
 	end)
 
 	net.Receive("voxel_model_save", function(_, ply)
+		if not ply:IsSuperAdmin() then
+			return
+		end
+
 		local ent = voxel.GetEditor(ply)
 
 		if not IsValid(ent) then

@@ -501,7 +501,16 @@ function SWEP:ImportFileDialog(extensions, importer)
 		ui:Close()
 		self.UI:Close()
 
-		voxel.SaveToFile("voxel_editor_temp.dat", importer(path, true), {})
+		local grid = importer(path, true)
+
+		if grid:GetComplexity() > 1 then
+			surface.PlaySound("buttons/button10.wav")
+			notification.AddLegacy(string.format("Cannot import %s: Model is too big!", string.GetFileFromFilename(path)), NOTIFY_ERROR, 5)
+
+			return
+		end
+
+		voxel.SaveToFile("voxel_editor_temp.dat", grid, {})
 
 		local payload = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
 
@@ -572,7 +581,16 @@ function SWEP:FromModelDialog()
 		ui:Close()
 		self.UI:Close()
 
-		voxel.SaveToFile("voxel_editor_temp.dat", voxel.FromModel(mdl, mdlScale), {})
+		local grid = voxel.FromModel(mdl, mdlScale)
+
+		if grid:GetComplexity() > 1 then
+			surface.PlaySound("buttons/button10.wav")
+			notification.AddLegacy(string.format("Cannot import %s: Model is too big!", string.GetFileFromFilename(mdl)), NOTIFY_ERROR, 5)
+
+			return
+		end
+
+		voxel.SaveToFile("voxel_editor_temp.dat", grid, {})
 
 		local payload = util.Compress(file.Read("voxel_editor_temp.dat", "DATA"))
 
