@@ -135,6 +135,10 @@ if CLIENT then
 	end)
 else
 	function voxel.RateLimit(ply, key, timeout)
+		if game.SinglePlayer() then
+			return false
+		end
+
 		timeout = timeout or 1
 
 		if not ply.VoxelRateLimits then
