@@ -126,8 +126,6 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 
-		local ang = self:GetAngles()
-
 		render.SetMaterial(voxel.Mat)
 
 		local offset, scale = self:GetOffsetData()
@@ -144,8 +142,6 @@ if CLIENT then
 			vec:Mul(scale)
 			vec:Add(offset)
 
-			local pos = self:LocalToWorld(vec)
-
 			if mask then
 				colorVec:SetUnpacked(color.a * rgbToVec, color.a * rgbToVec, color.a * rgbToVec)
 			else
@@ -154,8 +150,8 @@ if CLIENT then
 
 			voxel.Mat:SetVector("$color2", colorVec)
 
-			matrix:SetTranslation(pos)
-			matrix:SetAngles(ang)
+			matrix:SetTranslation(self:LocalToWorld(vec))
+			matrix:SetAngles(self:GetAngles())
 			matrix:SetScale(scaleVec)
 
 			cam.PushModelMatrix(matrix)

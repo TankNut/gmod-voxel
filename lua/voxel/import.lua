@@ -133,7 +133,6 @@ function voxel.LoadVOX(path)
 	fs:Read(4) -- Version
 
 	local chunks = readChunks(fs)
-
 	local palette = table.Copy(voxPalette)
 
 	if chunks.RGBA then
