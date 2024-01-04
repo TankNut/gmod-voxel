@@ -85,6 +85,11 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
+	local automatic = self:GetShift()
+
+	self.Primary.Automatic = automatic
+	self.Secondary.Automatic = automatic
+
 	local normal, x, y, z = self:GetTrace()
 	local alt = self:GetAlt()
 
@@ -95,6 +100,11 @@ function SWEP:PrimaryAttack()
 	if func then
 		func(self, ent, normal, x, y, z, alt)
 	end
+
+	local delay = CurTime() + 0.1
+
+	self:SetNextPrimaryFire(delay)
+	self:SetNextSecondaryFire(delay)
 end
 
 function SWEP:SecondaryAttack()
@@ -108,6 +118,11 @@ function SWEP:SecondaryAttack()
 		return
 	end
 
+	local automatic = self:GetShift()
+
+	self.Primary.Automatic = automatic
+	self.Secondary.Automatic = automatic
+
 	local normal, x, y, z = self:GetTrace()
 	local alt = self:GetAlt()
 
@@ -118,6 +133,11 @@ function SWEP:SecondaryAttack()
 	if func then
 		func(self, ent, normal, x, y, z, alt)
 	end
+
+	local delay = CurTime() + 0.1
+
+	self:SetNextPrimaryFire(delay)
+	self:SetNextSecondaryFire(delay)
 end
 
 function SWEP:Reload()
@@ -176,6 +196,10 @@ end
 
 function SWEP:GetAlt()
 	return self:GetOwner():KeyDown(IN_USE)
+end
+
+function SWEP:GetShift()
+	return self:GetOwner():KeyDown(IN_SPEED)
 end
 
 local function inRange(val, min, max)
