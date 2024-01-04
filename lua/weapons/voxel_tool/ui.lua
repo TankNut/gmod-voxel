@@ -25,6 +25,10 @@ local function installThink(ui, ent)
 	end
 end
 
+local function isOwner(ent)
+	return LocalPlayer() == ent:GetOwningPlayer()
+end
+
 function SWEP:ToggleUI()
 	if IsValid(self.UI) then
 		self.UI:Close()
@@ -87,19 +91,19 @@ function SWEP:AddMenuBar(ui)
 
 	local fileMenu = bar:AddMenu("File")
 	local ent = ui.Editor
-	local isOwner = LocalPlayer() == ent:GetOwningPlayer()
+	local owner = isOwner(ent)
 
 	fileMenu:AddOption("New", function()
 		self:NewFileDialog()
-	end):SetDisabled(not isOwner)
+	end):SetDisabled(not owner)
 
 	fileMenu:AddOption("Open", function()
 		self:OpenFileDialog()
-	end):SetDisabled(not isOwner)
+	end):SetDisabled(not owner)
 
 	fileMenu:AddOption("Open From Server", function()
 		self:OpenRemoteDialog()
-	end):SetDisabled(not isOwner)
+	end):SetDisabled(not owner)
 
 	fileMenu:AddOption("Save", function()
 		if ent.Grid:GetComplexity() > 1 then
@@ -149,7 +153,7 @@ function SWEP:AddMenuBar(ui)
 
 			ent.SavePath = val
 		end)
-	end)
+	end):SetDisabled(not LocalPlayer():IsSuperAdmin())
 
 	fileMenu:AddSpacer()
 

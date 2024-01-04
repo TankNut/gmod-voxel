@@ -161,7 +161,30 @@ if CLIENT then
 		end
 	end
 else
+	function ENT:CheckAccess(ply)
+		local owner = self:GetOwningPlayer()
+
+		if not IsValid(owner) then
+			self:SetOwningPlayer(ply)
+
+			net.Start("voxel_editor_owner")
+			net.Send(ply)
+
+			return true
+		end
+
+		if ply:IsAdmin() then
+			return true
+		end
+
+		return owner:GetInfoNum("voxel_access", 0) == 1
+	end
+
 	function ENT:Use(ply)
+		if not self:CheckAccess(ply) then
+			return
+		end
+
 		local tool = ply:GetWeapon("voxel_tool")
 
 		if not IsValid(tool) then

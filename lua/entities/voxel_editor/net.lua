@@ -39,7 +39,14 @@ if CLIENT then
 
 		hook.Run("VoxelEditorAttachmentSync", ent)
 	end)
+
+	net.Receive("voxel_editor_owner", function()
+		surface.PlaySound("buttons/button14.wav")
+		notification.AddLegacy("You now own this entity.", NOTIFY_GENERIC, 5)
+	end)
 else
+	util.AddNetworkString("voxel_editor_owner")
+
 	util.AddNetworkString("voxel_editor_sync")
 	util.AddNetworkString("voxel_editor_sync_att")
 
