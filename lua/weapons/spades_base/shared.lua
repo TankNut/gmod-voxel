@@ -63,7 +63,9 @@ SWEP.Sights = {
 
 	Time = 0.3, -- Time it takes to zoom in, also affects sprint and deploy times
 	Zoom = 1.2,
-	Distance = 15 -- Distance from the attachment point on the weapon model
+	Distance = 15, -- Distance from the attachment point on the weapon model
+
+	Scoped = false
 }
 
 SWEP.Tracer = {
@@ -86,6 +88,14 @@ SWEP.Voxel = {
 SWEP.Sounds = {
 	Empty = Sound("weapons/spades/empty.wav")
 }
+
+AddCSLuaFile("cl_hud.lua")
+AddCSLuaFile("cl_model.lua")
+
+if CLIENT then
+	include("cl_hud.lua")
+	include("cl_model.lua")
+end
 
 include("sh_attack.lua")
 include("sh_holdtype.lua")

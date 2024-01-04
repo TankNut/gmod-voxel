@@ -10,50 +10,6 @@ function SWEP:GetZoom()
 end
 
 if CLIENT then
-	function SWEP:DoDrawCrosshair(x, y)
-		x = x - 1
-		y = y - 1
-
-		if self:IsReloading() then
-			return true
-		end
-
-		local offset = math.Round(ScrW() * 0.5 * (self:GetSpread() + self.BaseSpread) / self:GetBaseFOV())
-		local fraction = math.Clamp(self:GetAimFraction() + math.ease.OutQuart(self:GetSprintState()), 0, 1)
-		local alpha = (1 - fraction) * 200
-		local length
-
-		-- Outline
-		surface.SetDrawColor(0, 0, 0, alpha)
-		surface.DrawRect(x - 1, y - 1, 4, 4)
-
-		length = 5
-
-		surface.DrawRect(x - offset - length - 1, y - 1, length + 2, 4) -- Left
-		surface.DrawRect(x + offset + 1, y - 1, length + 2, 4) -- Right
-
-		length = 2
-
-		surface.DrawRect(x - 1, y - offset - length - 1, 4, length + 2) -- Up
-		surface.DrawRect(x - 1, y + offset + 1, 4, length + 2) -- Down
-
-		-- fill
-		surface.SetDrawColor(255, 255, 255, alpha)
-		surface.DrawRect(x, y, 2, 2)
-
-		length = 5
-
-		surface.DrawRect(x - offset - length, y, length, 2) -- Left
-		surface.DrawRect(x + offset + 2, y, length, 2) -- Right
-
-		length = 2
-
-		surface.DrawRect(x, y - offset - length, 2, length) -- Up
-		surface.DrawRect(x, y + offset + 2, 2, length) -- Down
-
-		return true
-	end
-
 	function SWEP:GetRecoilDepth()
 		return math.Clamp(math.Remap(CurTime() - self:GetLastFire(), 0, self.Recoil.Time, 1, 0), 0, 1)
 	end
@@ -155,55 +111,5 @@ if CLIENT then
 		local pos, ang = LocalToWorld(self.VMData.Pos + add.Pos, self.VMData.Ang + add.Ang, vm:GetPos(), vm:GetAngles())
 
 		return pos, ang
-	end
-
-	function SWEP:ShouldHideViewModel()
-		return self:IsReloading()
-	end
-
-	local mat = Material("reticles/eotech")
-
-	function SWEP:DrawVoxelModel()
-		BaseClass.DrawVoxelModel(self)
-
-		--self:DrawHolosight(Vector(-1, 0, 5), Vector(-1, 0, 0), 100, 1, 1, Color(0, 0, 0, 50), 2, 2, Color(255, 0, 0), mat)
-	end
-
-	function SWEP:DrawHolosight(pos, normal, distance, glassWidth, glassHeight, glassColor, sightWidth, sightHeight, sightColor, sightMaterial)
-		if halo.RenderedEntity() == self then
-			return
-		end
-
-		render.SetColorMaterial()
-
-		render.SetStencilWriteMask(0xFF)
-		render.SetStencilTestMask(0xFF)
-
-		render.SetStencilReferenceValue(0)
-
-		render.SetStencilPassOperation(STENCIL_REPLACE)
-		render.SetStencilFailOperation(STENCIL_KEEP)
-		render.SetStencilZFailOperation(STENCIL_KEEP)
-
-		render.ClearStencil()
-
-		render.SetStencilEnable(true)
-
-		render.SetStencilReferenceValue(1)
-		render.SetStencilCompareFunction(STENCIL_ALWAYS)
-
-		-- Draw mask
-		render.DrawQuadEasy(pos, normal, glassWidth, glassHeight, glassColor)
-
-		render.SetStencilCompareFunction(STENCIL_EQUAL)
-
-		-- Draw contents
-		if sightMaterial then
-			render.SetMaterial(sightMaterial)
-		end
-
-		render.DrawQuadEasy(pos + -normal * distance, normal, sightWidth * (distance / 100), sightHeight * (distance / 100), Color(255, 0, 0))
-
-		render.SetStencilEnable(false)
 	end
 end
