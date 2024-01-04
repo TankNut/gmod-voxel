@@ -14,7 +14,11 @@ function SWEP:GetFOV()
 	return self:GetBaseFOV() / self:GetZoom()
 end
 
-function SWEP:TranslateFOV()
+function SWEP:TranslateFOV(base)
+	if not self:HasCameraControl() then
+		return base
+	end
+
 	local fov = self:GetFOV()
 
 	self.ViewModelFOV = self.BaseViewModelFOV + (self:GetBaseFOV() - fov) * 0.6
@@ -23,10 +27,8 @@ function SWEP:TranslateFOV()
 end
 
 function SWEP:AdjustMouseSensitivity()
-	if self:HasCameraControl() then
-		local mult = 1 - (1 / self:GetZoom())
-
-		return 1 - mult / self:GetOwner():GetInfoNum("zoom_sensitivity_ratio", 1)
+	if self:HasCameraControl() and self:GetZoom() > 1 then
+		return (self:GetFOV() / self:GetBaseFOV()) * self:GetOwner():GetInfoNum("zoom_sensitivity_ratio", 1)
 	end
 
 	return 1
