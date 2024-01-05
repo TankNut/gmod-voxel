@@ -125,7 +125,7 @@ if CLIENT then
 				local i = 1
 
 				for k, v in pairs(colors) do
-					local x = (i % 256) - 1
+					local x = (i % 256)
 					local y = math.ceil(i / 256) - 1
 
 					render.SetScissorRect(x, y, x + 1, y + 1, true)
@@ -165,7 +165,7 @@ if CLIENT then
 				for _, v in pairs(side) do
 					local colorIndex = colors[tostring(col)]
 
-					local uvX = ((colorIndex % 256) - 1) / 256
+					local uvX = (colorIndex % 256) / 256
 					local uvY = (math.ceil(colorIndex / 256) - 1) / 256
 
 					local offset = 0.5 / 256
