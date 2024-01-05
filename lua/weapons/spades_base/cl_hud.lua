@@ -42,7 +42,7 @@ function SWEP:DoDrawCrosshair(x, y)
 		return true
 	end
 
-	local offset = math.Round(ScrW() * 0.5 * (self:GetSpread() + self.BaseSpread) / self:GetBaseFOV())
+	local offset = math.Round(ScrW() * 0.5 * (self:GetSpread() + self.BaseSpread) / self:GetFOV())
 	local fraction = math.Clamp(self:GetAimFraction() + math.ease.OutQuart(self:GetSprintState()), 0, 1)
 	local alpha = (1 - fraction) * 200
 	local length
