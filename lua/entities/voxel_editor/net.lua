@@ -57,6 +57,8 @@ else
 	util.AddNetworkString("voxel_editor_scale")
 	util.AddNetworkString("voxel_editor_offset")
 
+	util.AddNetworkString("voxel_editor_fullbright")
+
 	function ENT:SyncToPlayer(ply)
 		voxel.SaveToFile("voxel_editor_temp.dat", self.Grid, self.Attachments)
 
@@ -202,5 +204,15 @@ else
 		end
 
 		ent:SetVoxelOffset(Vector(0, 0, net.ReadUInt(6)))
+	end)
+
+	net.Receive("voxel_editor_fullbright", function(_, ply)
+		local ent = voxel.GetEditor(ply, true)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		ent:SetFullbright(net.ReadBool())
 	end)
 end

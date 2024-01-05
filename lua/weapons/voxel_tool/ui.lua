@@ -242,6 +242,18 @@ function SWEP:AddMenuBar(ui)
 		recalculateOffset()
 	end
 
+	local fullbright
+
+	fullbright = optMenu:AddOption("Fullbright", function()
+		net.Start("voxel_editor_fullbright")
+			net.WriteBool(not ent:GetFullbright())
+		net.SendToServer()
+
+		fullbright:SetChecked(not ent:GetFullbright())
+	end)
+
+	fullbright:SetChecked(ent:GetFullbright())
+
 	local accessMenu = bar:AddMenu("Access")
 
 	accessMenu:AddCVar("Just Me", "voxel_access", "0")

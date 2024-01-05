@@ -87,8 +87,9 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Entity", 0, "OwningPlayer")
 
 	self:NetworkVar("Float", 0, "VoxelScale")
-
 	self:NetworkVar("Vector", 0, "VoxelOffset")
+
+	self:NetworkVar("Bool", 0, "Fullbright")
 end
 
 function ENT:GetOffsetData()
@@ -134,6 +135,11 @@ if CLIENT then
 
 		local weapon = LocalPlayer():GetActiveWeapon()
 		local mask = IsValid(weapon) and weapon:GetClass() == "voxel_tool" and weapon:GetSelectedMode() == 6
+		local fullbright = self:GetFullbright()
+
+		if fullbright then
+			render.SuppressEngineLighting(true)
+		end
 
 		for index, color in pairs(self.Grid.Items) do
 			local x, y, z = fromIndex(index)
@@ -156,9 +162,14 @@ if CLIENT then
 
 			cam.PushModelMatrix(matrix)
 				voxel.Cube:Draw()
-				render.RenderFlashlights(function() voxel.Cube:Draw() end)
+
+				if not fullbright then
+					render.RenderFlashlights(function() voxel.Cube:Draw() end)
+				end
 			cam.PopModelMatrix()
 		end
+
+		render.SuppressEngineLighting(false)
 	end
 else
 	function ENT:CheckAccess(ply)
