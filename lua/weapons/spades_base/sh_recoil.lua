@@ -42,7 +42,7 @@ function SWEP:DoRecoil()
 	dir:Add(ang:Up() * math.min(math.rad(recoil.p), math.max(0, upLimit)) * modP)
 	dir:Add(ang:Right() * math.rad(recoil.y) * math.Rand(-1, 1) * modY)
 
-	ang = ply:EyeAngles() - dir:Angle()
+	ang = ply:GetAimVector():Angle() - dir:Angle()
 
 	ang.p = math.NormalizeAngle(ang.p)
 	ang.y = math.NormalizeAngle(ang.y)
