@@ -5,11 +5,19 @@ end
 function SWEP:PreDrawViewModel()
 	render.ModelMaterialOverride(voxel.Mat)
 
+	local fullbright = IsValid(self:GetEditEntity()) and self:GetEditEntity():GetFullbright() or false
+
+	if fullbright then
+		render.SuppressEngineLighting(true)
+	end
+
 	voxel.Mat:SetVector("$color2", self:GetSelectedColor():ToVector())
 end
 
 function SWEP:PostDrawViewModel()
 	render.ModelMaterialOverride()
+
+	render.SuppressEngineLighting(false)
 end
 
 function SWEP:GetWorldPos()
@@ -46,9 +54,17 @@ function SWEP:DrawWorldModel()
 
 	render.SetMaterial(voxel.Mat)
 
+	local fullbright = IsValid(self:GetEditEntity()) and self:GetEditEntity():GetFullbright() or false
+
+	if fullbright then
+		render.SuppressEngineLighting(true)
+	end
+
 	cam.PushModelMatrix(matrix, true)
 		voxel.Cube:Draw()
 	cam.PopModelMatrix()
+
+	render.SuppressEngineLighting(false)
 end
 
 local minBounds = Vector(-0.5, -0.5, -0.5)
