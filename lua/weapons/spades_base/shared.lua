@@ -212,7 +212,7 @@ hook.Add("SetupMove", "spades_base", function(ply, mv, cmd)
 		return
 	end
 
-	if wep:GetAimFraction() > 0 then
+	if wep:ShouldAim() and wep:GetAimFraction() > 0 then
 		local baseSpeed = ply:GetWalkSpeed()
 		local maxSpeed = math.Remap(wep.MoveSpeed, 0, 1, ply:GetSlowWalkSpeed(), baseSpeed)
 
