@@ -1,3 +1,7 @@
+function SWEP:HUDShouldDraw(name)
+	return name != "CHudZoom"
+end
+
 function SWEP:InScope()
 	return self.Sights.Scoped and self:GetAimState() > 0.5
 end
