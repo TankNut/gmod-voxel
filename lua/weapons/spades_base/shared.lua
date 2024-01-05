@@ -64,7 +64,17 @@ SWEP.Sights = {
 	Zoom = 1.2,
 	Distance = 15, -- Distance from the attachment point on the weapon model
 
-	Scoped = false
+	Scoped = false,
+
+	Holosight = false,
+	Attachment = "aim",
+
+	GlassSize = Vector(1, 1),
+	GlassColor = Color(0, 0, 0, 50),
+
+	HoloSize = Vector(2, 2),
+	HoloColor = Color(255, 0, 0),
+	HoloMaterial =  Material("reticles/eotech")
 }
 
 SWEP.Tracer = {

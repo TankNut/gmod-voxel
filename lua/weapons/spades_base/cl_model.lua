@@ -4,12 +4,14 @@ function SWEP:ShouldHideViewModel()
 	return self:IsReloading() or self:InScope()
 end
 
-local mat = Material("reticles/eotech")
-
 function SWEP:DrawVoxelModel()
 	BaseClass.DrawVoxelModel(self)
 
-	--self:DrawHolosight(Vector(-1, 0, 5), Vector(-1, 0, 0), 100, 1, 1, Color(0, 0, 0, 50), 2, 2, Color(255, 0, 0), mat)
+	if self.Sights.Holosight then
+		local pos, ang = self.VoxelModel:GetAttachment(self.Sights.Attachment)
+
+		self:DrawHolosight(pos, -ang:Forward(), 100, self.Sights.GlassSize.x, self.Sights.GlassSize.y, self.Sights.GlassColor, self.Sights.HoloSize.x, self.Sights.HoloSize.y, self.Sights.HoloColor, self.Sights.HoloMaterial)
+	end
 end
 
 function SWEP:DrawHolosight(pos, normal, distance, glassWidth, glassHeight, glassColor, sightWidth, sightHeight, sightColor, sightMaterial)
