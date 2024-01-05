@@ -133,6 +133,45 @@ if CLIENT then
 		net.Start("voxel_model_list")
 		net.SendToServer()
 	end)
+
+	voxel.Fullbright = voxel.Fullbright or function(self)
+		render.SuppressEngineLighting(true)
+
+		self:DrawModel()
+
+		render.SuppressEngineLighting(false)
+	end
+
+	properties.Add("fullbright", {
+		MenuLabel = "Fullbright",
+		Order = 1600,
+		Type = "toggle",
+
+		Whitelist = {
+			prop_physics = true,
+			prop_effect = true
+		},
+
+		Filter = function(self, ent, ply)
+			return tobool(self.Whitelist[ent:GetClass()])
+		end,
+
+		GetTarget = function(self, ent)
+			return ent:GetClass() == "prop_effect" and ent.AttachedEntity or ent
+		end,
+
+		Checked = function(self, ent)
+			return self:GetTarget(ent).RenderOverride == voxel.Fullbright
+		end,
+
+		Action = function(self, ent)
+			if self:GetTarget(ent).RenderOverride == voxel.Fullbright then
+				self:GetTarget(ent).RenderOverride = nil
+			else
+				self:GetTarget(ent).RenderOverride = voxel.Fullbright
+			end
+		end
+	})
 else
 	function voxel.RateLimit(ply, key, timeout)
 		if game.SinglePlayer() then
