@@ -599,6 +599,8 @@ function SWEP:FromModelDialog()
 		local mdl = entry:GetValue()
 		local mdlScale = scale:GetValue() * 0.5
 
+		ui.Editor.SavePath = nil
+
 		ui:Close()
 		self.UI:Close()
 
