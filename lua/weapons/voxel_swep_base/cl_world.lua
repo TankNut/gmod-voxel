@@ -39,4 +39,6 @@ function SWEP:DrawWorldModel()
 	cam.PushModelMatrix(matrix, true)
 		self:DrawVoxelModel()
 	cam.PopModelMatrix()
+
+	self:PostDrawVoxelModel(matrix)
 end

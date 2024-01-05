@@ -37,10 +37,6 @@ function SWEP:PostDrawViewModel()
 
 	local pos, ang = self:GetViewPos()
 
-	if self:ShouldHideViewModel() then
-		return
-	end
-
 	local matrix = Matrix()
 	local scale = self.Voxel.Scale
 
@@ -48,7 +44,15 @@ function SWEP:PostDrawViewModel()
 	matrix:SetAngles(ang)
 	matrix:SetScale(Vector(scale, scale, scale))
 
+	if self:ShouldHideViewModel() then
+		self:PostDrawVoxelModel(matrix, true)
+
+		return
+	end
+
 	cam.PushModelMatrix(matrix, true)
 		self:DrawVoxelModel()
 	cam.PopModelMatrix()
+
+	self:PostDrawVoxelModel(matrix)
 end

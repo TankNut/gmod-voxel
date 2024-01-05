@@ -45,4 +45,7 @@ if CLIENT then
 	function SWEP:DrawVoxelModel()
 		self.VoxelModel:Draw()
 	end
+
+	function SWEP:PostDrawVoxelModel(matrix, hidden)
+	end
 end
