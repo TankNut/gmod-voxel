@@ -569,7 +569,7 @@ function SWEP:FromModelDialog()
 	scale:DockMargin(2, 0, 0, 0)
 	scale:Dock(TOP)
 	scale:SetText("Import scale")
-	scale:SetMinMax(0, 2)
+	scale:SetMinMax(0, 3)
 	scale:SetDefaultValue(1)
 	scale:SetValue(1)
 
