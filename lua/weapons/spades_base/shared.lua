@@ -1,5 +1,4 @@
 AddCSLuaFile()
-
 DEFINE_BASECLASS("voxel_swep_base")
 
 SWEP.SpadesWeapon = true
@@ -78,6 +77,19 @@ SWEP.Muzzle = {
 	Size = 1
 }
 
+SWEP.Laser = {
+	Enabled = false,
+	Attachment = "muzzle",
+
+	Beam = Material("effects/laser1"),
+	BeamColor = Color(255, 0, 0),
+	BeamWidth = 1,
+
+	Sprite = Material("sprites/light_glow02_add"),
+	SpriteColor = Color(255, 0, 0),
+	SpriteWidth = 4
+}
+
 SWEP.Voxel = {
 	Lower = {
 		Pos = Vector(0, 5, -2),
@@ -90,10 +102,12 @@ SWEP.Sounds = {
 }
 
 AddCSLuaFile("cl_hud.lua")
+AddCSLuaFile("cl_laser.lua")
 AddCSLuaFile("cl_model.lua")
 
 if CLIENT then
 	include("cl_hud.lua")
+	include("cl_laser.lua")
 	include("cl_model.lua")
 end
 
@@ -104,6 +118,22 @@ include("sh_reload.lua")
 include("sh_sounds.lua")
 include("sh_states.lua")
 include("sh_view.lua")
+
+function SWEP:Initialize()
+	BaseClass.Initialize(self)
+
+	if CLIENT and self.Laser then
+		self.PixVis = util.GetPixelVisibleHandle()
+	end
+
+	hook.Add("PostDrawTranslucentRenderables", self, function()
+		local ply = self:GetOwner()
+
+		if not IsValid(ply) or ply:GetActiveWeapon() == self then
+			self:PostDrawTranslucentRenderables() -- Updates through reloads
+		end
+	end)
+end
 
 function SWEP:Deploy()
 	self:SetHoldType(self.LowerType)
@@ -169,6 +199,10 @@ end
 
 function SWEP:OnReloaded()
 	self:SetWeaponHoldType(self:GetIdealHoldType())
+
+	if CLIENT and self.Laser and not self.PixVis then
+		self.PixVis = util.GetPixelVisibleHandle()
+	end
 end
 
 hook.Add("SetupMove", "spades_base", function(ply, mv, cmd)

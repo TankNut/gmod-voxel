@@ -42,10 +42,17 @@ if CLIENT then
 		self:SetRenderBounds(mins * self.Voxel.Scale, maxs * self.Voxel.Scale)
 	end
 
+	-- Designed for SWEP:PostDrawVoxelModel
+	function SWEP:ViewModelAttachment(matrix, pos, ang)
+		pos, ang = LocalToWorld((pos or vector_origin) * self.Voxel.Scale, ang or angle_zero, matrix:GetTranslation(), matrix:GetAngles())
+
+		return pos, ang
+	end
+
 	function SWEP:DrawVoxelModel()
 		self.VoxelModel:Draw()
 	end
 
-	function SWEP:PostDrawVoxelModel(matrix, hidden)
+	function SWEP:PostDrawVoxelModel(matrix, hidden, viewmodel)
 	end
 end

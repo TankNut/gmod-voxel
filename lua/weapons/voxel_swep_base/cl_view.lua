@@ -45,7 +45,7 @@ function SWEP:PostDrawViewModel()
 	matrix:SetScale(Vector(scale, scale, scale))
 
 	if self:ShouldHideViewModel() then
-		self:PostDrawVoxelModel(matrix, true)
+		self:PostDrawVoxelModel(matrix, true, true)
 
 		return
 	end
@@ -54,5 +54,5 @@ function SWEP:PostDrawViewModel()
 		self:DrawVoxelModel()
 	cam.PopModelMatrix()
 
-	self:PostDrawVoxelModel(matrix)
+	self:PostDrawVoxelModel(matrix, false, true)
 end
