@@ -543,6 +543,15 @@ function SWEP:FromModelDialog()
 	entry:Dock(TOP)
 	entry:SetPlaceholderText("Model path (copy/paste from the spawnmenu)")
 
+	local bodygroups = ui:Add("DTextEntry")
+
+	bodygroups:DockMargin(0, 2, 0, 0)
+	bodygroups:Dock(TOP)
+	bodygroups:SetPlaceholderText("Bodygroup mask (000000)")
+	bodygroups.AllowInput = function(_, char)
+		return tobool(string.find(char, "[^%l%d]"))
+	end
+
 	local scale = ui:Add("DNumSlider")
 
 	scale:DockMargin(2, 0, 0, 0)
@@ -581,7 +590,7 @@ function SWEP:FromModelDialog()
 		ui:Close()
 		self.UI:Close()
 
-		local grid = voxel.FromModel(mdl, mdlScale)
+		local grid = voxel.FromModel(mdl, mdlScale, bodygroups:GetValue())
 
 		if grid:GetComplexity() > 1 then
 			surface.PlaySound("buttons/button10.wav")

@@ -224,9 +224,9 @@ if CLIENT then
 
 	local rt = GetRenderTarget("voxel_from_model", 1024, 1024)
 
-	function voxel.FromModel(mdl, scale)
+	function voxel.FromModel(mdl, scale, bodygroups)
 		local grid = voxel.Grid()
-		local data = util.GetModelMeshes(mdl)
+		local data = util.GetModelMeshes(mdl, 0, bodygroups)
 
 		local buffer = {}
 
