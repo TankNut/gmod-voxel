@@ -1,7 +1,6 @@
 AddCSLuaFile()
 
 voxel.Convars = {}
-
 voxel.Convars.Developer = CreateConVar("voxel_debug", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Enables a number of debug features for weapons.", 0, 1)
 
 if CLIENT then

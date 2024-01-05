@@ -12,8 +12,8 @@ end
 function SWEP:SetupPhysics()
 	local mins, maxs = self.VoxelModel:GetBounds()
 
-	mins = (mins + self.Voxel.Offset) * self.Voxel.Scale
-	maxs = (maxs + self.Voxel.Offset) * self.Voxel.Scale
+	mins = mins * self.Voxel.Scale
+	maxs = maxs * self.Voxel.Scale
 
 	if IsValid(self.PhysCollide) then
 		self.PhysCollide:Destroy()

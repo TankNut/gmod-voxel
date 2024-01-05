@@ -28,8 +28,6 @@ SWEP.Voxel = {
 	Model = "builtin/directions",
 	Scale = 1,
 
-	Offset = Vector(),
-
 	View = {
 		Pos = Vector(),
 		Ang = Angle()
