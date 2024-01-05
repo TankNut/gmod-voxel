@@ -27,7 +27,7 @@ function SWEP:TranslateFOV(base)
 end
 
 function SWEP:AdjustMouseSensitivity()
-	if self:HasCameraControl() and self:GetZoom() > 1 then
+	if self:GetZoom() > 1 then
 		return (self:GetFOV() / self:GetBaseFOV()) * self:GetOwner():GetInfoNum("zoom_sensitivity_ratio", 1)
 	end
 
