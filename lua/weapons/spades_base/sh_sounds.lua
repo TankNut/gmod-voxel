@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-function SWEP:PlayWeaponSound(snd)
+function SWEP:PlayWeaponSound(snd, static)
 	if isfunction(snd) then
 		snd = snd(self)
 	end
@@ -9,5 +9,9 @@ function SWEP:PlayWeaponSound(snd)
 		return
 	end
 
-	self:EmitSound(snd)
+	if static then
+		self:EmitSound(snd, 75, 100, 1, CHAN_STATIC)
+	else
+		self:EmitSound(snd)
+	end
 end

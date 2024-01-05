@@ -44,7 +44,7 @@ end
 
 function SWEP:ConsumeAmmo()
 	if self:Clip1() < self.Cost then
-		self:PlayWeaponSound(self.Sounds.Empty)
+		self:PlayWeaponSound(self.Sounds.Empty, true)
 		self:SetNextPrimaryFire(CurTime() + 0.2)
 
 		self:ForceStopFire()
