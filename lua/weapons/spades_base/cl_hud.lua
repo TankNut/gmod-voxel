@@ -28,11 +28,15 @@ function SWEP:DrawScope(x, y)
 	surface.DrawTexturedRect(dw, 0, w, h)
 end
 
+local debugConvar = voxel.Convars.Developer
+
 function SWEP:DoDrawCrosshair(x, y)
 	if self:InScope() then
 		self:DrawScope(x, y)
 
-		return true
+		if not debugConvar:GetBool() then
+			return true
+		end
 	end
 
 	x = x - 1
@@ -44,7 +48,7 @@ function SWEP:DoDrawCrosshair(x, y)
 
 	local offset = math.Round(ScrW() * 0.5 * (self:GetSpread() + self.BaseSpread) / self:GetFOV())
 	local fraction = math.Clamp(self:GetAimFraction() + math.ease.OutQuart(self:GetSprintState()), 0, 1)
-	local alpha = (1 - fraction) * 200
+	local alpha = debugConvar:GetBool() and 255 or (1 - fraction) * 200
 	local length
 
 	if alpha == 0 then
