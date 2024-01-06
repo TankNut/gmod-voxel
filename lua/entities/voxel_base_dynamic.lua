@@ -20,7 +20,7 @@ end
 
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "VoxelModel")
-	self:NetworkVar("Int", 0, "VoxelScale")
+	self:NetworkVar("Float", 0, "VoxelScale")
 	self:NetworkVar("Vector", 0, "VoxelOffset")
 
 	self:NetworkVarNotify("VoxelModel", self.NotifyChanged)

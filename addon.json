@@ -1,0 +1,13 @@
+{
+	"title": "Voxel Framework",
+	"type":	"model",
+	"tags":	["fun", "roleplay"],
+	"ignore":
+	[
+		"*.bat",
+		"*.jpg",
+		"*.md",
+		".git*",
+		"LICENSE"
+	]
+}
