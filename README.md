@@ -1,7 +1,7 @@
 # Voxel
 Voxel is a Garry's Mod addon that lets you build your own weapon and entity models out of voxels, all from within the confines of the game itself.
 
-### [Workshop link]([https://steamcommunity.com/sharedfiles/filedetails/?id=2821862386](https://steamcommunity.com/sharedfiles/filedetails/?id=3133156235))
+### [Workshop link](https://steamcommunity.com/sharedfiles/filedetails/?id=3133156235)
 
 # Features
 
