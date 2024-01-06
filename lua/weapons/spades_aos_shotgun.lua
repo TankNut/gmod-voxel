@@ -5,7 +5,7 @@ SWEP.Base = "spades_base"
 SWEP.PrintName = "Shotgun"
 SWEP.Author = "TankNut"
 
-SWEP.Category = "Ace of Spades"
+SWEP.Category = "Voxel - Ace of Spades"
 SWEP.Slot = 3
 
 SWEP.Spawnable = true
