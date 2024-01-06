@@ -5,7 +5,7 @@ ENT.Base = "base_anim"
 
 ENT.RenderGroup = RENDERGROUP_OPAQUE
 
-ENT.VoxelData = {
+ENT.Voxel = {
 	Model = "builtin/directions",
 	Scale = 1,
 
@@ -18,20 +18,20 @@ function ENT:Initialize()
 	self:DrawShadow(false)
 	self:EnableCustomCollisions(true)
 
-	self.VoxelModel = VoxelModel(self.VoxelData.Model)
+	self.VoxelModel = VoxelModel(self.Voxel.Model)
 	self:SetupVoxelModel()
 
 	hook.Add("VoxelModelLoaded", self, self.VoxelModelLoaded)
 end
 
 function ENT:VoxelModelLoaded(model)
-	if model.Name == self.VoxelData.Model then
+	if model.Name == self.Voxel.Model then
 		self:SetupVoxelModel()
 	end
 end
 
 function ENT:SetupVoxelModel()
-	self.VoxelModel = VoxelModel(self.VoxelData.Model)
+	self.VoxelModel = VoxelModel(self.Voxel.Model)
 
 	self:SetupPhysics()
 
@@ -43,8 +43,8 @@ end
 function ENT:SetupPhysics()
 	local mins, maxs = self.VoxelModel:GetBounds()
 
-	mins = (mins + self.VoxelData.Offset) * self.VoxelData.Scale
-	maxs = (maxs + self.VoxelData.Offset) * self.VoxelData.Scale
+	mins = (mins + self.Voxel.Offset) * self.Voxel.Scale
+	maxs = (maxs + self.Voxel.Offset) * self.Voxel.Scale
 
 	if IsValid(self.PhysCollide) then
 		self.PhysCollide:Destroy()
@@ -67,7 +67,7 @@ end
 if SERVER then
 	function ENT:ConfigurePhysics(phys)
 		phys:EnableMotion(false)
-		phys:SetMass(self.VoxelModel.Grid:GetCount() * (self.VoxelData.Scale^3) * 0.01)
+		phys:SetMass(self.VoxelModel.Grid:GetCount() * (self.Voxel.Scale^3) * 0.01)
 	end
 end
 
@@ -78,7 +78,7 @@ function ENT:GetVAttachment(name)
 		return self:GetPos(), self:GetAngles()
 	end
 
-	return LocalToWorld((attachment.Offset + self.VoxelData.Offset) * self.VoxelData.Scale, attachment.Angles, self:GetPos(), self:GetAngles())
+	return LocalToWorld((attachment.Offset + self.Voxel.Offset) * self.Voxel.Scale, attachment.Angles, self:GetPos(), self:GetAngles())
 end
 
 function ENT:TestCollision(start, delta, isbox, extends)
@@ -109,7 +109,7 @@ if CLIENT then
 	function ENT:UpdateRenderBounds()
 		local mins, maxs = self.VoxelModel:GetBounds()
 
-		self:SetRenderBounds(mins * self.VoxelData.Scale, maxs * self.VoxelData.Scale)
+		self:SetRenderBounds(mins * self.Voxel.Scale, maxs * self.Voxel.Scale)
 	end
 
 	function ENT:GetRenderMesh()
@@ -118,10 +118,10 @@ if CLIENT then
 		end
 
 		local matrix = Matrix()
-		local scale = self.VoxelData.Scale
+		local scale = self.Voxel.Scale
 
 		matrix:SetScale(Vector(scale, scale, scale))
-		matrix:Translate(self.VoxelData.Offset)
+		matrix:Translate(self.Voxel.Offset)
 
 		return {
 			Mesh = self.VoxelModel.Mesh,
