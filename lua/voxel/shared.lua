@@ -172,6 +172,20 @@ if CLIENT then
 			end
 		end
 	})
+
+	concommand.Add("voxel_list", function()
+		local tab = {}
+
+		for path in pairs(voxel.FileList) do
+			tab[voxel.FormatFilename(path)] = true
+		end
+
+		MsgC("Available Models:\n")
+
+		for k in SortedPairs(tab) do
+			MsgC("\t" .. k .. "\n")
+		end
+	end)
 else
 	function voxel.RateLimit(ply, key, timeout)
 		if game.SinglePlayer() then
