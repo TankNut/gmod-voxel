@@ -157,9 +157,9 @@ function SWEP:PostDrawTranslucentRenderables(depth, skybox, skybox3D)
 		return
 	end
 
-	-- if not self:IsCarriedByLocalPlayer() or LocalPlayer():GetActiveWeapon() != self then
-	-- 	return
-	-- end
+	if not self:IsCarriedByLocalPlayer() or LocalPlayer():GetActiveWeapon() != self then
+		return
+	end
 
 	local ent = self:GetEditEntity()
 
