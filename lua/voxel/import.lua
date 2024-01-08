@@ -159,7 +159,8 @@ function voxel.LoadVOX(path)
 	return grid
 end
 
--- Mdl
+-- MDL
+
 if CLIENT then
 	local steps = 6
 

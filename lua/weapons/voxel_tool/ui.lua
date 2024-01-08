@@ -599,6 +599,12 @@ function SWEP:FromModelDialog()
 		local mdl = entry:GetValue()
 		local mdlScale = scale:GetValue() * 0.5
 
+		if #mdl < 5 or string.GetExtensionFromFilename(mdl) != "mdl" then
+			Derma_Message("This isn't a valid model!", "Error", "Ok")
+
+			return
+		end
+
 		ui.Editor.SavePath = nil
 
 		ui:Close()
