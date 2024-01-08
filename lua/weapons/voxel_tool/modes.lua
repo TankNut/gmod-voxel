@@ -29,7 +29,7 @@ function SWEP:CallMirrored(ent, x, y, z, callback)
 		end
 
 		mask[index] = true
-		print(v[1], v[2], v[3])
+
 		callback(v[1], v[2], v[3])
 	end
 end
