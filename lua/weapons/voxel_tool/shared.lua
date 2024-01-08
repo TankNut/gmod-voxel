@@ -66,8 +66,8 @@ end
 
 function SWEP:Initialize()
 	if CLIENT then
-		hook.Add("PostDrawOpaqueRenderables", self, function()
-			self:PostDrawOpaqueRenderables() -- Updates through reloads
+		hook.Add("PostDrawOpaqueRenderables", self, function(_, depth, skybox, skybox3D)
+			self:PostDrawOpaqueRenderables(depth, skybox, skybox3D) -- Updates through reloads
 		end)
 	else
 		hook.Add("AllowPlayerPickup", self, function(_, ply)

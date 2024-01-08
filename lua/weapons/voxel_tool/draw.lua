@@ -74,8 +74,8 @@ local colorR = Color(255, 0, 0)
 local colorG = Color(0, 255, 0)
 local colorB = Color(0, 0, 255)
 
-function SWEP:PostDrawOpaqueRenderables(depth, skybox)
-	if skybox then
+function SWEP:PostDrawOpaqueRenderables(depth, skybox, skybox3D)
+	if skybox or skybox3D then
 		return
 	end
 
