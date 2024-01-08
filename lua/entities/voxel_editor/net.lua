@@ -58,6 +58,7 @@ else
 	util.AddNetworkString("voxel_editor_offset")
 
 	util.AddNetworkString("voxel_editor_fullbright")
+	util.AddNetworkString("voxel_editor_mirror")
 
 	function ENT:SyncToPlayer(ply)
 		voxel.SaveToFile("voxel_editor_temp.dat", self.Grid, self.Attachments)
@@ -214,5 +215,24 @@ else
 		end
 
 		ent:SetFullbright(net.ReadBool())
+	end)
+
+	net.Receive("voxel_editor_mirror", function(_, ply)
+		local ent = voxel.GetEditor(ply, true)
+
+		if not IsValid(ent) then
+			return
+		end
+
+		local bool = net.ReadBool()
+		local axis = net.ReadUInt(2)
+
+		if axis == 1 then
+			ent:SetMirrorX(bool)
+		elseif axis == 2 then
+			ent:SetMirrorY(bool)
+		else
+			ent:SetMirrorZ(bool)
+		end
 	end)
 end

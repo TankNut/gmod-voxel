@@ -90,6 +90,10 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Vector", 0, "VoxelOffset")
 
 	self:NetworkVar("Bool", 0, "Fullbright")
+
+	self:NetworkVar("Bool", 1, "MirrorX")
+	self:NetworkVar("Bool", 2, "MirrorY")
+	self:NetworkVar("Bool", 3, "MirrorZ")
 end
 
 function ENT:GetOffsetData()

@@ -69,6 +69,10 @@ function SWEP:Initialize()
 		hook.Add("PostDrawOpaqueRenderables", self, function(_, depth, skybox, skybox3D)
 			self:PostDrawOpaqueRenderables(depth, skybox, skybox3D) -- Updates through reloads
 		end)
+
+		hook.Add("PostDrawTranslucentRenderables", self, function(_, depth, skybox, skybox3D)
+			self:PostDrawTranslucentRenderables(depth, skybox, skybox3D)
+		end)
 	else
 		hook.Add("AllowPlayerPickup", self, function(_, ply)
 			if ply:GetActiveWeapon() == self then

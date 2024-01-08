@@ -242,17 +242,46 @@ function SWEP:AddMenuBar(ui)
 		recalculateOffset()
 	end
 
-	local fullbright
+	do -- Mirror menu
+		local mirrorMenu = optMenu:AddSubMenu("Mirror")
 
-	fullbright = optMenu:AddOption("Fullbright", function()
+		mirrorMenu:SetDeleteSelf(false)
+
+		mirrorMenu:AddOption("X Axis", function(pnl)
+			net.Start("voxel_editor_mirror")
+				net.WriteBool(not ent:GetMirrorX())
+				net.WriteUInt(1, 2)
+			net.SendToServer()
+
+			pnl:SetChecked(not ent:GetMirrorX())
+		end):SetChecked(ent:GetMirrorX())
+
+		mirrorMenu:AddOption("Y Axis", function(pnl)
+			net.Start("voxel_editor_mirror")
+				net.WriteBool(not ent:GetMirrorY())
+				net.WriteUInt(2, 2)
+			net.SendToServer()
+
+			pnl:SetChecked(not ent:GetMirrorY())
+		end):SetChecked(ent:GetMirrorY())
+
+		mirrorMenu:AddOption("Z Axis", function(pnl)
+			net.Start("voxel_editor_mirror")
+				net.WriteBool(not ent:GetMirrorZ())
+				net.WriteUInt(3, 2)
+			net.SendToServer()
+
+			pnl:SetChecked(not ent:GetMirrorZ())
+		end):SetChecked(ent:GetMirrorZ())
+	end
+
+	optMenu:AddOption("Fullbright", function(pnl)
 		net.Start("voxel_editor_fullbright")
 			net.WriteBool(not ent:GetFullbright())
 		net.SendToServer()
 
-		fullbright:SetChecked(not ent:GetFullbright())
-	end)
-
-	fullbright:SetChecked(ent:GetFullbright())
+		pnl:SetChecked(not ent:GetFullbright())
+	end):SetChecked(ent:GetFullbright())
 
 	local accessMenu = bar:AddMenu("Access")
 
@@ -569,7 +598,7 @@ function SWEP:FromModelDialog()
 	scale:DockMargin(2, 0, 0, 0)
 	scale:Dock(TOP)
 	scale:SetText("Import scale")
-	scale:SetMinMax(0, 3)
+	scale:SetMinMax(0, 5)
 	scale:SetDefaultValue(1)
 	scale:SetValue(1)
 

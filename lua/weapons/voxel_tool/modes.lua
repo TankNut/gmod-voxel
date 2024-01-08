@@ -1,5 +1,39 @@
 AddCSLuaFile()
 
+function SWEP:CallMirrored(ent, x, y, z, callback)
+	local tab = {{x, y, z}}
+
+	if ent:GetMirrorX() then
+		table.insert(tab, {-x, y, z})
+	end
+
+	if ent:GetMirrorY() then
+		for _, v in pairs(table.Copy(tab)) do
+			table.insert(tab, {v[1], -v[2], v[3]})
+		end
+	end
+
+	if ent:GetMirrorZ() then
+		for _, v in pairs(table.Copy(tab)) do
+			table.insert(tab, {v[1], v[2], -v[3]})
+		end
+	end
+
+	local mask = {}
+
+	for _, v in pairs(tab) do
+		local index = voxel.Grid.ToIndex(v[1], v[2], v[3])
+
+		if mask[index] then
+			continue
+		end
+
+		mask[index] = true
+		print(v[1], v[2], v[3])
+		callback(v[1], v[2], v[3])
+	end
+end
+
 -- Build
 
 function SWEP:ModeBuildPrimary(ent, normal, x, y, z, alt)
@@ -7,7 +41,9 @@ function SWEP:ModeBuildPrimary(ent, normal, x, y, z, alt)
 		return
 	end
 
-	ent:Set(x, y, z, nil)
+	self:CallMirrored(ent, x, y, z, function(x2, y2, z2)
+		ent:Set(x2, y2, z2, nil)
+	end)
 end
 
 function SWEP:ModeBuildSecondary(ent, normal, x, y, z, alt)
@@ -21,11 +57,13 @@ function SWEP:ModeBuildSecondary(ent, normal, x, y, z, alt)
 	y = y + normal.y
 	z = z + normal.z
 
-	if not self:CheckBounds(x, y, z) then
-		return
-	end
+	self:CallMirrored(ent, x, y, z, function(x2, y2, z2)
+		if not self:CheckBounds(x2, y2, z2) then
+			return
+		end
 
-	ent:Set(x, y, z, alt and pickColor or self:GetSelectedColor())
+		ent:Set(x2, y2, z2, alt and pickColor or self:GetSelectedColor())
+	end)
 end
 
 function SWEP:ModeBuildInfo(alt)
@@ -145,7 +183,9 @@ function SWEP:ModePaintPrimary(ent, normal, x, y, z, alt)
 		return
 	end
 
-	ent:Set(x, y, z, self:GetSelectedColor())
+	self:CallMirrored(ent, x, y, z, function(x2, y2, z2)
+		ent:Set(x2, y2, z2, self:GetSelectedColor())
+	end)
 end
 
 if CLIENT then
@@ -248,7 +288,11 @@ function SWEP:ModeShadePrimary(ent, normal, x, y, z, alt)
 
 	local color = func[2](hue, sat, val)
 
-	ent:Set(x, y, z, Color(color.r, color.g, color.b))
+	color = Color(color.r, color.g, color.b)
+
+	self:CallMirrored(ent, x, y, z, function(x2, y2, z2)
+		ent:Set(x2, y2, z2, color)
+	end)
 end
 
 function SWEP:ModeShadeSecondary(ent, normal, x, y, z, alt)
@@ -271,7 +315,11 @@ function SWEP:ModeShadeSecondary(ent, normal, x, y, z, alt)
 
 	local color = func[2](hue, sat, val)
 
-	ent:Set(x, y, z, Color(color.r, color.g, color.b))
+	color = Color(color.r, color.g, color.b)
+
+	self:CallMirrored(ent, x, y, z, function(x2, y2, z2)
+		ent:Set(x2, y2, z2, color)
+	end)
 end
 
 function SWEP:ModeShadeInfo(alt)
@@ -306,7 +354,9 @@ function SWEP:ModeMaskPrimary(ent, normal, x, y, z, alt)
 	else
 		local color = ColorAlpha(ent.Grid:Get(x, y, z), self:GetSelectedColor().r)
 
-		ent:Set(x, y, z, color)
+		self:CallMirrored(ent, x, y, z, function(x2, y2, z2)
+			ent:Set(x2, y2, z2, color)
+		end)
 	end
 end
 

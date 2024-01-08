@@ -147,3 +147,77 @@ function SWEP:PostDrawOpaqueRenderables(depth, skybox, skybox3D)
 		end
 	end
 end
+
+local mirrorColorX = Color(255, 0, 0, 50)
+local mirrorColorY = Color(0, 255, 0, 50)
+local mirrorColorZ = Color(0, 0, 255, 50)
+
+function SWEP:PostDrawTranslucentRenderables(depth, skybox, skybox3D)
+	if skybox or skybox3D then
+		return
+	end
+
+	-- if not self:IsCarriedByLocalPlayer() or LocalPlayer():GetActiveWeapon() != self then
+	-- 	return
+	-- end
+
+	local ent = self:GetEditEntity()
+
+	if IsValid(ent) then
+		render.SetColorMaterial()
+
+		local mins, maxs = ent.Grid:GetBounds()
+		local offset, scale = ent:GetOffsetData()
+
+		local baseMiddle = LerpVector(0.5, mins, maxs) * scale
+		local size = Vector((maxs.x - mins.x) + 2, (maxs.y - mins.y) + 2, (maxs.z - mins.z) + 2) * scale * 0.5
+
+		if ent:GetMirrorX() then
+			local middle = Vector(baseMiddle)
+
+			middle.x = 0
+
+			local pos1 = ent:LocalToWorld(offset + middle + Vector(0, -size.y, -size.z))
+			local pos2 = ent:LocalToWorld(offset + middle + Vector(0, -size.y, size.z))
+			local pos3 = ent:LocalToWorld(offset + middle + Vector(0, size.y, size.z))
+			local pos4 = ent:LocalToWorld(offset + middle + Vector(0, size.y, -size.z))
+
+			render.DrawQuad(pos1, pos2, pos3, pos4, mirrorColorX)
+			render.DrawQuad(pos4, pos3, pos2, pos1, mirrorColorX)
+
+			-- render.DrawQuadEasy(pos, dir, size.y, size.z, mirrorColorX, 0)
+			-- render.DrawQuadEasy(pos, -dir, size.y, size.z, mirrorColorX, 0)
+		end
+
+		if ent:GetMirrorY() then
+			local middle = Vector(baseMiddle)
+
+			middle.y = 0
+
+			local pos1 = ent:LocalToWorld(offset + middle + Vector(-size.x, 0, -size.z))
+			local pos2 = ent:LocalToWorld(offset + middle + Vector(-size.x, 0, size.z))
+			local pos3 = ent:LocalToWorld(offset + middle + Vector(size.x, 0, size.z))
+			local pos4 = ent:LocalToWorld(offset + middle + Vector(size.x, 0, -size.z))
+
+			render.DrawQuad(pos1, pos2, pos3, pos4, mirrorColorY)
+			render.DrawQuad(pos4, pos3, pos2, pos1, mirrorColorY)
+		end
+
+		if ent:GetMirrorZ() then
+			local middle = Vector(baseMiddle)
+
+			middle.z = 0
+
+			local pos1 = ent:LocalToWorld(offset + middle + Vector(-size.x, -size.y, 0))
+			local pos2 = ent:LocalToWorld(offset + middle + Vector(-size.x, size.y, 0))
+			local pos3 = ent:LocalToWorld(offset + middle + Vector(size.x, size.y, 0))
+			local pos4 = ent:LocalToWorld(offset + middle + Vector(size.x, -size.y, 0))
+
+			render.DrawQuad(pos1, pos2, pos3, pos4, mirrorColorZ)
+			render.DrawQuad(pos4, pos3, pos2, pos1, mirrorColorZ)
+
+			-- render.DrawQuadEasy(pos, dir, size.y, size.x, mirrorColorZ, rot)
+			-- render.DrawQuadEasy(pos, -dir, size.y, size.x, mirrorColorZ, -rot)
+		end
+	end
+end
