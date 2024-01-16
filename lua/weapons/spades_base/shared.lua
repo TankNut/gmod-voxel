@@ -20,8 +20,11 @@ SWEP.Primary = {
 	DefaultClip = 60,
 }
 
--- -1 = automatic, 0 = semi, 1+ = burst
+-- -1 = automatic, 0 = semi, >1 = burst
 SWEP.Firemode = 0
+
+SWEP.AutoBurst = false -- Whether the gun continues into the next burst by itself
+SWEP.BurstDelay = 0 -- Delay between bursts, defaults to SWEP.Delay
 
 SWEP.Delay = 0.5 -- Delay between shots in seconds, use X / 60 for rounds per minute
 SWEP.Cost = 1 -- Amount of bullets taken out of the magazine per shot
@@ -168,6 +171,8 @@ function SWEP:SetupDataTables()
 
 	self:AddNetworkVar("Float", "FinishReload")
 	self:AddNetworkVar("Bool", "AbortReload")
+
+	self:AddNetworkVar("Int", "BurstFired")
 end
 
 function SWEP:ShouldLower()
@@ -201,9 +206,25 @@ end
 function SWEP:Think()
 	self:UpdateHoldType()
 	self:CheckReload()
+	self:CheckBurst()
 
 	if game.SinglePlayer() or IsFirstTimePredicted() then
 		self:UpdateStates()
+	end
+end
+
+function SWEP:GetDelay(burst)
+	if burst then
+		return self.BurstDelay > 0 and self.BurstDelay or self.Delay
+	else
+		return self.Delay
+	end
+end
+
+function SWEP:CheckBurst()
+	if self:GetBurstFired() > 0 and CurTime() > self:GetNextPrimaryFire() + engine.TickInterval() then
+		self:SetBurstFired(0)
+		self:SetNextPrimaryFire(CurTime() + self:GetDelay(true))
 	end
 end
 

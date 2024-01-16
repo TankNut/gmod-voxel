@@ -23,7 +23,7 @@ SWEP.Primary = {
 	DefaultClip = 60,
 }
 
--- -1 = automatic, 0 = semi, 1+ = burst
+-- -1 = automatic, 0 = semi, >1 = burst
 SWEP.Firemode = 0
 
 SWEP.Delay = 0.5 -- Delay between shots in seconds, use X / 60 for rounds per minute

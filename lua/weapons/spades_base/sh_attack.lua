@@ -17,7 +17,23 @@ function SWEP:CanPrimaryAttack()
 end
 
 function SWEP:UpdateAutomatic()
-	if self.Firemode == 0 then
+	if self.Firemode > 0 then
+		self.Primary.Automatic = true
+
+		local count = self:GetBurstFired()
+
+		if count + 1 >= self.Firemode then
+			if not self.AutoBurst then
+				self:ForceStopFire()
+			end
+
+			self:SetBurstFired(0)
+
+			return true
+		else
+			self:SetBurstFired(count + 1)
+		end
+	elseif self.Firemode == 0 then
 		self.Primary.Automatic = false
 	else
 		self.Primary.Automatic = true
@@ -29,7 +45,7 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
-	self:UpdateAutomatic()
+	local burstFinished = self:UpdateAutomatic()
 
 	if not self:ConsumeAmmo() then
 		return
@@ -38,7 +54,7 @@ function SWEP:PrimaryAttack()
 	self:FireWeapon()
 	self:DoRecoil()
 
-	self:SetNextPrimaryFire(CurTime() + self.Delay)
+	self:SetNextPrimaryFire(CurTime() + self:GetDelay(burstFinished))
 	self:SetLastFire(CurTime())
 end
 
