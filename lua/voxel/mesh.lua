@@ -72,6 +72,19 @@ if CLIENT then
 
 		-- Flood fill to cull inside faces
 		local fill = voxel.Grid()
+		local queue = voxel.Queue()
+
+		local function addToQueue(vec)
+			local x, y, z = vec:Unpack()
+
+			if grid:Has(x, y, z) or fill:Has(x, y, z) then
+				return
+			end
+
+			fill:Set(x, y, z, true)
+
+			queue:Push(vec)
+		end
 
 		for x = mins.x, maxs.x do
 			for y = mins.y, maxs.y do
@@ -89,23 +102,23 @@ if CLIENT then
 						continue
 					end
 
-					local function flood(vec)
-						if grid:Has(vec:Unpack()) or fill:Has(vec:Unpack()) then
-							return
-						end
+					addToQueue(Vector(x, y, z))
+				end
+			end
+		end
 
-						fill:Set(vec.x, vec.y, vec.z, true)
+		while true do
+			local vec = queue:Pop()
 
-						for _, v in pairs(normals) do
-							local check = vec + v
+			if not vec then
+				break
+			end
 
-							if check:WithinAABox(mins, maxs) then
-								flood(check)
-							end
-						end
-					end
+			for _, v in pairs(normals) do
+				local check = vec + v
 
-					flood(Vector(x, y, z))
+				if check:WithinAABox(mins, maxs) then
+					addToQueue(check)
 				end
 			end
 		end

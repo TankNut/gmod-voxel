@@ -19,6 +19,7 @@ include("import.lua")
 include("model.lua")
 include("mesh.lua")
 include("net.lua")
+include("queue.lua")
 
 include("vgui.lua")
 
