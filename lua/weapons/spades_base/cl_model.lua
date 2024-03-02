@@ -47,7 +47,7 @@ function SWEP:DrawHolosight(pos, normal, distance, glassWidth, glassHeight, glas
 		render.SetMaterial(sightMaterial)
 	end
 
-	render.DrawQuadEasy(pos + -normal * distance, normal, sightWidth * (distance / 100), sightHeight * (distance / 100), Color(255, 0, 0))
+	render.DrawQuadEasy(pos + -normal * distance, normal, sightWidth * (distance / 100), sightHeight * (distance / 100), sightColor)
 
 	render.SetStencilEnable(false)
 end
