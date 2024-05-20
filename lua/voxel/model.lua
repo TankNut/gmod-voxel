@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 local meta = voxel.Model or setmetatable({}, {__call = function(self, path)
 	local model = setmetatable({
-		Name = path
+		Name = path,
+		Attachments = {}
 	}, {__index = self})
 
 	voxel.Models[path] = model
