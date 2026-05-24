@@ -130,8 +130,7 @@ if CLIENT then
 			MATERIAL_RT_DEPTH_NONE,
 			bit.bor(1, 256),
 			0,
-			IMAGE_FORMAT_BGRA8888
-		)
+			IMAGE_FORMAT_BGRA8888)
 
 		render.PushRenderTarget(renderTarget)
 			cam.Start2D()
@@ -191,6 +190,10 @@ if CLIENT then
 					})
 				end
 			end
+		end
+
+		if self.Mesh then
+			self.Mesh:Destroy()
 		end
 
 		self.Mesh = Mesh()
