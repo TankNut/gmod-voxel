@@ -139,7 +139,11 @@ function SWEP:Initialize()
 		self.PixVis = util.GetPixelVisibleHandle()
 	end
 
-	hook.Add("PostDrawTranslucentRenderables", self, function()
+	hook.Add("PostDrawTranslucentRenderables", self, function(_, depth, skybox, skybox3d)
+		if skybox or skybox3d then
+			return
+		end
+
 		local ply = self:GetOwner()
 
 		if not IsValid(ply) or ply:GetActiveWeapon() == self then
